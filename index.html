@@ -460,16 +460,20 @@
         // se já houver um lastScore guardado, perguntar se quer jogar outra vez
         const last = localStorage.getItem("lastScore");
         if (last !== null) {
-          // mostrar modal com informação
-          const topList = loadLeaderboard();
-          const best = topList.length ? topList[0].score : null;
+          // mostrar modal com informação: melhor do jogador com este nome
           const lastScore = Number(last);
-          const lastWasRecord = localStorage.getItem("lastWasRecord") === "1";
-          let info =
-            best !== null
-              ? `Melhor: ${best} pts. Último: ${lastScore} pts.`
-              : `Último: ${lastScore} pts.`;
-          if (lastWasRecord) info += " — Novo recorde!";
+          const all = loadLeaderboard();
+          const playerEntries = all.filter((e) => (e.name || "") === playerName);
+          const playerBest = playerEntries.length
+            ? playerEntries.reduce((m, e) => Math.max(m, e.score), -Infinity)
+            : null;
+          let info = "";
+          if (playerBest !== null && playerBest !== -Infinity) {
+            info = `O teu melhor: ${playerBest} pts. Último: ${lastScore} pts.`;
+            if (lastScore > playerBest) info += " — Novo recorde pessoal!";
+          } else {
+            info = `Último: ${lastScore} pts.`;
+          }
           document.getElementById("playAgainInfo").textContent = info;
           document.getElementById("playAgainModal").style.display = "flex";
         } else {
