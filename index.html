@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Objetos com Imagens e Zonas - Canvas</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: #e0f7fa;
+        font-family: Arial, sans-serif;
+      }
+      #mensagem {
+        position: absolute;
+        top: 20px;
+        width: 100%;
+        text-align: center;
+        font-size: 24px;
+        color: #00796b;
+        display: none;
+        transition: opacity 0.5s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div id="mensagem">Lugar correto!</div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // --- CRIAR 3 ZONAS ---
+      const zones = [
+        {
+          x: canvas.width / 6 - 75,
+          y: canvas.height - 150,
+          w: 150,
+          h: 100,
+          color: "#81c784",
+          label: "Verde",
+        },
+        {
+          x: canvas.width / 2 - 75,
+          y: canvas.height - 150,
+          w: 150,
+          h: 100,
+          color: "#64b5f6",
+          label: "Azul",
+        },
+        {
+          x: (canvas.width * 5) / 6 - 75,
+          y: canvas.height - 150,
+          w: 150,
+          h: 100,
+          color: "#fff176",
+          label: "Amarela",
+        },
+      ];
+
+      // --- CARREGAR IMAGENS ---
+      const imagens = [];
+      for (let i = 0; i < 5; i++) {
+        const img = new Image();
+        img.src = `${i + 1}.png`;
+        imagens.push(img);
+      }
+
+      // --- CRIAR OBJETOS ---
+      let objetos = [];
+      for (let i = 0; i < 5; i++) {
+        objetos.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * -500,
+          radius: 40, // define metade do tamanho da imagem
+          vy: 2 + Math.random() * 2,
+          grabbed: false,
+          correto: false,
+          targetIndex: Math.floor(Math.random() * 3),
+          img: imagens[i],
+        });
+      }
+
+      let mensagem = document.getElementById("mensagem");
+
+      // --- DESENHAR ZONAS ---
+      function drawZones() {
+        zones.forEach((z) => {
+          ctx.fillStyle = z.color;
+          ctx.fillRect(z.x, z.y, z.w, z.h);
+          ctx.strokeStyle = "#388e3c";
+          ctx.strokeRect(z.x, z.y, z.w, z.h);
+          ctx.font = "18px Arial";
+          ctx.fillStyle = "#2e7d32";
+          ctx.fillText(z.label, z.x + 40, z.y + 55);
+        });
+      }
+
+      // --- DESENHAR OBJETOS ---
+      function drawObjects() {
+        objetos.forEach((o) => {
+          if (o.img.complete) {
+            ctx.drawImage(
+              o.img,
+              o.x - o.radius,
+              o.y - o.radius,
+              o.radius * 2,
+              o.radius * 2
+            );
+          }
+        });
+      }
+
+      // --- ATUALIZAÇÃO DE ANIMAÇÃO ---
+      function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawZones();
+        drawObjects();
+
+        objetos.forEach((o) => {
+          if (!o.grabbed && !o.correto) {
+            o.y += o.vy;
+            if (o.y - o.radius > canvas.height) {
+              o.y = -o.radius;
+              o.x = Math.random() * canvas.width;
+            }
+          }
+        });
+
+        requestAnimationFrame(update);
+      }
+
+      // --- INTERAÇÃO ---
+      let objetoAtivo = null;
+
+      canvas.addEventListener("mousedown", (e) => {
+        objetos.forEach((o) => {
+          if (o.correto) return; // NÃO permitir pegar objetos corretos
+          const dx = e.clientX - o.x;
+          const dy = e.clientY - o.y;
+          if (Math.sqrt(dx * dx + dy * dy) < o.radius) {
+            o.grabbed = true;
+            objetoAtivo = o;
+          }
+        });
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (objetoAtivo && objetoAtivo.grabbed) {
+          objetoAtivo.x = e.clientX;
+          objetoAtivo.y = e.clientY;
+        }
+      });
+
+      canvas.addEventListener("mouseup", (e) => {
+        if (objetoAtivo) {
+          objetoAtivo.grabbed = false;
+
+          const z = zones[objetoAtivo.targetIndex];
+          if (
+            objetoAtivo.x > z.x &&
+            objetoAtivo.x < z.x + z.w &&
+            objetoAtivo.y > z.y &&
+            objetoAtivo.y < z.y + z.h
+          ) {
+            objetoAtivo.correto = true;
+
+            // garantir que o objeto fique dentro da zona
+            objetoAtivo.x = Math.min(
+              Math.max(objetoAtivo.x, z.x + objetoAtivo.radius),
+              z.x + z.w - objetoAtivo.radius
+            );
+            objetoAtivo.y = Math.min(
+              Math.max(objetoAtivo.y, z.y + objetoAtivo.radius),
+              z.y + z.h - objetoAtivo.radius
+            );
+
+            mensagem.style.display = "block";
+            mensagem.style.opacity = 1;
+            mensagem.textContent = "Colocado no lugar correto!";
+          } else {
+            mensagem.style.display = "none";
+          }
+
+          objetoAtivo = null;
+        }
+      });
+
+      update();
+    </script>
+  </body>
+</html>
