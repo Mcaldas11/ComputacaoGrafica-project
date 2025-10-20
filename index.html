@@ -23,8 +23,18 @@
     </style>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
-    <div id="mensagem">Lugar correto!</div>
+  <canvas id="canvas"></canvas>
+  <div id="mensagem">Lugar correto!</div>
+    <div id="erro" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#ffebee;color:#b71c1c;padding:8px 12px;border-radius:6px;display:none;font-weight:bold;z-index:10">Lugar errado!</div>
+    <button id="restartBtn" style="position:absolute;top:8px;right:16px;padding:8px 12px;font-size:16px;display:block;z-index:10">Reiniciar</button>
+    <div id="score" style="position:absolute;top:8px;left:16px;background:#e8f5e9;color:#1b5e20;padding:6px 10px;border-radius:6px;font-weight:bold;z-index:10">Pontos: 0</div>
+    <div id="vitoria" style="position:fixed;left:0;top:0;right:0;bottom:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:20">
+      <div style="background:#fff;padding:24px;border-radius:8px;text-align:center;min-width:300px">
+        <h2>Vitória!</h2>
+        <p id="vitoriaScore" style="font-size:20px;margin:12px 0">Pontos: 0</p>
+        <button id="vitoriaRestart" style="padding:8px 12px;font-size:16px">Reiniciar Jogo</button>
+      </div>
+    </div>
 
     <script>
       const canvas = document.getElementById("canvas");
@@ -33,68 +43,156 @@
       canvas.height = window.innerHeight;
 
       // --- CRIAR 3 ZONAS ---
+      // aumentar para 4 zonas e fazê-las maiores
+  // zonas ocupam 90% da largura inferior, distribuídas igualmente
+  const totalWidth = canvas.width * 0.9;
+  const zoneWidth = totalWidth / 4;
+  const zoneHeight = 160; // maior altura para caixotes
+  const gap = (canvas.width - totalWidth) / 5; // espaçamento lateral
       const zones = [
         {
-          x: canvas.width / 6 - 75,
-          y: canvas.height - 150,
-          w: 150,
-          h: 100,
+          x: gap,
+          y: canvas.height - zoneHeight - 40,
+          w: zoneWidth,
+          h: zoneHeight,
           color: "#81c784",
           label: "Verde",
         },
         {
-          x: canvas.width / 2 - 75,
-          y: canvas.height - 150,
-          w: 150,
-          h: 100,
+          x: gap * 2 + zoneWidth,
+          y: canvas.height - zoneHeight - 40,
+          w: zoneWidth,
+          h: zoneHeight,
           color: "#64b5f6",
           label: "Azul",
         },
         {
-          x: (canvas.width * 5) / 6 - 75,
-          y: canvas.height - 150,
-          w: 150,
-          h: 100,
+          x: gap * 3 + zoneWidth * 2,
+          y: canvas.height - zoneHeight - 40,
+          w: zoneWidth,
+          h: zoneHeight,
           color: "#fff176",
           label: "Amarela",
         },
+        {
+          x: gap * 4 + zoneWidth * 3,
+          y: canvas.height - zoneHeight - 40,
+          w: zoneWidth,
+          h: zoneHeight,
+          color: "#424242",
+          label: "Preto",
+        },
       ];
 
-      // --- CARREGAR IMAGENS ---
-      const imagens = [];
-      for (let i = 0; i < 5; i++) {
+      
+      // usar os ficheiros reais presentes na pasta img/
+      const imageFiles = [
+        "img/amarelo.png",
+        "img/azul.png",
+        "img/laranja.png",
+        "img/preto.png",
+      ];
+      const imagens = imageFiles.map((src) => {
         const img = new Image();
-        img.src = `${i + 1}.png`;
-        imagens.push(img);
-      }
+        img.src = src;
+        return img;
+      });
 
-      // --- CRIAR OBJETOS ---
+      // --- CRIAR OBJETOS (usando as imagens carregadas) ---
       let objetos = [];
-      for (let i = 0; i < 5; i++) {
+      // criar objetos: usar imagens disponíveis; aumentar radius para novo tamanho
+      for (let i = 0; i < imagens.length; i++) {
         objetos.push({
           x: Math.random() * canvas.width,
           y: Math.random() * -500,
-          radius: 40, // define metade do tamanho da imagem
+          radius: 60, // maior para combinar com zonas maiores
           vy: 2 + Math.random() * 2,
           grabbed: false,
           correto: false,
-          targetIndex: Math.floor(Math.random() * 3),
+          // atribuir a cada objeto a zona correspondente à sua imagem
+          targetIndex: i % zones.length,
           img: imagens[i],
         });
       }
 
-      let mensagem = document.getElementById("mensagem");
+  let mensagem = document.getElementById("mensagem");
+  let erro = document.getElementById("erro");
+  let restartBtn = document.getElementById("restartBtn");
+  let scoreDiv = document.getElementById('score');
+  let vitoria = document.getElementById('vitoria');
+  let vitoriaScore = document.getElementById('vitoriaScore');
+  let vitoriaRestart = document.getElementById('vitoriaRestart');
+
+  let score = 0;
+
+      // função para reiniciar a posição dos objetos
+      function restartObjects(deduct = 0) {
+        objetos.forEach((o, i) => {
+          o.x = Math.random() * canvas.width;
+          o.y = Math.random() * -500 - i * 50;
+          o.grabbed = false;
+          o.correto = false;
+        });
+        erro.style.display = 'none';
+        mensagem.style.display = 'none';
+        if (deduct) {
+          score = Math.max(0, score - deduct);
+          scoreDiv.textContent = `Pontos: ${score}`;
+        }
+        // esconder overlay de vitória se estiver visível
+        vitoria.style.display = 'none';
+      }
+
+      restartBtn.addEventListener('click', () => restartObjects(100));
+      vitoriaRestart.addEventListener('click', () => {
+        score = 0;
+        scoreDiv.textContent = `Pontos: ${score}`;
+        restartObjects(0);
+      });
+
+      function checkVictory() {
+        const allCorrect = objetos.every((o) => o.correto);
+        if (allCorrect) {
+          // dar pontos finais (já foram dados ao colocar correto), mostrar overlay
+          vitoriaScore.textContent = `Pontos: ${score}`;
+          vitoria.style.display = 'flex';
+        }
+      }
 
       // --- DESENHAR ZONAS ---
       function drawZones() {
-        zones.forEach((z) => {
-          ctx.fillStyle = z.color;
-          ctx.fillRect(z.x, z.y, z.w, z.h);
-          ctx.strokeStyle = "#388e3c";
-          ctx.strokeRect(z.x, z.y, z.w, z.h);
-          ctx.font = "18px Arial";
-          ctx.fillStyle = "#2e7d32";
-          ctx.fillText(z.label, z.x + 40, z.y + 55);
+        // mapeamento de imagens para zonas (índices em `imagens`)
+        // mapear diretamente cada zona para a imagem correspondente
+        const zoneImageMap = [0, 1, 2, 3];
+
+        // desenhar apenas os ícones dos contentores nas zonas, preenchendo bem a área
+        zones.forEach((z, idx) => {
+          const imgIndex = zoneImageMap[idx];
+          const img = imagens[imgIndex];
+          if (img && img.complete) {
+            // manter proporção: ajustar para caber dentro da zona com padding
+            const padding = 12;
+            const maxW = z.w - padding * 2;
+            const maxH = z.h - padding * 2;
+            let drawW = maxW;
+            let drawH = maxH;
+            // ajustar mantendo proporção da imagem
+            const aspect = img.width / img.height || 1;
+            if (maxW / maxH > aspect) {
+              drawH = maxH;
+              drawW = drawH * aspect;
+            } else {
+              drawW = maxW;
+              drawH = drawW / aspect;
+            }
+            const imgX = z.x + (z.w - drawW) / 2;
+            const imgY = z.y + (z.h - drawH) / 2;
+            ctx.drawImage(img, imgX, imgY, drawW, drawH);
+          } else {
+            // se por acaso a imagem não estiver carregada, desenhar um rect de fallback
+            ctx.fillStyle = '#222';
+            ctx.fillRect(z.x + 10, z.y + 10, z.w - 20, z.h - 20);
+          }
         });
       }
 
@@ -166,6 +264,9 @@
             objetoAtivo.y < z.y + z.h
           ) {
             objetoAtivo.correto = true;
+            // adicionar pontos por acerto
+            score += 1000;
+            scoreDiv.textContent = `Pontos: ${score}`;
 
             // garantir que o objeto fique dentro da zona
             objetoAtivo.x = Math.min(
@@ -180,8 +281,16 @@
             mensagem.style.display = "block";
             mensagem.style.opacity = 1;
             mensagem.textContent = "Colocado no lugar correto!";
+            checkVictory();
           } else {
+            // subtrair pontos por erro e mostrar aviso por curto período
+            score = Math.max(0, score - 100);
+            scoreDiv.textContent = `Pontos: ${score}`;
             mensagem.style.display = "none";
+            erro.style.display = 'block';
+            setTimeout(() => {
+              erro.style.display = 'none';
+            }, 2000);
           }
 
           objetoAtivo = null;
