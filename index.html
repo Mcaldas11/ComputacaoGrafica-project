@@ -23,16 +23,252 @@
     </style>
   </head>
   <body>
-  <canvas id="canvas"></canvas>
-  <div id="mensagem">Lugar correto!</div>
-    <div id="erro" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);background:#ffebee;color:#b71c1c;padding:8px 12px;border-radius:6px;display:none;font-weight:bold;z-index:10">Lugar errado!</div>
-    <button id="restartBtn" style="position:absolute;top:8px;right:16px;padding:8px 12px;font-size:16px;display:block;z-index:10">Reiniciar</button>
-    <div id="score" style="position:absolute;top:8px;left:16px;background:#e8f5e9;color:#1b5e20;padding:6px 10px;border-radius:6px;font-weight:bold;z-index:10">Pontos: 0</div>
-    <div id="vitoria" style="position:fixed;left:0;top:0;right:0;bottom:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:20">
-      <div style="background:#fff;padding:24px;border-radius:8px;text-align:center;min-width:300px">
+    <canvas id="canvas"></canvas>
+    <div id="mensagem">Lugar correto!</div>
+    <div
+      id="erro"
+      style="
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ffebee;
+        color: #b71c1c;
+        padding: 8px 12px;
+        border-radius: 6px;
+        display: none;
+        font-weight: bold;
+        z-index: 10;
+      "
+    >
+      Lugar errado!
+    </div>
+    <button
+      id="restartBtn"
+      style="
+        position: absolute;
+        top: 8px;
+        right: 16px;
+        padding: 8px 12px;
+        font-size: 16px;
+        display: block;
+        z-index: 10;
+      "
+    >
+      Reiniciar
+    </button>
+    <div
+      id="score"
+      style="
+        position: absolute;
+        top: 8px;
+        left: 16px;
+        background: #e8f5e9;
+        color: #1b5e20;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-weight: bold;
+        z-index: 10;
+      "
+    >
+      Pontos: 0
+    </div>
+    <div
+      id="vitoria"
+      style="
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 20;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 24px;
+          border-radius: 8px;
+          text-align: center;
+          min-width: 300px;
+        "
+      >
         <h2>Vitória!</h2>
-        <p id="vitoriaScore" style="font-size:20px;margin:12px 0">Pontos: 0</p>
-        <button id="vitoriaRestart" style="padding:8px 12px;font-size:16px">Reiniciar Jogo</button>
+        <p id="vitoriaScore" style="font-size: 20px; margin: 12px 0">
+          Pontos: 0
+        </p>
+        <button id="vitoriaRestart" style="padding: 8px 12px; font-size: 16px">
+          Reiniciar Jogo
+        </button>
+        <button
+          id="saveLeaderboard"
+          style="padding: 8px 12px; font-size: 16px; margin-left: 8px"
+        >
+          Guardar e Ver Ranking
+        </button>
+      </div>
+    </div>
+
+    <!-- Start screen: inserir nome antes de começar -->
+    <div
+      id="startScreen"
+      style="
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 30;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 24px;
+          border-radius: 8px;
+          text-align: center;
+          min-width: 320px;
+        "
+      >
+        <h2>Bem-vindo</h2>
+        <p>Insere o teu nome para começar:</p>
+        <input
+          id="playerName"
+          type="text"
+          placeholder="Teu nome"
+          style="padding: 8px; width: 80%; margin-bottom: 12px"
+        />
+        <div>
+          <button id="startBtn" style="padding: 8px 12px; font-size: 16px">
+            Começar
+          </button>
+          <button
+            id="viewRankingBtn"
+            style="padding: 8px 12px; font-size: 16px; margin-left: 8px"
+          >
+            Ver Ranking
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard overlay -->
+    <div
+      id="leaderboard"
+      style="
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 40;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          min-width: 360px;
+          max-width: 90%;
+          max-height: 80%;
+          overflow: auto;
+        "
+      >
+        <h3>Leaderboard</h3>
+        <div
+          style="
+            margin-bottom: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+          "
+        >
+          <button id="exportLeaderboard" style="padding: 6px 10px">
+            Exportar
+          </button>
+          <button id="importLeaderboardBtn" style="padding: 6px 10px">
+            Importar
+          </button>
+          <input
+            id="importFile"
+            type="file"
+            accept="application/json"
+            style="display: none"
+          />
+          <span style="margin-left: auto; font-size: 12px; color: #666"
+            >Top 10</span
+          >
+        </div>
+        <ol id="leaderboardList" style="text-align: left"></ol>
+        <div style="text-align: right; margin-top: 12px">
+          <button id="closeLeaderboard" style="padding: 6px 10px">
+            Fechar
+          </button>
+          <button
+            id="clearLeaderboard"
+            style="padding: 6px 10px; margin-left: 8px"
+          >
+            Limpar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Play again confirmation -->
+    <div
+      id="playAgainModal"
+      style="
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 45;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          padding: 20px;
+          border-radius: 8px;
+          min-width: 320px;
+          text-align: center;
+        "
+      >
+        <h3>Jogar outra vez?</h3>
+        <p id="playAgainInfo">Verificando recorde...</p>
+        <div style="margin-top: 12px">
+          <button id="playAgainBtn" style="padding: 8px 12px">Jogar</button>
+          <button
+            id="playAgainViewBest"
+            style="padding: 8px 12px; margin-left: 8px"
+          >
+            Ver melhor score
+          </button>
+          <button
+            id="playAgainCancel"
+            style="padding: 8px 12px; margin-left: 8px"
+          >
+            Cancelar
+          </button>
+        </div>
       </div>
     </div>
 
@@ -44,11 +280,11 @@
 
       // --- CRIAR 3 ZONAS ---
       // aumentar para 4 zonas e fazê-las maiores
-  // zonas ocupam 90% da largura inferior, distribuídas igualmente
-  const totalWidth = canvas.width * 0.9;
-  const zoneWidth = totalWidth / 4;
-  const zoneHeight = 160; // maior altura para caixotes
-  const gap = (canvas.width - totalWidth) / 5; // espaçamento lateral
+      // zonas ocupam 90% da largura inferior, distribuídas igualmente
+      const totalWidth = canvas.width * 0.9;
+      const zoneWidth = totalWidth / 4;
+      const zoneHeight = 160; // maior altura para caixotes
+      const gap = (canvas.width - totalWidth) / 5; // espaçamento lateral
       const zones = [
         {
           x: gap,
@@ -84,7 +320,6 @@
         },
       ];
 
-      
       // usar os ficheiros reais presentes na pasta img/
       const imageFiles = [
         "img/amarelo.png",
@@ -115,15 +350,15 @@
         });
       }
 
-  let mensagem = document.getElementById("mensagem");
-  let erro = document.getElementById("erro");
-  let restartBtn = document.getElementById("restartBtn");
-  let scoreDiv = document.getElementById('score');
-  let vitoria = document.getElementById('vitoria');
-  let vitoriaScore = document.getElementById('vitoriaScore');
-  let vitoriaRestart = document.getElementById('vitoriaRestart');
+      let mensagem = document.getElementById("mensagem");
+      let erro = document.getElementById("erro");
+      let restartBtn = document.getElementById("restartBtn");
+      let scoreDiv = document.getElementById("score");
+      let vitoria = document.getElementById("vitoria");
+      let vitoriaScore = document.getElementById("vitoriaScore");
+      let vitoriaRestart = document.getElementById("vitoriaRestart");
 
-  let score = 0;
+      let score = 0;
 
       // função para reiniciar a posição dos objetos
       function restartObjects(deduct = 0) {
@@ -133,21 +368,210 @@
           o.grabbed = false;
           o.correto = false;
         });
-        erro.style.display = 'none';
-        mensagem.style.display = 'none';
+        erro.style.display = "none";
+        mensagem.style.display = "none";
         if (deduct) {
-          score = Math.max(0, score - deduct);
+          score = score - deduct;
           scoreDiv.textContent = `Pontos: ${score}`;
         }
         // esconder overlay de vitória se estiver visível
-        vitoria.style.display = 'none';
+        vitoria.style.display = "none";
       }
 
-      restartBtn.addEventListener('click', () => restartObjects(100));
-      vitoriaRestart.addEventListener('click', () => {
+      restartBtn.addEventListener("click", () => {
         score = 0;
         scoreDiv.textContent = `Pontos: ${score}`;
         restartObjects(0);
+      });
+      vitoriaRestart.addEventListener("click", () => {
+        // reiniciar jogo e resetar pontuação
+        score = 0;
+        scoreDiv.textContent = `Pontos: ${score}`;
+        restartObjects(0);
+      });
+
+      // --- Start screen / player name / leaderboard ---
+      let playerName = "";
+      const startScreen = document.getElementById("startScreen");
+      const startBtn = document.getElementById("startBtn");
+      const playerNameInput = document.getElementById("playerName");
+      const viewRankingBtn = document.getElementById("viewRankingBtn");
+      const leaderboardOverlay = document.getElementById("leaderboard");
+      const leaderboardList = document.getElementById("leaderboardList");
+      const closeLeaderboard = document.getElementById("closeLeaderboard");
+      const clearLeaderboard = document.getElementById("clearLeaderboard");
+      const saveLeaderboardBtn = document.getElementById("saveLeaderboard");
+
+      function loadLeaderboard() {
+        try {
+          const raw = localStorage.getItem("leaderboard");
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveLeaderboardEntry(name, pts) {
+        const list = loadLeaderboard();
+        // guardar se for novo record
+        const bestBefore = list.length ? list[0].score : -Infinity;
+        const isRecord = pts > bestBefore;
+        list.push({
+          name: name || "Anon",
+          score: pts,
+          date: new Date().toISOString(),
+        });
+        // ordenar por score desc
+        list.sort((a, b) => b.score - a.score);
+        // limitar a 100 entradas para não crescer indefinidamente
+        const trimmed = list.slice(0, 100);
+        localStorage.setItem("leaderboard", JSON.stringify(trimmed));
+        // guardar último score e se foi record
+        localStorage.setItem("lastScore", String(pts));
+        localStorage.setItem("lastWasRecord", isRecord ? "1" : "0");
+        return isRecord;
+      }
+
+      function renderLeaderboard(topN = 10) {
+        const list = loadLeaderboard();
+        leaderboardList.innerHTML = "";
+        if (list.length === 0) {
+          leaderboardList.innerHTML = "<li>(sem entradas)</li>";
+          return;
+        }
+        const slice = list.slice(0, topN);
+        slice.forEach((e) => {
+          const li = document.createElement("li");
+          const date = new Date(e.date).toLocaleString();
+          li.textContent = `${e.name} — ${e.score} pts (${date})`;
+          leaderboardList.appendChild(li);
+        });
+      }
+
+      // preencher o input com o último nome se existir
+      const savedName = localStorage.getItem("playerName");
+      if (savedName) playerNameInput.value = savedName;
+
+      startBtn.addEventListener("click", () => {
+        const name = (playerNameInput.value || "").trim();
+        playerName = name || "Player";
+        // guardar nome para próximas vezes
+        localStorage.setItem("playerName", playerName);
+        // se já houver um lastScore guardado, perguntar se quer jogar outra vez
+        const last = localStorage.getItem("lastScore");
+        if (last !== null) {
+          // mostrar modal com informação
+          const topList = loadLeaderboard();
+          const best = topList.length ? topList[0].score : null;
+          const lastScore = Number(last);
+          const lastWasRecord = localStorage.getItem("lastWasRecord") === "1";
+          let info =
+            best !== null
+              ? `Melhor: ${best} pts. Último: ${lastScore} pts.`
+              : `Último: ${lastScore} pts.`;
+          if (lastWasRecord) info += " — Novo recorde!";
+          document.getElementById("playAgainInfo").textContent = info;
+          document.getElementById("playAgainModal").style.display = "flex";
+        } else {
+          startScreen.style.display = "none";
+          // reset score and objects
+          score = 0;
+          scoreDiv.textContent = `Pontos: ${score}`;
+          restartObjects(0);
+        }
+      });
+
+      // playAgain modal buttons
+      const playAgainModal = document.getElementById("playAgainModal");
+      const playAgainBtn = document.getElementById("playAgainBtn");
+      const playAgainViewBest = document.getElementById("playAgainViewBest");
+      const playAgainCancel = document.getElementById("playAgainCancel");
+
+      playAgainBtn.addEventListener("click", () => {
+        playAgainModal.style.display = "none";
+        startScreen.style.display = "none";
+        score = 0;
+        scoreDiv.textContent = `Pontos: ${score}`;
+        restartObjects(0);
+      });
+
+      playAgainViewBest.addEventListener("click", () => {
+        renderLeaderboard();
+        leaderboardOverlay.style.display = "flex";
+      });
+
+      playAgainCancel.addEventListener("click", () => {
+        playAgainModal.style.display = "none";
+      });
+
+      viewRankingBtn.addEventListener("click", () => {
+        renderLeaderboard();
+        leaderboardOverlay.style.display = "flex";
+      });
+
+      closeLeaderboard.addEventListener("click", () => {
+        leaderboardOverlay.style.display = "none";
+      });
+
+      clearLeaderboard.addEventListener("click", () => {
+        localStorage.removeItem("leaderboard");
+        renderLeaderboard();
+      });
+
+      // guardar e mostrar ranking quando o utilizador clicar no botão da vitória
+      saveLeaderboardBtn.addEventListener("click", () => {
+        const wasRecord = saveLeaderboardEntry(playerName || "Player", score);
+        renderLeaderboard();
+        leaderboardOverlay.style.display = "flex";
+        vitoria.style.display = "none";
+        // opcional: mostrar aviso se foi recorde
+        if (wasRecord) alert("Novo recorde!");
+      });
+
+      // Export / Import leaderboard
+      const exportBtn = document.getElementById("exportLeaderboard");
+      const importBtn = document.getElementById("importLeaderboardBtn");
+      const importFile = document.getElementById("importFile");
+
+      exportBtn.addEventListener("click", () => {
+        const list = loadLeaderboard();
+        const blob = new Blob([JSON.stringify(list, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "leaderboard.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      importBtn.addEventListener("click", () => importFile.click());
+      importFile.addEventListener("change", (ev) => {
+        const f = ev.target.files && ev.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const arr = JSON.parse(reader.result);
+            if (!Array.isArray(arr)) throw new Error("Formato inválido");
+            // merge e normalize
+            const existing = loadLeaderboard();
+            const merged = existing.concat(arr).slice(0, 500);
+            merged.sort((a, b) => b.score - a.score);
+            localStorage.setItem(
+              "leaderboard",
+              JSON.stringify(merged.slice(0, 100))
+            );
+            renderLeaderboard();
+            alert("Importação concluída");
+          } catch (e) {
+            alert("Importação falhou: ficheiro inválido");
+          }
+        };
+        reader.readAsText(f);
       });
 
       function checkVictory() {
@@ -155,7 +579,7 @@
         if (allCorrect) {
           // dar pontos finais (já foram dados ao colocar correto), mostrar overlay
           vitoriaScore.textContent = `Pontos: ${score}`;
-          vitoria.style.display = 'flex';
+          vitoria.style.display = "flex";
         }
       }
 
@@ -190,7 +614,7 @@
             ctx.drawImage(img, imgX, imgY, drawW, drawH);
           } else {
             // se por acaso a imagem não estiver carregada, desenhar um rect de fallback
-            ctx.fillStyle = '#222';
+            ctx.fillStyle = "#222";
             ctx.fillRect(z.x + 10, z.y + 10, z.w - 20, z.h - 20);
           }
         });
@@ -264,8 +688,8 @@
             objetoAtivo.y < z.y + z.h
           ) {
             objetoAtivo.correto = true;
-            // adicionar pontos por acerto
-            score += 1000;
+            // adicionar pontos por acerto (+250 por caixote, cap 1000)
+            score = Math.min(1000, score + 250);
             scoreDiv.textContent = `Pontos: ${score}`;
 
             // garantir que o objeto fique dentro da zona
@@ -284,12 +708,12 @@
             checkVictory();
           } else {
             // subtrair pontos por erro e mostrar aviso por curto período
-            score = Math.max(0, score - 100);
+            score = score - 100;
             scoreDiv.textContent = `Pontos: ${score}`;
             mensagem.style.display = "none";
-            erro.style.display = 'block';
+            erro.style.display = "block";
             setTimeout(() => {
-              erro.style.display = 'none';
+              erro.style.display = "none";
             }, 2000);
           }
 
