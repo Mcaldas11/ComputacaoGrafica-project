@@ -56,7 +56,7 @@ function draw(){
   ctx.font = '14px Arial';
   ctx.fillText('Sala',60,60);
   ctx.fillText('Quarto',520,60);
-  ctx.fillText('Cozinha / Área',60,340);
+  ctx.fillText('Cozinha / Despensa',60,340);
 
   // draw devices
   devices.forEach((d,idx)=>{
