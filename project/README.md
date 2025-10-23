@@ -29,8 +29,3 @@ Este projecto é uma pequena demo interactiva para promover o uso consciente de 
    - Pressionar "Ativar Classificador" para carregar o MobileNet. Depois pressione "Classificar (snapshot)" para classificar o frame actual e receber uma sugestão de consumo.
 
 Observação: por segurança/privacidade, a webcam é usada apenas localmente no browser — não há upload de imagens para servidores.
-
-## Executar um servidor local (opcional)
-
-Abrir o ficheiro directamente geralmente funciona, mas alguns browsers restringem funcionalidades quando carregados via `file://`. Para um teste mais robusto, execute um servidor HTTP local a partir da pasta `project`.
-
