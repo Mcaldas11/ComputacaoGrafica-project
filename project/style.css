@@ -1,0 +1,151 @@
+:root {
+  --bg: #0f1720;
+  --panel: #0b1220;
+  --accent: #78c2a8;
+  --muted: #9aa6b2;
+  --danger: #ff6b6b;
+}
+* {
+  box-sizing: border-box;
+  font-family: Inter, system-ui, Arial, sans-serif;
+  color: #e6eef6;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: linear-gradient(180deg, #071126 0%, #0b2130 60%);
+}
+.hero {
+  padding: 28px;
+  text-align: center;
+}
+.intro {
+  font-size: 28px;
+  margin: 0;
+  color: var(--accent);
+  animation: introPulse 3s ease-in-out infinite;
+}
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.container {
+  display: flex;
+  gap: 18px;
+  padding: 18px;
+  align-items: flex-start;
+}
+.left {
+  flex: 1;
+}
+.right {
+  width: 320px;
+}
+canvas {
+  background: linear-gradient(180deg, #e9f6ff06, #ffffff03);
+  border-radius: 8px;
+  display: block;
+  box-shadow: 0 6px 24px rgba(2, 6, 23, 0.6);
+}
+.controls {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.controls button {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 0;
+  background: #18314a;
+  color: #eafff7;
+  cursor: pointer;
+}
+.controls button:hover {
+  filter: brightness(1.05);
+}
+
+.meter {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.meterBar {
+  height: 18px;
+  background: #0d2632;
+  border-radius: 12px;
+  overflow: hidden;
+}
+#meterFill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), #6be3ff);
+}
+.numbers {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.devicesList {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.devicesList ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.devicesList li {
+  padding: 6px 4px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.02);
+  display: flex;
+  justify-content: space-between;
+}
+
+.mlBox {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: 8px;
+}
+#webcam {
+  background: #000;
+  border-radius: 4px;
+  display: block;
+}
+#mlStatus {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@keyframes introPulse {
+  0% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+}
+
+/* small screens */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+  .right {
+    width: 100%;
+  }
+}
