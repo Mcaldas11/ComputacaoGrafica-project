@@ -118,10 +118,10 @@ function computeAutoCrop(img, options = {}) {
     if (!iw || !ih) return null;
 
     // temp canvas
-    const t = document.createElement('canvas');
+    const t = document.createElement("canvas");
     t.width = iw;
     t.height = ih;
-    const tc = t.getContext('2d');
+    const tc = t.getContext("2d");
     tc.drawImage(img, 0, 0, iw, ih);
     const data = tc.getImageData(0, 0, iw, ih).data;
 
@@ -129,7 +129,9 @@ function computeAutoCrop(img, options = {}) {
       let sum = 0;
       for (let x = 0; x < iw; x++) {
         const i = (y * iw + x) * 4;
-        const r = data[i], g = data[i+1], b = data[i+2];
+        const r = data[i],
+          g = data[i + 1],
+          b = data[i + 2];
         sum += (r + g + b) / 3;
       }
       return sum / iw;
@@ -139,7 +141,9 @@ function computeAutoCrop(img, options = {}) {
       let sum = 0;
       for (let y = 0; y < ih; y++) {
         const i = (y * iw + x) * 4;
-        const r = data[i], g = data[i+1], b = data[i+2];
+        const r = data[i],
+          g = data[i + 1],
+          b = data[i + 2];
         sum += (r + g + b) / 3;
       }
       return sum / ih;
@@ -148,25 +152,37 @@ function computeAutoCrop(img, options = {}) {
     const maxTop = Math.floor(ih * maxCrop);
     let top = 0;
     for (let y = 0; y < maxTop; y++) {
-      if (sampleRow(y) > brightnessThreshold) { top = y; break; }
+      if (sampleRow(y) > brightnessThreshold) {
+        top = y;
+        break;
+      }
     }
 
     const maxBottom = Math.floor(ih * maxCrop);
     let bottom = 0;
     for (let y = ih - 1; y >= ih - maxBottom; y--) {
-      if (sampleRow(y) > brightnessThreshold) { bottom = ih - 1 - y; break; }
+      if (sampleRow(y) > brightnessThreshold) {
+        bottom = ih - 1 - y;
+        break;
+      }
     }
 
     const maxLeft = Math.floor(iw * maxCrop);
     let left = 0;
     for (let x = 0; x < maxLeft; x++) {
-      if (sampleCol(x) > brightnessThreshold) { left = x; break; }
+      if (sampleCol(x) > brightnessThreshold) {
+        left = x;
+        break;
+      }
     }
 
     const maxRight = Math.floor(iw * maxCrop);
     let right = 0;
     for (let x = iw - 1; x >= iw - maxRight; x--) {
-      if (sampleCol(x) > brightnessThreshold) { right = iw - 1 - x; break; }
+      if (sampleCol(x) > brightnessThreshold) {
+        right = iw - 1 - x;
+        break;
+      }
     }
 
     // convert to fractional crop
@@ -174,7 +190,7 @@ function computeAutoCrop(img, options = {}) {
       left: left / iw,
       top: top / ih,
       right: right / iw,
-      bottom: bottom / ih
+      bottom: bottom / ih,
     };
   } catch (e) {
     // could be CORS/tainted canvas or other error
@@ -200,8 +216,21 @@ function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
     const cropY = Math.round(img.height * cf);
     const sWidth = Math.max(1, img.width - cropX * 2);
     const sHeight = Math.max(1, img.height - cropY * 2);
-    try { ctx.drawImage(img, cropX, cropY, sWidth, sHeight, dx, dy, dWidth, dHeight); }
-    catch (e) { ctx.drawImage(img, dx, dy, dWidth, dHeight); }
+    try {
+      ctx.drawImage(
+        img,
+        cropX,
+        cropY,
+        sWidth,
+        sHeight,
+        dx,
+        dy,
+        dWidth,
+        dHeight
+      );
+    } catch (e) {
+      ctx.drawImage(img, dx, dy, dWidth, dHeight);
+    }
     return;
   }
 
