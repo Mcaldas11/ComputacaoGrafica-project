@@ -62,7 +62,7 @@ const devices = [
     y: 360,
     w: 60,
     h: 40,
-    on: true,
+    on: false,
   },
   {
     id: "tv",
