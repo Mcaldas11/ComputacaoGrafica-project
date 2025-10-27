@@ -107,7 +107,12 @@ const allowedAreas = [
   { x: 40, y: 320, w: 820, h: 220 }, // bottom area
 ];
 
-const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+const keys = {
+  ArrowUp: false,
+  ArrowDown: false,
+  ArrowLeft: false,
+  ArrowRight: false,
+};
 
 // activation radius for toggling lights / showing indicator
 const activationRadius = 80;
@@ -124,13 +129,21 @@ function circleIntersectsRect(cx, cy, r, rect) {
 
 function isCollidingAt(cx, cy) {
   for (const d of devices) {
-    if (circleIntersectsRect(cx, cy, player.r, { x: d.x, y: d.y, w: d.w, h: d.h })) return true;
+    if (
+      circleIntersectsRect(cx, cy, player.r, { x: d.x, y: d.y, w: d.w, h: d.h })
+    )
+      return true;
   }
   return false;
 }
 
 function isPointInRect(px, py, rect) {
-  return px >= rect.x && px <= rect.x + rect.w && py >= rect.y && py <= rect.y + rect.h;
+  return (
+    px >= rect.x &&
+    px <= rect.x + rect.w &&
+    py >= rect.y &&
+    py <= rect.y + rect.h
+  );
 }
 
 function isCenterInAllowedAreas(cx, cy) {
@@ -169,7 +182,8 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // update player position based on keys
-  let vx = 0, vy = 0;
+  let vx = 0,
+    vy = 0;
   if (keys.ArrowUp) vy -= 1;
   if (keys.ArrowDown) vy += 1;
   if (keys.ArrowLeft) vx -= 1;
@@ -184,8 +198,14 @@ function draw() {
   const nextY = player.y + vy * dt;
   // allow movement across the entire canvas but prevent overlapping devices (collision)
   // We'll attempt full move; if causes collision, try axis-aligned moves to allow sliding.
-  const clampedNextX = Math.max(player.r + 2, Math.min(canvas.width - player.r - 2, nextX));
-  const clampedNextY = Math.max(player.r + 2, Math.min(canvas.height - player.r - 2, nextY));
+  const clampedNextX = Math.max(
+    player.r + 2,
+    Math.min(canvas.width - player.r - 2, nextX)
+  );
+  const clampedNextY = Math.max(
+    player.r + 2,
+    Math.min(canvas.height - player.r - 2, nextY)
+  );
 
   const willCollideFull = isCollidingAt(clampedNextX, clampedNextY);
   if (!willCollideFull) {
@@ -202,7 +222,8 @@ function draw() {
 
   // update stepping animation phase
   const moving = vx !== 0 || vy !== 0;
-  if (moving) player.stepPhase += dt * 12; else player.stepPhase = 0;
+  if (moving) player.stepPhase += dt * 12;
+  else player.stepPhase = 0;
 
   // draw rooms (simple)
   ctx.fillStyle = "#082033";
@@ -273,7 +294,14 @@ function draw() {
       if (dist <= activationRadius) {
         const alpha = 0.35 * (1 - dist / activationRadius) + 0.12;
         ctx.save();
-        const grd = ctx.createRadialGradient(cx, cy, 4, cx, cy, activationRadius);
+        const grd = ctx.createRadialGradient(
+          cx,
+          cy,
+          4,
+          cx,
+          cy,
+          activationRadius
+        );
         // color differs slightly for lights vs appliances
         if (d.type === "light") {
           grd.addColorStop(0, `rgba(255,220,80,${alpha})`);
@@ -297,7 +325,15 @@ function draw() {
   // shadow
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   ctx.beginPath();
-  ctx.ellipse(player.x, player.y + player.r + 6, player.r + 6, 6, 0, 0, Math.PI * 2);
+  ctx.ellipse(
+    player.x,
+    player.y + player.r + 6,
+    player.r + 6,
+    6,
+    0,
+    0,
+    Math.PI * 2
+  );
   ctx.fill();
 
   // body
