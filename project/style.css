@@ -13,16 +13,7 @@
 html,
 body {
   margin: 0;
-  background-image: linear-gradient(
-      180deg,
-      rgba(7, 17, 38, 0.65) 0%,
-      rgba(11, 33, 48, 0.65) 60%
-    ),
-    url("img/background.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background: linear-gradient(180deg, #071126 0%, #0b2130 60%);
 }
 .hero {
   padding: 28px;
