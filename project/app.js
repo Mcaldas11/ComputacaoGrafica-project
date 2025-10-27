@@ -43,6 +43,17 @@ const devices = [
     on: false,
   },
   {
+    id: "light_kitchen",
+    label: "Luz Cozinha",
+    type: "light",
+    power: 60,
+    x: 320,
+    y: 360,
+    w: 36,
+    h: 36,
+    on: false,
+  },
+  {
     id: "fridge",
     label: "Frigorífico",
     type: "appliance",
@@ -80,6 +91,68 @@ const devices = [
 let lastTime = performance.now();
 let energyWh = 0; // watt-hours accumulated
 
+// --- player (boneco) ---
+const player = {
+  x: 220, // initial center x
+  y: 160, // initial center y
+  r: 14,
+  speed: 160, // pixels per second
+  stepPhase: 0,
+};
+
+// allowed movement areas (match the drawn rooms in draw())
+const allowedAreas = [
+  { x: 40, y: 40, w: 360, h: 240 }, // left room
+  { x: 500, y: 40, w: 360, h: 240 }, // right room
+  { x: 40, y: 320, w: 820, h: 220 }, // bottom area
+];
+
+const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+
+// activation radius for toggling lights / showing indicator
+const activationRadius = 80;
+
+// collision helpers: circle vs rect
+function circleIntersectsRect(cx, cy, r, rect) {
+  // find closest point to circle within the rectangle
+  const closestX = Math.max(rect.x, Math.min(cx, rect.x + rect.w));
+  const closestY = Math.max(rect.y, Math.min(cy, rect.y + rect.h));
+  const dx = cx - closestX;
+  const dy = cy - closestY;
+  return dx * dx + dy * dy <= r * r;
+}
+
+function isCollidingAt(cx, cy) {
+  for (const d of devices) {
+    if (circleIntersectsRect(cx, cy, player.r, { x: d.x, y: d.y, w: d.w, h: d.h })) return true;
+  }
+  return false;
+}
+
+function isPointInRect(px, py, rect) {
+  return px >= rect.x && px <= rect.x + rect.w && py >= rect.y && py <= rect.y + rect.h;
+}
+
+function isCenterInAllowedAreas(cx, cy) {
+  return allowedAreas.some((r) => isPointInRect(cx, cy, r));
+}
+
+function toggleNearbyDevices(radius = activationRadius) {
+  const cx = player.x;
+  const cy = player.y;
+  let toggled = false;
+  devices.forEach((d) => {
+    const dx = cx - (d.x + d.w / 2);
+    const dy = cy - (d.y + d.h / 2);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist <= radius) {
+      d.on = !d.on;
+      toggled = true;
+    }
+  });
+  if (toggled) updateDeviceList();
+}
+
 // particles for visual energy flow (simple reuse)
 const pulses = [];
 
@@ -94,6 +167,42 @@ function draw() {
 
   // clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // update player position based on keys
+  let vx = 0, vy = 0;
+  if (keys.ArrowUp) vy -= 1;
+  if (keys.ArrowDown) vy += 1;
+  if (keys.ArrowLeft) vx -= 1;
+  if (keys.ArrowRight) vx += 1;
+  // normalize
+  if (vx !== 0 || vy !== 0) {
+    const len = Math.sqrt(vx * vx + vy * vy);
+    vx = (vx / len) * player.speed;
+    vy = (vy / len) * player.speed;
+  }
+  const nextX = player.x + vx * dt;
+  const nextY = player.y + vy * dt;
+  // allow movement across the entire canvas but prevent overlapping devices (collision)
+  // We'll attempt full move; if causes collision, try axis-aligned moves to allow sliding.
+  const clampedNextX = Math.max(player.r + 2, Math.min(canvas.width - player.r - 2, nextX));
+  const clampedNextY = Math.max(player.r + 2, Math.min(canvas.height - player.r - 2, nextY));
+
+  const willCollideFull = isCollidingAt(clampedNextX, clampedNextY);
+  if (!willCollideFull) {
+    player.x = clampedNextX;
+    player.y = clampedNextY;
+  } else {
+    // try X only
+    const willCollideX = isCollidingAt(clampedNextX, player.y);
+    const willCollideY = isCollidingAt(player.x, clampedNextY);
+    if (!willCollideX) player.x = clampedNextX;
+    if (!willCollideY) player.y = clampedNextY;
+    // otherwise remain in place (blocked)
+  }
+
+  // update stepping animation phase
+  const moving = vx !== 0 || vy !== 0;
+  if (moving) player.stepPhase += dt * 12; else player.stepPhase = 0;
 
   // draw rooms (simple)
   ctx.fillStyle = "#082033";
@@ -153,7 +262,81 @@ function draw() {
       );
       ctx.stroke();
     }
+
+    // indicator halo when player is near any device (light or appliance)
+    {
+      const cx = d.x + d.w / 2;
+      const cy = d.y + d.h / 2;
+      const dx = player.x - cx;
+      const dy = player.y - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist <= activationRadius) {
+        const alpha = 0.35 * (1 - dist / activationRadius) + 0.12;
+        ctx.save();
+        const grd = ctx.createRadialGradient(cx, cy, 4, cx, cy, activationRadius);
+        // color differs slightly for lights vs appliances
+        if (d.type === "light") {
+          grd.addColorStop(0, `rgba(255,220,80,${alpha})`);
+          grd.addColorStop(1, `rgba(255,220,80,0)`);
+        } else {
+          grd.addColorStop(0, `rgba(120,194,168,${alpha})`);
+          grd.addColorStop(1, `rgba(120,194,168,0)`);
+        }
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(cx, cy, activationRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
   });
+
+  // draw player on top with simple walking bob/animation
+  ctx.save();
+  const bob = player.stepPhase ? Math.sin(player.stepPhase) * 2.4 : 0;
+  // shadow
+  ctx.fillStyle = "rgba(0,0,0,0.18)";
+  ctx.beginPath();
+  ctx.ellipse(player.x, player.y + player.r + 6, player.r + 6, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // body
+  ctx.beginPath();
+  ctx.fillStyle = "#ffdd88";
+  ctx.strokeStyle = "#2b2b2b";
+  ctx.lineWidth = 2;
+  ctx.arc(player.x, player.y + bob, player.r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  // simple eyes (shift slightly when moving)
+  const eyeOffset = player.stepPhase ? Math.sin(player.stepPhase * 2) * 0.6 : 0;
+  ctx.fillStyle = "#2b2b2b";
+  ctx.beginPath();
+  ctx.arc(player.x - 5, player.y - 2 + bob + eyeOffset, 2, 0, Math.PI * 2);
+  ctx.arc(player.x + 5, player.y - 2 + bob - eyeOffset, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // if near any device, draw indicator ring around player
+  let nearAny = false;
+  for (const d of devices) {
+    const dx = player.x - (d.x + d.w / 2);
+    const dy = player.y - (d.y + d.h / 2);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist <= activationRadius) {
+      nearAny = true;
+      break;
+    }
+  }
+  if (nearAny) {
+    ctx.beginPath();
+    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = "rgba(120,240,180,0.95)";
+    ctx.arc(player.x, player.y + bob, player.r + 10, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
 
   // update meter/ui
   powerWEl.textContent = Math.round(totalW);
@@ -180,6 +363,26 @@ canvas.addEventListener("click", (ev) => {
       updateDeviceList();
       return;
     }
+  }
+});
+
+// keyboard controls: arrow keys move the player; 'e' toggles nearby lights
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "e" || ev.key === "E") {
+    toggleNearbyDevices();
+    ev.preventDefault();
+    return;
+  }
+  if (ev.key in keys) {
+    keys[ev.key] = true;
+    ev.preventDefault();
+  }
+});
+
+document.addEventListener("keyup", (ev) => {
+  if (ev.key in keys) {
+    keys[ev.key] = false;
+    ev.preventDefault();
   }
 });
 
