@@ -62,7 +62,7 @@ const devices = [
     y: 360,
     w: 60,
     h: 40,
-    on: true,
+    on: false,
   },
   {
     id: "tv",
@@ -90,6 +90,9 @@ const devices = [
 
 let lastTime = performance.now();
 let energyWh = 0; // watt-hours accumulated
+
+// ensure kitchen light (and other lights) start OFF by default
+devices.forEach(d => { if (d.type === 'light') d.on = false; });
 
 // preload room images (optional). Put files in project/img/sala.png and project/img/quarto.png
 const salaImg = new Image();
