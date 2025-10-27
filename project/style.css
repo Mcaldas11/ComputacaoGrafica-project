@@ -13,7 +13,6 @@
 html,
 body {
   margin: 0;
-  /* background image from project/img/background.png with a dark gradient overlay */
   background-image: linear-gradient(
       180deg,
       rgba(7, 17, 38, 0.65) 0%,
