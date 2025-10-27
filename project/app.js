@@ -91,6 +91,132 @@ const devices = [
 let lastTime = performance.now();
 let energyWh = 0; // watt-hours accumulated
 
+// preload room images (optional). Put files in project/img/sala.png and project/img/quarto.png
+const salaImg = new Image();
+let salaLoaded = false;
+salaImg.onload = () => (salaLoaded = true);
+salaImg.onerror = () => (salaLoaded = false);
+salaImg.src = "img/sala.png";
+
+const quartoImg = new Image();
+let quartoLoaded = false;
+quartoImg.onload = () => (quartoLoaded = true);
+quartoImg.onerror = () => (quartoLoaded = false);
+quartoImg.src = "img/quarto.png";
+
+// helper: draw an image covering the target rectangle while cropping a small border
+// compute an automatic crop rectangle by scanning image edges for dark borders
+function computeAutoCrop(img, options = {}) {
+  const maxCrop = options.maxCrop || 0.25; // fraction of side
+  const brightnessThreshold = options.threshold || 30; // 0..255 per channel average
+  try {
+    const iw = img.naturalWidth || img.width;
+    const ih = img.naturalHeight || img.height;
+    if (!iw || !ih) return null;
+
+    // temp canvas
+    const t = document.createElement('canvas');
+    t.width = iw;
+    t.height = ih;
+    const tc = t.getContext('2d');
+    tc.drawImage(img, 0, 0, iw, ih);
+    const data = tc.getImageData(0, 0, iw, ih).data;
+
+    const sampleRow = (y) => {
+      let sum = 0;
+      for (let x = 0; x < iw; x++) {
+        const i = (y * iw + x) * 4;
+        const r = data[i], g = data[i+1], b = data[i+2];
+        sum += (r + g + b) / 3;
+      }
+      return sum / iw;
+    };
+
+    const sampleCol = (x) => {
+      let sum = 0;
+      for (let y = 0; y < ih; y++) {
+        const i = (y * iw + x) * 4;
+        const r = data[i], g = data[i+1], b = data[i+2];
+        sum += (r + g + b) / 3;
+      }
+      return sum / ih;
+    };
+
+    const maxTop = Math.floor(ih * maxCrop);
+    let top = 0;
+    for (let y = 0; y < maxTop; y++) {
+      if (sampleRow(y) > brightnessThreshold) { top = y; break; }
+    }
+
+    const maxBottom = Math.floor(ih * maxCrop);
+    let bottom = 0;
+    for (let y = ih - 1; y >= ih - maxBottom; y--) {
+      if (sampleRow(y) > brightnessThreshold) { bottom = ih - 1 - y; break; }
+    }
+
+    const maxLeft = Math.floor(iw * maxCrop);
+    let left = 0;
+    for (let x = 0; x < maxLeft; x++) {
+      if (sampleCol(x) > brightnessThreshold) { left = x; break; }
+    }
+
+    const maxRight = Math.floor(iw * maxCrop);
+    let right = 0;
+    for (let x = iw - 1; x >= iw - maxRight; x--) {
+      if (sampleCol(x) > brightnessThreshold) { right = iw - 1 - x; break; }
+    }
+
+    // convert to fractional crop
+    return {
+      left: left / iw,
+      top: top / ih,
+      right: right / iw,
+      bottom: bottom / ih
+    };
+  } catch (e) {
+    // could be CORS/tainted canvas or other error
+    return null;
+  }
+}
+
+// helper: draw an image covering the target rectangle while cropping small borders
+function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
+  if (!img || !img.width || !img.height) return;
+
+  // cached auto-crop on the image object to avoid recomputing
+  if (!img.__autoCrop) {
+    const auto = computeAutoCrop(img);
+    img.__autoCrop = auto; // may be null
+  }
+
+  let crop = img.__autoCrop;
+  if (!crop) {
+    // fallback to fixed uniform crop fraction
+    const cf = Math.max(0, Math.min(0.2, defaultCrop));
+    const cropX = Math.round(img.width * cf);
+    const cropY = Math.round(img.height * cf);
+    const sWidth = Math.max(1, img.width - cropX * 2);
+    const sHeight = Math.max(1, img.height - cropY * 2);
+    try { ctx.drawImage(img, cropX, cropY, sWidth, sHeight, dx, dy, dWidth, dHeight); }
+    catch (e) { ctx.drawImage(img, dx, dy, dWidth, dHeight); }
+    return;
+  }
+
+  // compute source rectangle from crop fractions
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  const sX = Math.round(iw * crop.left);
+  const sY = Math.round(ih * crop.top);
+  const sW = Math.max(1, iw - Math.round(iw * (crop.left + crop.right)));
+  const sH = Math.max(1, ih - Math.round(ih * (crop.top + crop.bottom)));
+  try {
+    ctx.drawImage(img, sX, sY, sW, sH, dx, dy, dWidth, dHeight);
+  } catch (e) {
+    // fallback
+    ctx.drawImage(img, dx, dy, dWidth, dHeight);
+  }
+}
+
 // --- player (boneco) ---
 const player = {
   x: 220, // initial center x
@@ -226,9 +352,30 @@ function draw() {
   else player.stepPhase = 0;
 
   // draw rooms (simple)
+  // left room (Sala) — draw image if available, otherwise fallback fill
+  if (salaLoaded) {
+    // draw covering the room rectangle, cropping a small border to remove black edges
+    drawImageCropped(salaImg, 40, 40, 360, 240, 0.06);
+    // subtle dark overlay so devices/labels remain legible
+    ctx.fillStyle = "rgba(6,12,18,0.28)";
+    ctx.fillRect(40, 40, 360, 240);
+  } else {
+    ctx.fillStyle = "#082033";
+    ctx.fillRect(40, 40, 360, 240);
+  }
+
+  // right room (Quarto)
+  if (quartoLoaded) {
+    drawImageCropped(quartoImg, 500, 40, 360, 240, 0.06);
+    ctx.fillStyle = "rgba(6,12,18,0.28)";
+    ctx.fillRect(500, 40, 360, 240);
+  } else {
+    ctx.fillStyle = "#082033";
+    ctx.fillRect(500, 40, 360, 240);
+  }
+
+  // bottom shared area
   ctx.fillStyle = "#082033";
-  ctx.fillRect(40, 40, 360, 240); // left room
-  ctx.fillRect(500, 40, 360, 240); // right room
   ctx.fillRect(40, 320, 820, 220); // bottom area
 
   // room labels
