@@ -28,7 +28,7 @@ const devices = [
     x: 140,
     y: 120,
     w: 36,
-    h: 36,
+    h: 48,
     on: false,
   },
   {
@@ -39,7 +39,7 @@ const devices = [
     x: 640,
     y: 120,
     w: 36,
-    h: 36,
+    h: 48,
     on: false,
   },
   {
@@ -50,7 +50,7 @@ const devices = [
     x: 320,
     y: 360,
     w: 36,
-    h: 36,
+    h: 48,
     on: false,
   },
   {
@@ -91,12 +91,22 @@ const devices = [
 let lastTime = performance.now();
 let energyWh = 0; // watt-hours accumulated
 
-// preload room images (optional). Put files in project/img/sala.png and project/img/quarto.png
+// preload images
 const salaImg = new Image();
 let salaLoaded = false;
 salaImg.onload = () => (salaLoaded = true);
 salaImg.onerror = () => (salaLoaded = false);
 salaImg.src = "img/sala.png";
+
+// Carregar imagens das lâmpadas
+const lampOnImg = new Image();
+const lampOffImg = new Image();
+let lampOnLoaded = false;
+let lampOffLoaded = false;
+lampOnImg.onload = () => (lampOnLoaded = true);
+lampOffImg.onload = () => (lampOffLoaded = true);
+lampOnImg.src = "img/lamp_on.png";
+lampOffImg.src = "img/lamp_off.png";
 
 const quartoImg = new Image();
 let quartoLoaded = false;
@@ -436,10 +446,17 @@ function draw() {
     }
 
     // device shape
-    ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
-    ctx.fillRect(d.x, d.y, d.w, d.h);
-    ctx.strokeStyle = "#0b2430";
-    ctx.strokeRect(d.x, d.y, d.w, d.h);
+    if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
+      // Usa imagem da lâmpada
+      const lampImg = d.on ? lampOnImg : lampOffImg;
+      ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+    } else {
+      // Fallback para outros dispositivos ou se as imagens não carregaram
+      ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
+      ctx.fillRect(d.x, d.y, d.w, d.h);
+      ctx.strokeStyle = "#0b2430";
+      ctx.strokeRect(d.x, d.y, d.w, d.h);
+    }
     ctx.fillStyle = "#07202a";
     ctx.font = "12px Arial";
     ctx.fillText(d.label, d.x, d.y + d.h + 16);
