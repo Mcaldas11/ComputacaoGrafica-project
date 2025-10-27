@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Consumo de Energia — Demo</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- p5 + ml5 (for handpose + image classifier). p5 is used by ml5 in many builds. -->
+    <script src="https://unpkg.com/ml5@1/dist/ml5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
+  </head>
+  <body>
+    <header class="hero">
+      <h1 class="intro">Poupa energia, poupa o planeta</h1>
+      <p class="subtitle">
+        Clique nos objetos para ligar/desligar. Usa a câmara para gestos e
+        classificação.
+      </p>
+    </header>
+
+    <main class="container">
+      <section class="left">
+        <canvas
+          id="houseCanvas"
+          width="900"
+          height="600"
+          aria-label="Canvas da casa com dispositivos"
+        ></canvas>
+        <div class="controls">
+          <button id="resetBtn">Repor estados</button>
+          <button id="startHandpose">Ativar Handpose</button>
+          <button id="startClassifier">Ativar Classificador</button>
+          <button id="snapshotClassify">Classificar (snapshot)</button>
+        </div>
+      </section>
+
+      <aside class="right">
+        <div class="meter">
+          <h3>Consumo total</h3>
+          <div id="meterBar" class="meterBar"><div id="meterFill"></div></div>
+          <div class="numbers">
+            <div><strong id="powerW">0</strong> W</div>
+            <div><small id="energyWh">0</small> Wh acumulado</div>
+          </div>
+        </div>
+
+        <div class="devicesList">
+          <h4>Dispositivos</h4>
+          <ul id="deviceList"></ul>
+        </div>
+
+        <div class="mlBox">
+          <h4>ml5.js</h4>
+          <video
+            id="webcam"
+            autoplay
+            muted
+            playsinline
+            width="240"
+            height="180"
+          ></video>
+          <div id="mlStatus">Estado: inativo</div>
+          <div id="classifierResult"></div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
