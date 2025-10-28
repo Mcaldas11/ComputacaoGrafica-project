@@ -27,8 +27,8 @@ const devices = [
     power: 60,
     x: 140,
     y: 120,
-    w: 36,
-    h: 36,
+    w: 40,
+    h: 48,
     on: false,
   },
   {
@@ -38,8 +38,8 @@ const devices = [
     power: 60,
     x: 640,
     y: 120,
-    w: 36,
-    h: 36,
+    w: 40,
+    h: 48,
     on: false,
   },
   {
@@ -49,8 +49,8 @@ const devices = [
     power: 60,
     x: 320,
     y: 360,
-    w: 36,
-    h: 36,
+    w: 40,
+    h: 48,
     on: false,
   },
   {
@@ -91,15 +91,22 @@ const devices = [
 let lastTime = performance.now();
 let energyWh = 0; // watt-hours accumulated
 
-// ensure kitchen light (and other lights) start OFF by default
-devices.forEach(d => { if (d.type === 'light') d.on = false; });
-
-// preload room images (optional). Put files in project/img/sala.png and project/img/quarto.png
+// preload images
 const salaImg = new Image();
 let salaLoaded = false;
 salaImg.onload = () => (salaLoaded = true);
 salaImg.onerror = () => (salaLoaded = false);
 salaImg.src = "img/sala.png";
+
+// Carregar imagens das lâmpadas
+const lampOnImg = new Image();
+const lampOffImg = new Image();
+let lampOnLoaded = false;
+let lampOffLoaded = false;
+lampOnImg.onload = () => (lampOnLoaded = true);
+lampOffImg.onload = () => (lampOffLoaded = true);
+lampOnImg.src = "img/lamp_on.png";
+lampOffImg.src = "img/lamp_off.png";
 
 const quartoImg = new Image();
 let quartoLoaded = false;
@@ -439,10 +446,17 @@ function draw() {
     }
 
     // device shape
-    ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
-    ctx.fillRect(d.x, d.y, d.w, d.h);
-    ctx.strokeStyle = "#0b2430";
-    ctx.strokeRect(d.x, d.y, d.w, d.h);
+    if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
+      // Usa imagem da lâmpada
+      const lampImg = d.on ? lampOnImg : lampOffImg;
+      ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+    } else {
+      // Fallback para outros dispositivos ou se as imagens não carregaram
+      ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
+      ctx.fillRect(d.x, d.y, d.w, d.h);
+      ctx.strokeStyle = "#0b2430";
+      ctx.strokeRect(d.x, d.y, d.w, d.h);
+    }
     ctx.fillStyle = "#07202a";
     ctx.font = "12px Arial";
     ctx.fillText(d.label, d.x, d.y + d.h + 16);
@@ -560,13 +574,12 @@ function draw() {
   meterFill.style.width = `${pct * 100}%`;
   if (pct > 0.7) meterFill.style.boxShadow = "0 0 18px rgba(255,107,107,0.3)";
   else meterFill.style.boxShadow = "";
-
 }
 
 // simulation control
 let running = false;
 let _animId = null;
-const topmenuEl = document.querySelector('.topmenu');
+const topmenuEl = document.querySelector(".topmenu");
 
 function loop() {
   if (!running) return;
@@ -579,7 +592,7 @@ function startSim() {
   running = true;
   lastTime = performance.now();
   // hide the top menu bar for a cleaner game-like view
-  if (topmenuEl) topmenuEl.style.display = 'none';
+  if (topmenuEl) topmenuEl.style.display = "none";
   loop();
 }
 
@@ -588,75 +601,98 @@ function pauseSim() {
   if (_animId) cancelAnimationFrame(_animId);
   _animId = null;
   // show top menu when paused so user can access controls
-  if (topmenuEl) topmenuEl.style.display = 'flex';
+  if (topmenuEl) topmenuEl.style.display = "flex";
 }
 
 // Menu buttons (Start/Pause/Reset/Help)
-const btnStart = document.getElementById('btnStart');
-const btnPause = document.getElementById('btnPause');
-const btnResetMenu = document.getElementById('btnReset');
-const btnHelp = document.getElementById('btnHelp');
-const helpModal = document.getElementById('helpModal');
-const helpClose = document.getElementById('helpClose');
+const btnStart = document.getElementById("btnStart");
+const btnPause = document.getElementById("btnPause");
+const btnResetMenu = document.getElementById("btnReset");
+const btnHelp = document.getElementById("btnHelp");
+const helpModal = document.getElementById("helpModal");
+const helpClose = document.getElementById("helpClose");
 
-if (btnStart) btnStart.addEventListener('click', ()=> startSim());
-if (btnPause) btnPause.addEventListener('click', ()=> pauseSim());
-if (btnResetMenu) btnResetMenu.addEventListener('click', ()=>{
-  devices.forEach((d)=> d.on = false);
-  energyWh = 0;
-  updateDeviceList();
-});
-if (btnHelp) btnHelp.addEventListener('click', ()=>{
-  if (helpModal) { helpModal.classList.add('visible'); helpModal.setAttribute('aria-hidden','false'); }
-});
-if (helpClose) helpClose.addEventListener('click', ()=>{
-  if (helpModal) { helpModal.classList.remove('visible'); helpModal.setAttribute('aria-hidden','true'); }
-});
+if (btnStart) btnStart.addEventListener("click", () => startSim());
+if (btnPause) btnPause.addEventListener("click", () => pauseSim());
+if (btnResetMenu)
+  btnResetMenu.addEventListener("click", () => {
+    devices.forEach((d) => (d.on = false));
+    energyWh = 0;
+    updateDeviceList();
+  });
+if (btnHelp)
+  btnHelp.addEventListener("click", () => {
+    if (helpModal) {
+      helpModal.classList.add("visible");
+      helpModal.setAttribute("aria-hidden", "false");
+    }
+  });
+if (helpClose)
+  helpClose.addEventListener("click", () => {
+    if (helpModal) {
+      helpModal.classList.remove("visible");
+      helpModal.setAttribute("aria-hidden", "true");
+    }
+  });
 
 // Splash / main menu (game-like) wiring
-const splash = document.getElementById('splash');
-const splashStart = document.getElementById('splashStart');
-const splashOptions = document.getElementById('splashOptions');
+const splash = document.getElementById("splash");
+const splashStart = document.getElementById("splashStart");
+const splashOptions = document.getElementById("splashOptions");
 
-function hideSplash(cb){
-  if (!splash) { if (cb) cb(); return; }
-  const panel = splash.querySelector('.splash-panel');
-  if (!panel) { splash.classList.add('hidden'); if (cb) cb(); return; }
+function hideSplash(cb) {
+  if (!splash) {
+    if (cb) cb();
+    return;
+  }
+  const panel = splash.querySelector(".splash-panel");
+  if (!panel) {
+    splash.classList.add("hidden");
+    if (cb) cb();
+    return;
+  }
 
   // ensure visible so transition runs
-  splash.classList.remove('hidden');
+  splash.classList.remove("hidden");
 
   const onEnd = (ev) => {
     // ensure we react to transitions on the panel only
     if (ev.target !== panel) return;
-    panel.removeEventListener('transitionend', onEnd);
-    splash.classList.remove('splash--hiding');
-    splash.classList.add('hidden');
-    if (typeof cb === 'function') cb();
+    panel.removeEventListener("transitionend", onEnd);
+    splash.classList.remove("splash--hiding");
+    splash.classList.add("hidden");
+    if (typeof cb === "function") cb();
   };
 
-  panel.addEventListener('transitionend', onEnd);
+  panel.addEventListener("transitionend", onEnd);
   // trigger hiding animation
-  splash.classList.add('splash--hiding');
+  splash.classList.add("splash--hiding");
 }
 
-if (splashStart) splashStart.addEventListener('click', ()=>{
-  // hide the top menu immediately for a cleaner view (covers case where animation callback might not fire)
-  if (topmenuEl) topmenuEl.style.display = 'none';
-  // hide with animation, then start simulation
-  hideSplash(startSim);
-});
+if (splashStart)
+  splashStart.addEventListener("click", () => {
+    // hide the top menu immediately for a cleaner view (covers case where animation callback might not fire)
+    if (topmenuEl) topmenuEl.style.display = "none";
+    // hide with animation, then start simulation
+    hideSplash(startSim);
+  });
 
-if (splashOptions) splashOptions.addEventListener('click', ()=>{
-  // open options/help for now
-  if (helpModal) { helpModal.classList.add('visible'); helpModal.setAttribute('aria-hidden','false'); }
-});
+if (splashOptions)
+  splashOptions.addEventListener("click", () => {
+    // open options/help for now
+    if (helpModal) {
+      helpModal.classList.add("visible");
+      helpModal.setAttribute("aria-hidden", "false");
+    }
+  });
 
 // allow pressing Enter or Space to start when splash is visible
-document.addEventListener('keydown', (ev)=>{
-  if (!splash || splash.classList.contains('hidden')) return;
-  if (ev.key === 'Enter' || ev.key === ' '){
-    ev.preventDefault(); hideSplash(); startSim();
+document.addEventListener("keydown", (ev) => {
+  if (!splash || splash.classList.contains("hidden")) return;
+  if (ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault();
+    hideSplash();
+    startSim();
   }
 });
 

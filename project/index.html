@@ -29,18 +29,19 @@
       </p>
     </header>
 
+    <div id="helpModal" class="help-modal" role="dialog" aria-hidden="true">
+      <h3>Ajuda</h3>
+      <p>
+        Use as setas para mover o boneco, clique em dispositivos para
+        ligar/desligar ou carregue em <strong>E</strong> para interagir com
+        dispositivos próximos. Use os botões do menu para iniciar/pausar/repor a
+        simulação. Ative a webcam para experimentar o Handpose e o
+        classificador.
+      </p>
+      <button id="helpClose" class="help-close">Fechar</button>
+    </div>
+
     <main class="container">
-      <div id="helpModal" class="help-modal" role="dialog" aria-hidden="true">
-        <h3>Ajuda</h3>
-        <p>
-          Use as setas para mover o boneco, clique em dispositivos para
-          ligar/desligar ou carregue em <strong>E</strong> para interagir com
-          dispositivos próximos. Use os botões do menu para iniciar/pausar/repor
-          a simulação. Ative a webcam para experimentar o Handpose e o
-          classificador.
-        </p>
-        <button id="helpClose" class="help-close">Fechar</button>
-      </div>
       <section class="left">
         <canvas
           id="houseCanvas"
