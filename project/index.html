@@ -10,15 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
   </head>
   <body>
-    <nav class="topmenu">
-      <div class="menu-inner">
-        <button id="btnStart" class="menu-btn">Iniciar</button>
-        <button id="btnPause" class="menu-btn">Pausar</button>
-        <button id="btnReset" class="menu-btn">Repor</button>
-        <button id="btnHelp" class="menu-btn">Ajuda</button>
-      </div>
-    </nav>
-
     <!-- Splash / game-like main menu (centered) -->
     <div id="splash" class="splash">
       <div class="splash-panel">
@@ -41,7 +32,13 @@
     <main class="container">
       <div id="helpModal" class="help-modal" role="dialog" aria-hidden="true">
         <h3>Ajuda</h3>
-        <p>Use as setas para mover o boneco, clique em dispositivos para ligar/desligar ou carregue em <strong>E</strong> para interagir com dispositivos próximos. Use os botões do menu para iniciar/pausar/repor a simulação. Ative a webcam para experimentar o Handpose e o classificador.</p>
+        <p>
+          Use as setas para mover o boneco, clique em dispositivos para
+          ligar/desligar ou carregue em <strong>E</strong> para interagir com
+          dispositivos próximos. Use os botões do menu para iniciar/pausar/repor
+          a simulação. Ative a webcam para experimentar o Handpose e o
+          classificador.
+        </p>
         <button id="helpClose" class="help-close">Fechar</button>
       </div>
       <section class="left">
