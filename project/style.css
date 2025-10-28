@@ -18,7 +18,7 @@ body {
       rgba(7, 17, 38, 0.65) 0%,
       rgba(11, 33, 48, 0.65) 60%
     ),
-    url("img/background.jpg");
+    url("img/background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -27,6 +27,135 @@ body {
 .hero {
   padding: 28px;
   text-align: center;
+}
+.topmenu {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 8px;
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 60;
+}
+.menu-inner {
+  background: rgba(2, 8, 16, 0.45);
+  backdrop-filter: blur(6px);
+  padding: 6px 10px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+.menu-btn {
+  margin: 0 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0;
+  background: linear-gradient(180deg, #12334a, #0f2a3a);
+  color: #eafff7;
+  cursor: pointer;
+}
+.menu-btn:hover {
+  filter: brightness(1.05);
+}
+.menu-btn:active {
+  transform: translateY(1px);
+}
+
+/* help modal */
+.help-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(6, 12, 20, 0.96);
+  color: #e6eef6;
+  padding: 18px;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  max-width: 680px;
+  display: none;
+  z-index: 80;
+}
+.help-modal.visible {
+  display: block;
+}
+.help-modal h3 {
+  margin-top: 0;
+}
+.help-close {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 0;
+  background: #18314a;
+  color: #eafff7;
+  cursor: pointer;
+}
+
+/* splash / game menu */
+.splash {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+}
+.splash-panel {
+  background: linear-gradient(
+    180deg,
+    rgba(3, 10, 18, 0.86),
+    rgba(6, 12, 20, 0.86)
+  );
+  padding: 26px 34px;
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  backdrop-filter: blur(4px);
+}
+.splash-title {
+  margin: 0;
+  font-size: 28px;
+  color: var(--accent);
+}
+.splash-sub {
+  color: var(--muted);
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+.splash-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.splash-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 0;
+  background: linear-gradient(180deg, #2a6b5a, #1b5343);
+  color: #eafff7;
+  font-weight: 600;
+  cursor: pointer;
+}
+.splash-btn:hover {
+  filter: brightness(1.05);
+}
+.splash.hidden {
+  display: none;
+}
+
+/* animate panel for smooth exit/entrance */
+.splash-panel {
+  transition: transform 380ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 320ms ease;
+  transform-origin: center;
+}
+.splash--hiding .splash-panel {
+  transform: translateY(-18px) scale(0.98);
+  opacity: 0;
 }
 .intro {
   font-size: 28px;
