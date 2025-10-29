@@ -66,7 +66,7 @@ const devices = [
     x: 640,
     y: 360,
     w: 64,
-    h: 36,
+    h: 76,
     on: false,
   },
 ];
@@ -109,7 +109,7 @@ const cozinhaImg = new Image();
 let cozinhaLoaded = false;
 cozinhaImg.onload = () => (cozinhaLoaded = true);
 cozinhaImg.onerror = () => (cozinhaLoaded = false);
-cozinhaImg.src = "img/cozinha.png";
+cozinhaImg.src = "img/cozinha.jpg";
 
 const despensaImg = new Image();
 let despensaLoaded = false;
