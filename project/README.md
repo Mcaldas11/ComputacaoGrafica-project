@@ -17,7 +17,10 @@ Este projecto é uma pequena demo interactiva para promover o uso consciente de 
 
 - `index.html` — interface, canvas e vídeo para a webcam.
 - `style.css` — estilo e animação.
-- `app.js` — lógica do canvas, medidor de energia, interacção e integração com ml5.js.
+- `js/state.js` — estado partilhado (devices, player, imagens, helpers).
+- `js/draw.js` — loop de rendering e controlo da simulação (start/pause) e medidor.
+- `js/ml.js` — webcam, Handpose e Classifier (ml5.js) helpers.
+- `js/ui.js` — ligação ao DOM, botões, splash e entrada do utilizador.
 
 ## Como usar (rápido)
 
