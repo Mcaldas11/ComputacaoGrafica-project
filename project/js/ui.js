@@ -135,6 +135,18 @@ document.addEventListener("DOMContentLoaded", () => {
         helpModal.setAttribute("aria-hidden", "false");
       }
     });
+  // If the page was opened with #start, automatically hide the splash and start
+  // the simulation (this supports the menu linking to index.html#start).
+  if (window.location.hash === "#start") {
+    hideSplash(() => {
+      if (typeof startSim === "function") startSim();
+      try {
+        history.replaceState(null, document.title, window.location.pathname + window.location.search);
+      } catch (e) {
+        /* ignore */
+      }
+    });
+  }
 
   // expose helpers to other modules
   window.updateDeviceList = updateDeviceList;

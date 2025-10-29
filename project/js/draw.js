@@ -2,6 +2,19 @@
 let canvas, ctx;
 let running = false;
 let _animId = null;
+// character sprite assets
+const characterSprites = {};
+const characterSpritesLoaded = {};
+function loadCharacterSprites() {
+  const chars = ["Shinobi", "Samurai", "Fighter"];
+  for (const c of chars) {
+    const img = new Image();
+    img.src = `img/personagem/${c}/Idle.png`;
+    img.onload = () => (characterSpritesLoaded[c] = true);
+    img.onerror = () => (characterSpritesLoaded[c] = false);
+    characterSprites[c] = img;
+  }
+}
 
 function initCanvas() {
   canvas = document.getElementById("houseCanvas");
@@ -9,6 +22,8 @@ function initCanvas() {
   if (!canvas) return;
   canvas.width = canvas.width || 900;
   canvas.height = canvas.height || 600;
+  // start loading character sprites once canvas exists
+  loadCharacterSprites();
 }
 
 function computePowerW() {
@@ -23,9 +38,7 @@ function draw(timestamp) {
 
   // clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
- 
 
-  
   if (salaLoaded) {
     drawImageCropped(salaImg, 40, 40, 360, 240);
     // subtle dark overlay so devices/labels remain legible
@@ -160,15 +173,34 @@ function draw(timestamp) {
     }
   }
 
-  // player
+  // player (draw sprite if available, otherwise fallback to circle)
   ctx.save();
-  const bob = player.stepPhase ? Math.sin(player.stepPhase) * 2.4 : 0;
+  // determine if user is currently sending movement input
+  const movingNow = Boolean(
+    keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight
+  );
+  // bob for walking animation vs idle 'breathing' animation
+  let bob = 0;
+  // allow the ball to gently "breathe" (scale + small vertical bob) when idle
+  let drawRadius = player.r;
+  if (movingNow && player.stepPhase) {
+    // walking bob (keeps previous behavior)
+    bob = Math.sin(player.stepPhase) * 2.4;
+  } else {
+    // idle breathing: slow sine-based vertical offset + small radius scale
+    const idlePhase = now / 250; // milliseconds -> controls speed
+    bob = Math.sin(idlePhase) * 1.6; // gentle up/down
+    const breathScale = 1 + Math.sin(idlePhase * 0.9) * 0.035; // ~±3.5% size change
+    drawRadius = player.r * breathScale;
+  }
+
+  // draw shadow/ground ellipse that follows the (possibly scaled) radius
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   ctx.beginPath();
   ctx.ellipse(
     player.x,
-    player.y + player.r + 6,
-    player.r + 6,
+    player.y + drawRadius + 6,
+    drawRadius + 6,
     6,
     0,
     0,
@@ -176,10 +208,11 @@ function draw(timestamp) {
   );
   ctx.fill();
   ctx.beginPath();
-  ctx.fillStyle = "#ffdd88";
+  const selColor = localStorage.getItem("selectedColor") || "#ffdd88";
+  ctx.fillStyle = selColor;
   ctx.strokeStyle = "#2b2b2b";
   ctx.lineWidth = 2;
-  ctx.arc(player.x, player.y + bob, player.r, 0, Math.PI * 2);
+  ctx.arc(player.x, player.y + bob, drawRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
   const eyeOffset = player.stepPhase ? Math.sin(player.stepPhase * 2) * 0.6 : 0;

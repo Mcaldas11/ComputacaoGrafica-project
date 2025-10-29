@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Selecionar Personagem — Consumo de Energia</title>
+    <link rel="stylesheet" href="menu.css" />
+    <style>
+      /* small overrides for the character selection page */
+      .chars-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .char-card {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+      .char-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      }
+      .char-thumb {
+        width: 100%;
+        height: 120px;
+        background: linear-gradient(180deg, #123, #456);
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+      .char-name {
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .char-selected {
+        border-color: #6be3ff;
+        box-shadow: 0 0 0 4px rgba(107, 227, 255, 0.06);
+      }
+      .actions-row {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="menu-wrapper">
+      <div class="menu-panel">
+        <h1>Personalizar Bola</h1>
+        <p class="subtitle">
+          Aqui podes escolher a cor da bolinha que vais controlar dentro da
+          casa.
+        </p>
+
+        <div
+          style="
+            margin-top: 18px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+          "
+        >
+          <label style="color: var(--muted); font-size: 13px"
+            >Cor da bola:</label
+          >
+          <input
+            type="color"
+            id="colorPicker"
+            value="#ffdd88"
+            style="
+              width: 56px;
+              height: 36px;
+              border-radius: 6px;
+              border: 1px solid rgba(255, 255, 255, 0.06);
+            "
+          />
+          <div
+            id="previewBall"
+            style="
+              width: 52px;
+              height: 52px;
+              border-radius: 50%;
+              box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+              border: 2px solid rgba(255, 255, 255, 0.04);
+            "
+          ></div>
+        </div>
+
+        <div class="actions-row">
+          <a class="btn-secondary" href="menu.html">Voltar</a>
+          <button class="btn-start" id="confirmChar">Confirmar e Jogar</button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Only keep color customization for the player 'ball'. Save color and redirect to the game.
+      const colorPicker = document.getElementById("colorPicker");
+      const preview = document.getElementById("previewBall");
+      // Load previously chosen color if present
+      const prevColor = localStorage.getItem("selectedColor");
+      if (prevColor) colorPicker.value = prevColor;
+      // initialize preview
+      function updatePreview(c) {
+        preview.style.background = c;
+        // also set an inner shadow to give a little depth
+        preview.style.boxShadow = `inset -6px -8px 18px rgba(0,0,0,0.25), 0 6px 18px rgba(0,0,0,0.45)`;
+      }
+      updatePreview(colorPicker.value);
+
+      colorPicker.addEventListener("input", (e) =>
+        updatePreview(e.target.value)
+      );
+
+      document.getElementById("confirmChar").addEventListener("click", () => {
+        const chosenColor = (colorPicker && colorPicker.value) || "#ffdd88";
+        localStorage.setItem("selectedColor", chosenColor);
+        // remove any leftover selectedCharacter (we only use the ball color now)
+        localStorage.removeItem("selectedCharacter");
+        // redirect to game and auto-start
+        window.location.href = "index.html#start";
+      });
+    </script>
+  </body>
+</html>
