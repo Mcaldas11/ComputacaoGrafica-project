@@ -1,6 +1,16 @@
 /* menu.css — styles specific to the standalone menu page */
 @import url("style.css");
 
+/* Background for the menu page */
+body {
+	background-image: url('img/background_menu.png');
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	/* subtle dark overlay via background color to ensure panel contrast */
+	background-color: #041018;
+}
+
 .menu-wrapper {
 	min-height: 100vh;
 	display: flex;
