@@ -23,10 +23,9 @@ function draw(timestamp) {
 
   // clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // background and rooms
-  // Don't paint the entire canvas white — keep it transparent so the page
-  // background shows through. Draw the room areas (with images if loaded)
-  // on top using a subtle dark fill to match the site theme.
+ 
+
+  
   if (salaLoaded) {
     drawImageCropped(salaImg, 40, 40, 360, 240);
     // subtle dark overlay so devices/labels remain legible
