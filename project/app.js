@@ -67,12 +67,12 @@ const devices = [
   {
     id: "tv",
     label: "TV",
-    type: "appliance",
+    type: "tv",
     power: 100,
     x: 420,
     y: 360,
-    w: 60,
-    h: 36,
+    w: 80,
+    h: 56,
     on: false,
   },
   {
@@ -107,6 +107,15 @@ lampOnImg.onload = () => (lampOnLoaded = true);
 lampOffImg.onload = () => (lampOffLoaded = true);
 lampOnImg.src = "img/lamp_on.png";
 lampOffImg.src = "img/lamp_off.png";
+
+const tvOnImg = new Image();
+const tvOffImg = new Image();
+let tvOnLoaded = false;
+let tvOffLoaded = false;
+tvOnImg.onload = () => (tvOnLoaded = true);
+tvOffImg.onload = () => (tvOffLoaded = true);
+tvOnImg.src = "img/tv_on.png";
+tvOffImg.src = "img/tv_off.png";
 
 const quartoImg = new Image();
 let quartoLoaded = false;
@@ -450,6 +459,10 @@ function draw() {
       // Usa imagem da lâmpada
       const lampImg = d.on ? lampOnImg : lampOffImg;
       ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "tv" && tvOnLoaded && tvOffLoaded) {
+      // Usa imagem da TV
+      const tvImg = d.on ? tvOnImg : tvOffImg;
+      ctx.drawImage(tvImg, d.x, d.y, d.w, d.h);
     } else {
       // Fallback para outros dispositivos ou se as imagens não carregaram
       ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
