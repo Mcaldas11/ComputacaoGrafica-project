@@ -50,6 +50,18 @@ function draw(timestamp) {
   ctx.fillStyle = "#082033";
   ctx.fillRect(40, 320, 820, 220);
 
+  // room labels (dinâmicos para todas as allowedAreas)
+  // Use allowedAreas from state.js and draw a label near the top-left of each area.
+  const roomNames = ["Sala", "Quarto", "Cozinha / Despensa"];
+  ctx.fillStyle = "#9fb6c3";
+  ctx.font = "14px Arial";
+  for (let i = 0; i < allowedAreas.length; i++) {
+    const a = allowedAreas[i];
+    const name = roomNames[i] || `Zona ${i + 1}`;
+    // position near top-left inside the area (matches previous fixed coords)
+    ctx.fillText(name, a.x + 20, a.y + 20);
+  }
+
   // devices
   for (const d of devices) {
     ctx.save();
