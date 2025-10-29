@@ -46,7 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const d = findDeviceAt(x, y);
       if (d) {
         d.on = !d.on;
-        pulses.push({ x: d.x, y: d.y, t: 0 });
+        // Removed pulse animation on click per user request — toggling
+        // via the 'E' key already doesn't create pulses. Keep that
+        // behavior consistent: no particle is emitted on click.
         updateDeviceList();
       }
     });
