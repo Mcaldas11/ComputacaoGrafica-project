@@ -1,6 +1,11 @@
-// app.js — interactive energy demo
-const canvas = document.getElementById("houseCanvas");
-const ctx = canvas.getContext("2d");
+// app.js — entry shim (logic moved to modules under js/)
+// See: js/state.js, js/draw.js, js/ml.js, js/ui.js
+
+// Compatibility shims so existing code or bookmarks don't break.
+/* window.startSim = window.startSim || function(){ console.warn('startSim moved to js/draw.js'); };
+window.pauseSim = window.pauseSim || function(){ console.warn('pauseSim moved to js/draw.js'); };
+window.updateDeviceList = window.updateDeviceList || function(){ console.warn('updateDeviceList moved to js/ui.js'); };
+window.toggleNearbyDevices = window.toggleNearbyDevices || function(){ console.warn('toggleNearbyDevices moved to js/ui.js'); };
 
 // UI elements
 const powerWEl = document.getElementById("powerW");
@@ -801,3 +806,4 @@ document.addEventListener("visibilitychange", () => {
     mlStatus.textContent = "Webcam parada";
   }
 });
+ */
