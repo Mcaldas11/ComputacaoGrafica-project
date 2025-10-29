@@ -63,10 +63,10 @@ const devices = [
     label: "Aquecedor",
     type: "heater",
     power: 1500,
-    x: 640,
-    y: 360,
-    w: 64,
-    h: 76,
+    x: 725,
+    y: 140,
+    w: 74,
+    h: 86,
     on: false,
   },
 ];
@@ -92,30 +92,11 @@ const activationRadius = 80;
 let lastTime = performance.now();
 let energyWh = 0;
 
-// imagens comodos
-const salaImg = new Image();
-let salaLoaded = false;
-salaImg.onload = () => (salaLoaded = true);
-salaImg.onerror = () => (salaLoaded = false);
-salaImg.src = "img/sala.png";
-
-const quartoImg = new Image();
-let quartoLoaded = false;
-quartoImg.onload = () => (quartoLoaded = true);
-quartoImg.onerror = () => (quartoLoaded = false);
-quartoImg.src = "img/quarto.png";
-
-const cozinhaImg = new Image();
-let cozinhaLoaded = false;
-cozinhaImg.onload = () => (cozinhaLoaded = true);
-cozinhaImg.onerror = () => (cozinhaLoaded = false);
-cozinhaImg.src = "img/cozinha.jpg";
-
-const despensaImg = new Image();
-let despensaLoaded = false;
-despensaImg.onload = () => (despensaLoaded = true);
-despensaImg.onerror = () => (despensaLoaded = false);
-despensaImg.src = "img/despensa.png";
+// imagem fundo
+const casaImg = new Image();
+let casaLoaded = false;
+casaImg.onload = () => (casaLoaded = true);
+casaImg.src = "img/casa.png";
 
 // carregar imagens das lâmpadas
 const lampOnImg = new Image();

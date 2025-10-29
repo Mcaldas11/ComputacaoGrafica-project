@@ -23,45 +23,16 @@ function draw(timestamp) {
 
   // clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // background and rooms
-  // Don't paint the entire canvas white — keep it transparent so the page
-  // background shows through. Draw the room areas (with images if loaded)
-  // on top using a subtle dark fill to match the site theme.
-  if (salaLoaded) {
-    drawImageCropped(salaImg, 40, 40, 360, 240);
+
+  //carregar casa
+  if (casaLoaded) {
+    drawImageCropped(casaImg, 40, 40, 815, 520);
     // subtle dark overlay so devices/labels remain legible
     ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(40, 40, 360, 240);
+    ctx.fillRect(40, 40, 815, 520);
   } else {
     ctx.fillStyle = "#082033";
-    ctx.fillRect(40, 40, 360, 240);
-  }
-
-  if (quartoLoaded) {
-    drawImageCropped(quartoImg, 500, 40, 360, 240);
-    ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(500, 40, 360, 240);
-  } else {
-    ctx.fillStyle = "#082033";
-    ctx.fillRect(500, 40, 360, 240);
-  }
-
-  if (despensaLoaded) {
-    drawImageCropped(despensaImg, 500, 310, 360, 240);
-    ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(500, 310, 360, 240);
-  } else {
-    ctx.fillStyle = "#082033";
-    ctx.fillRect(500, 310, 360, 240);
-  }
-
-  if (cozinhaLoaded) {
-    drawImageCropped(cozinhaImg, 40, 310, 360, 240);
-    ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(40, 310, 360, 240);
-  } else {
-    ctx.fillStyle = "#082033";
-    ctx.fillRect(40, 310, 360, 240);
+    ctx.fillRect(40, 40, 815, 520);
   }
 
   // devices
