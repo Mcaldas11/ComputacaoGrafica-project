@@ -39,23 +39,23 @@ const devices = [
   {
     id: "fridge",
     label: "Frigorífico",
-    type: "appliance",
+    type: "fridge",
     power: 120,
     x: 140,
     y: 360,
     w: 60,
-    h: 40,
+    h: 70,
     on: false,
   },
   {
     id: "tv",
     label: "TV",
-    type: "appliance",
+    type: "tv",
     power: 100,
     x: 420,
     y: 360,
-    w: 60,
-    h: 36,
+    w: 80,
+    h: 56,
     on: false,
   },
   {
@@ -92,19 +92,32 @@ const activationRadius = 80;
 let lastTime = performance.now();
 let energyWh = 0;
 
-// images
+// imagens comodos
 const salaImg = new Image();
 let salaLoaded = false;
 salaImg.onload = () => (salaLoaded = true);
 salaImg.onerror = () => (salaLoaded = false);
 salaImg.src = "img/sala.png";
+
 const quartoImg = new Image();
 let quartoLoaded = false;
 quartoImg.onload = () => (quartoLoaded = true);
 quartoImg.onerror = () => (quartoLoaded = false);
 quartoImg.src = "img/quarto.png";
 
-// lamp images (optional)
+const cozinhaImg = new Image();
+let cozinhaLoaded = false;
+cozinhaImg.onload = () => (cozinhaLoaded = true);
+cozinhaImg.onerror = () => (cozinhaLoaded = false);
+cozinhaImg.src = "img/cozinha.png";
+
+const despensaImg = new Image();
+let despensaLoaded = false;
+despensaImg.onload = () => (despensaLoaded = true);
+despensaImg.onerror = () => (despensaLoaded = false);
+despensaImg.src = "img/despensa.png";
+
+// carregar imagens das lâmpadas
 const lampOnImg = new Image();
 const lampOffImg = new Image();
 let lampOnLoaded = false;
@@ -113,6 +126,36 @@ lampOnImg.onload = () => (lampOnLoaded = true);
 lampOffImg.onload = () => (lampOffLoaded = true);
 lampOnImg.src = "img/lamp_on.png";
 lampOffImg.src = "img/lamp_off.png";
+
+// carregar imagens da tv
+const tvOnImg = new Image();
+const tvOffImg = new Image();
+let tvOnLoaded = false;
+let tvOffLoaded = false;
+tvOnImg.onload = () => (tvOnLoaded = true);
+tvOffImg.onload = () => (tvOffLoaded = true);
+tvOnImg.src = "img/tv_on.png";
+tvOffImg.src = "img/tv_off.png";
+
+// carregar imagens do frigorifico
+const fridgeOnImg = new Image();
+const fridgeOffImg = new Image();
+let fridgeOnLoaded = false;
+let fridgeOffLoaded = false;
+fridgeOnImg.onload = () => (fridgeOnLoaded = true);
+fridgeOffImg.onload = () => (fridgeOffLoaded = true);
+fridgeOnImg.src = "img/fridge_on.png";
+fridgeOffImg.src = "img/fridge_off.png";
+
+// carregar imagens do aquecedor
+const heaterOnImg = new Image();
+const heaterOffImg = new Image();
+let heaterOnLoaded = false;
+let heaterOffLoaded = false;
+heaterOnImg.onload = () => (heaterOnLoaded = true);
+heaterOffImg.onload = () => (heaterOffLoaded = true);
+heaterOnImg.src = "img/heater_on.png";
+heaterOffImg.src = "img/heater_off.png";
 
 // helper arrays and particles
 const pulses = [];

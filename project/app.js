@@ -23,95 +23,15 @@ const classifierResult = document.getElementById("classifierResult");
 const video = document.getElementById("webcam");
 let webcamStarted = false;
 
-// Devices in the house (simple layout)
-const devices = [
-  {
-    id: "light_liv",
-    label: "Luz Sala",
-    type: "light",
-    power: 60,
-    x: 140,
-    y: 120,
-    w: 48,
-    h: 48,
-    on: false,
-  },
-  {
-    id: "light_bed",
-    label: "Luz Quarto",
-    type: "light",
-    power: 60,
-    x: 640,
-    y: 120,
-    w: 48,
-    h: 48,
-    on: false,
-  },
-  {
-    id: "light_kitchen",
-    label: "Luz Cozinha",
-    type: "light",
-    power: 60,
-    x: 320,
-    y: 360,
-    w: 48,
-    h: 48,
-    on: false,
-  },
-  {
-    id: "fridge",
-    label: "Frigorífico",
-    type: "appliance",
-    power: 120,
-    x: 140,
-    y: 360,
-    w: 60,
-    h: 40,
-    on: false,
-  },
-  {
-    id: "tv",
-    label: "TV",
-    type: "appliance",
-    power: 100,
-    x: 420,
-    y: 360,
-    w: 60,
-    h: 36,
-    on: false,
-  },
-  {
-    id: "heater",
-    label: "Aquecedor",
-    type: "heater",
-    power: 1500,
-    x: 640,
-    y: 360,
-    w: 64,
-    h: 36,
-    on: false,
-  },
-];
-
 let lastTime = performance.now();
 let energyWh = 0; // watt-hours accumulated
 
-// preload images
+// imagens de fundo
 const salaImg = new Image();
 let salaLoaded = false;
 salaImg.onload = () => (salaLoaded = true);
 salaImg.onerror = () => (salaLoaded = false);
 salaImg.src = "img/sala.png";
-
-// Carregar imagens das lâmpadas
-const lampOnImg = new Image();
-const lampOffImg = new Image();
-let lampOnLoaded = false;
-let lampOffLoaded = false;
-lampOnImg.onload = () => (lampOnLoaded = true);
-lampOffImg.onload = () => (lampOffLoaded = true);
-lampOnImg.src = "img/lamp_on.png";
-lampOffImg.src = "img/lamp_off.png";
 
 const quartoImg = new Image();
 let quartoLoaded = false;
@@ -429,9 +349,8 @@ function draw() {
   ctx.fillText("Quarto", 520, 60);
   ctx.fillText("Cozinha / Despensa", 60, 340);
 
-  // draw devices
+  // desenhar os dispositivos
   devices.forEach((d, idx) => {
-    // body
     ctx.save();
     if (d.on) {
       // glowing when on
@@ -441,7 +360,7 @@ function draw() {
         4,
         d.x + d.w / 2,
         d.y + d.h / 2,
-        60
+        40
       );
       grd.addColorStop(0, "rgba(255,220,80,0.95)");
       grd.addColorStop(0.4, "rgba(255,200,70,0.45)");
@@ -450,11 +369,19 @@ function draw() {
       ctx.fillRect(d.x - 18, d.y - 18, d.w + 36, d.h + 36);
     }
 
-    // device shape
+    // carregar as imagens na aplicação
     if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
-      // Usa imagem da lâmpada
+      // carrega imagem das lampadas
       const lampImg = d.on ? lampOnImg : lampOffImg;
       ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "tv" && tvOnLoaded && tvOffLoaded) {
+      // carrega imagem da TV
+      const tvImg = d.on ? tvOnImg : tvOffImg;
+      ctx.drawImage(tvImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "fridge" && fridgeOnLoaded && fridgeOffLoaded) {
+      // carrega imagem do frigorífico
+      const fridgeImg = d.on ? fridgeOnImg : fridgeOffImg;
+      ctx.drawImage(fridgeImg, d.x, d.y, d.w, d.h);
     } else {
       // Fallback para outros dispositivos ou se as imagens não carregaram
       ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";

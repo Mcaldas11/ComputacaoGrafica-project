@@ -45,9 +45,23 @@ function draw(timestamp) {
     ctx.fillRect(500, 40, 360, 240);
   }
 
-  // bottom shared area
-  ctx.fillStyle = "#082033";
-  ctx.fillRect(40, 320, 820, 220);
+  if (despensaLoaded) {
+    drawImageCropped(despensaImg, 500, 310, 360, 240);
+    ctx.fillStyle = "rgba(6,12,18,0.28)";
+    ctx.fillRect(500, 310, 360, 240);
+  } else {
+    ctx.fillStyle = "#082033";
+    ctx.fillRect(500, 310, 360, 240);
+  }
+
+  if (cozinhaLoaded) {
+    drawImageCropped(cozinhaImg, 40, 310, 360, 240);
+    ctx.fillStyle = "rgba(6,12,18,0.28)";
+    ctx.fillRect(40, 310, 360, 240);
+  } else {
+    ctx.fillStyle = "#082033";
+    ctx.fillRect(40, 310, 360, 240);
+  }
 
   // room labels (dinâmicos para todas as allowedAreas)
   // Use allowedAreas from state.js and draw a label near the top-left of each area.
@@ -71,7 +85,7 @@ function draw(timestamp) {
         4,
         d.x + d.w / 2,
         d.y + d.h / 2,
-        60
+        40
       );
       grd.addColorStop(0, "rgba(255,220,80,0.95)");
       grd.addColorStop(0.4, "rgba(255,200,70,0.45)");
@@ -80,9 +94,19 @@ function draw(timestamp) {
       ctx.fillRect(d.x - 18, d.y - 18, d.w + 36, d.h + 36);
     }
     if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
+      // carrega imagem das lampadas
       const lampImg = d.on ? lampOnImg : lampOffImg;
       ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "tv" && tvOnLoaded && tvOffLoaded) {
+      // carrega imagem da TV
+      const tvImg = d.on ? tvOnImg : tvOffImg;
+      ctx.drawImage(tvImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "fridge" && fridgeOnLoaded && fridgeOffLoaded) {
+      // carrega imagem do frigorífico
+      const fridgeImg = d.on ? fridgeOnImg : fridgeOffImg;
+      ctx.drawImage(fridgeImg, d.x, d.y, d.w, d.h);
     } else {
+      // Fallback para outros dispositivos ou se as imagens não carregaram
       ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
       ctx.fillRect(d.x, d.y, d.w, d.h);
       ctx.strokeStyle = "#0b2430";
