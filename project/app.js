@@ -1,6 +1,11 @@
-// app.js — interactive energy demo
-const canvas = document.getElementById("houseCanvas");
-const ctx = canvas.getContext("2d");
+// app.js — entry shim (logic moved to modules under js/)
+// See: js/state.js, js/draw.js, js/ml.js, js/ui.js
+
+// Compatibility shims so existing code or bookmarks don't break.
+/* window.startSim = window.startSim || function(){ console.warn('startSim moved to js/draw.js'); };
+window.pauseSim = window.pauseSim || function(){ console.warn('pauseSim moved to js/draw.js'); };
+window.updateDeviceList = window.updateDeviceList || function(){ console.warn('updateDeviceList moved to js/ui.js'); };
+window.toggleNearbyDevices = window.toggleNearbyDevices || function(){ console.warn('toggleNearbyDevices moved to js/ui.js'); };
 
 // UI elements
 const powerWEl = document.getElementById("powerW");
@@ -18,6 +23,7 @@ const classifierResult = document.getElementById("classifierResult");
 const video = document.getElementById("webcam");
 let webcamStarted = false;
 
+<<<<<<< HEAD
 // Devices in the house (simple layout)
 const devices = [
   {
@@ -92,6 +98,12 @@ let lastTime = performance.now();
 let energyWh = 0; // watt-hours accumulated
 
 // preload images
+=======
+let lastTime = performance.now();
+let energyWh = 0; // watt-hours accumulated
+
+// imagens de fundo
+>>>>>>> d334672fb3fe9bb338c72479a0ff6571ab31bf89
 const salaImg = new Image();
 let salaLoaded = false;
 salaImg.onload = () => (salaLoaded = true);
@@ -424,9 +436,8 @@ function draw() {
   ctx.fillText("Quarto", 520, 60);
   ctx.fillText("Cozinha / Despensa", 60, 340);
 
-  // draw devices
+  // desenhar os dispositivos
   devices.forEach((d, idx) => {
-    // body
     ctx.save();
     if (d.on) {
       // glowing when on
@@ -436,7 +447,7 @@ function draw() {
         4,
         d.x + d.w / 2,
         d.y + d.h / 2,
-        60
+        40
       );
       grd.addColorStop(0, "rgba(255,220,80,0.95)");
       grd.addColorStop(0.4, "rgba(255,200,70,0.45)");
@@ -445,11 +456,27 @@ function draw() {
       ctx.fillRect(d.x - 18, d.y - 18, d.w + 36, d.h + 36);
     }
 
+<<<<<<< HEAD
     // device shape
     if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
       // Usa imagem da lâmpada
       const lampImg = d.on ? lampOnImg : lampOffImg;
       ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+=======
+    // carregar as imagens na aplicação
+    if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
+      // carrega imagem das lampadas
+      const lampImg = d.on ? lampOnImg : lampOffImg;
+      ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "tv" && tvOnLoaded && tvOffLoaded) {
+      // carrega imagem da TV
+      const tvImg = d.on ? tvOnImg : tvOffImg;
+      ctx.drawImage(tvImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "fridge" && fridgeOnLoaded && fridgeOffLoaded) {
+      // carrega imagem do frigorífico
+      const fridgeImg = d.on ? fridgeOnImg : fridgeOffImg;
+      ctx.drawImage(fridgeImg, d.x, d.y, d.w, d.h);
+>>>>>>> d334672fb3fe9bb338c72479a0ff6571ab31bf89
     } else {
       // Fallback para outros dispositivos ou se as imagens não carregaram
       ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
@@ -574,12 +601,127 @@ function draw() {
   meterFill.style.width = `${pct * 100}%`;
   if (pct > 0.7) meterFill.style.boxShadow = "0 0 18px rgba(255,107,107,0.3)";
   else meterFill.style.boxShadow = "";
-
-  requestAnimationFrame(draw);
 }
 
-// init draw loop
-requestAnimationFrame(draw);
+// simulation control
+let running = false;
+let _animId = null;
+const topmenuEl = document.querySelector(".topmenu");
+
+function loop() {
+  if (!running) return;
+  draw();
+  _animId = requestAnimationFrame(loop);
+}
+
+function startSim() {
+  if (running) return;
+  running = true;
+  lastTime = performance.now();
+  // hide the top menu bar for a cleaner game-like view
+  if (topmenuEl) topmenuEl.style.display = "none";
+  loop();
+}
+
+function pauseSim() {
+  running = false;
+  if (_animId) cancelAnimationFrame(_animId);
+  _animId = null;
+  // show top menu when paused so user can access controls
+  if (topmenuEl) topmenuEl.style.display = "flex";
+}
+
+// Menu buttons (Start/Pause/Reset/Help)
+const btnStart = document.getElementById("btnStart");
+const btnPause = document.getElementById("btnPause");
+const btnResetMenu = document.getElementById("btnReset");
+const btnHelp = document.getElementById("btnHelp");
+const helpModal = document.getElementById("helpModal");
+const helpClose = document.getElementById("helpClose");
+
+if (btnStart) btnStart.addEventListener("click", () => startSim());
+if (btnPause) btnPause.addEventListener("click", () => pauseSim());
+if (btnResetMenu)
+  btnResetMenu.addEventListener("click", () => {
+    devices.forEach((d) => (d.on = false));
+    energyWh = 0;
+    updateDeviceList();
+  });
+if (btnHelp)
+  btnHelp.addEventListener("click", () => {
+    if (helpModal) {
+      helpModal.classList.add("visible");
+      helpModal.setAttribute("aria-hidden", "false");
+    }
+  });
+if (helpClose)
+  helpClose.addEventListener("click", () => {
+    if (helpModal) {
+      helpModal.classList.remove("visible");
+      helpModal.setAttribute("aria-hidden", "true");
+    }
+  });
+
+// Splash / main menu (game-like) wiring
+const splash = document.getElementById("splash");
+const splashStart = document.getElementById("splashStart");
+const splashOptions = document.getElementById("splashOptions");
+
+function hideSplash(cb) {
+  if (!splash) {
+    if (cb) cb();
+    return;
+  }
+  const panel = splash.querySelector(".splash-panel");
+  if (!panel) {
+    splash.classList.add("hidden");
+    if (cb) cb();
+    return;
+  }
+
+  // ensure visible so transition runs
+  splash.classList.remove("hidden");
+
+  const onEnd = (ev) => {
+    // ensure we react to transitions on the panel only
+    if (ev.target !== panel) return;
+    panel.removeEventListener("transitionend", onEnd);
+    splash.classList.remove("splash--hiding");
+    splash.classList.add("hidden");
+    if (typeof cb === "function") cb();
+  };
+
+  panel.addEventListener("transitionend", onEnd);
+  // trigger hiding animation
+  splash.classList.add("splash--hiding");
+}
+
+if (splashStart)
+  splashStart.addEventListener("click", () => {
+    // hide the top menu immediately for a cleaner view (covers case where animation callback might not fire)
+    if (topmenuEl) topmenuEl.style.display = "none";
+    // hide with animation, then start simulation
+    hideSplash(startSim);
+  });
+
+if (splashOptions)
+  splashOptions.addEventListener("click", () => {
+    // open options/help for now
+    if (helpModal) {
+      helpModal.classList.add("visible");
+      helpModal.setAttribute("aria-hidden", "false");
+    }
+  });
+
+// allow pressing Enter or Space to start when splash is visible
+document.addEventListener("keydown", (ev) => {
+  if (!splash || splash.classList.contains("hidden")) return;
+  if (ev.key === "Enter" || ev.key === " ") {
+    ev.preventDefault();
+    hideSplash();
+    startSim();
+  }
+});
 
 // canvas interaction
 canvas.addEventListener("click", (ev) => {
@@ -759,3 +901,4 @@ document.addEventListener("visibilitychange", () => {
     mlStatus.textContent = "Webcam parada";
   }
 });
+ */
