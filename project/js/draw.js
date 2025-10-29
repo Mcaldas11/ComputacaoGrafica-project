@@ -105,6 +105,10 @@ function draw(timestamp) {
       // carrega imagem do frigorífico
       const fridgeImg = d.on ? fridgeOnImg : fridgeOffImg;
       ctx.drawImage(fridgeImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "heater" && heaterOnLoaded && heaterOffLoaded) {
+      // carrega imagem do aquecedor
+      const heaterImg = d.on ? heaterOnImg : heaterOffImg;
+      ctx.drawImage(heaterImg, d.x, d.y, d.w, d.h);
     } else {
       // Fallback para outros dispositivos ou se as imagens não carregaram
       ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
