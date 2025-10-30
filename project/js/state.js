@@ -62,7 +62,7 @@ const devices = [
     id: "heater",
     label: "Aquecedor",
     type: "heater",
-    power: 1500,
+    power: 1000,
     x: 640,
     y: 360,
     w: 64,
@@ -91,6 +91,66 @@ const activationRadius = 80;
 // timing / energy
 let lastTime = performance.now();
 let energyWh = 0;
+// challenge state (2-minute game mode)
+let challengeActive = false;
+let challengeDuration = 120; // seconds
+let challengeRemaining = 0; // seconds
+// default threshold set to 1500W per request
+let challengeThresholdW = 1500; // W - if totalW > threshold -> lose
+// interval id for the random-device toggler
+let _randomDevicesIntervalId = null;
+
+// start randomly toggling devices (previously only lights). By default picks any device
+// from the `devices` array and mostly turns it ON (75%), sometimes toggles OFF.
+function startRandomDevices(intervalMs = 1200) {
+  // intervalMs: base interval in ms. Reduced from 4500 to 1200 to increase difficulty.
+  // add a small random jitter so activations aren't perfectly periodic (0..800ms)
+  stopRandomDevices();
+  _randomDevicesIntervalId = setInterval(() => {
+    if (!devices || devices.length === 0) return;
+    // pick a random device from the full devices list
+    const idx = Math.floor(Math.random() * devices.length);
+    const chosen = devices[idx];
+    // 75% chance to turn it ON, 25% chance to toggle
+    if (Math.random() < 0.75) chosen.on = true;
+    else chosen.on = !chosen.on;
+    if (typeof updateDeviceList === "function") updateDeviceList();
+  }, intervalMs + Math.floor(Math.random() * 800));
+}
+
+function stopRandomDevices() {
+  if (_randomDevicesIntervalId) {
+    clearInterval(_randomDevicesIntervalId);
+    _randomDevicesIntervalId = null;
+  }
+}
+
+function startChallenge(durationSec = 120, thresholdW = 1200) {
+  challengeActive = true;
+  challengeDuration = durationSec;
+  challengeRemaining = durationSec;
+  challengeThresholdW = thresholdW;
+  // start random device routine (affects all devices now)
+  startRandomDevices();
+  // ensure UI shows challenge mode immediately if helper exists
+  try {
+    if (typeof window.setMode === 'function') window.setMode('challenge');
+    const timerEl = document.getElementById && document.getElementById('challengeTimer');
+    const thresholdEl = document.getElementById && document.getElementById('challengeThreshold');
+    const statusEl = document.getElementById && document.getElementById('challengeStatus');
+    if (thresholdEl) thresholdEl.textContent = Math.round(challengeThresholdW);
+    if (timerEl) timerEl.textContent = `${String(Math.floor(challengeRemaining/60)).padStart(2,'0')}:${String(Math.floor(challengeRemaining%60)).padStart(2,'0')}`;
+    if (statusEl) statusEl.textContent = 'A decorrer';
+  } catch (e) {
+    /* ignore if DOM not ready */
+  }
+}
+
+function stopChallenge() {
+  challengeActive = false;
+  challengeRemaining = 0;
+  stopRandomDevices();
+}
 
 // imagens comodos
 const salaImg = new Image();

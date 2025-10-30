@@ -15,6 +15,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (typeof initCanvas === "function") initCanvas();
 
+  // Mode indicator helper: 'challenge' or 'sandbox'
+  function setMode(mode) {
+    window.currentMode = mode;
+    const el = document.getElementById("modeIndicator");
+    if (!el) return;
+    if (mode === "challenge") el.textContent = "Desafio";
+    else el.textContent = "Mundo livre";
+  }
+  // expose to other scripts
+  window.setMode = setMode;
+  // ensure challenge panel visibility follows the mode
+  function updateChallengePanelVisibility(mode) {
+    const box = document.querySelector('.challengeBox');
+    if (!box) return;
+    if (mode === 'challenge') {
+      box.style.display = '';
+      box.setAttribute('aria-hidden', 'false');
+    } else {
+      box.style.display = 'none';
+      box.setAttribute('aria-hidden', 'true');
+    }
+  }
+  // wrap global startChallenge/startSim to update the HUD when invoked
+  if (typeof startChallenge === "function") {
+    const _sc = startChallenge;
+    window.startChallenge = function (...args) {
+      const res = _sc.apply(this, args);
+      try {
+        setMode("challenge");
+      } catch (e) {}
+      return res;
+    };
+  }
+  if (typeof startSim === "function") {
+    const _ss = startSim;
+    window.startSim = function (...args) {
+      const res = _ss.apply(this, args);
+      try {
+        setMode("sandbox");
+      } catch (e) {}
+      return res;
+    };
+  }
+  // also update challenge panel visibility whenever mode changes
+  const _setMode = window.setMode;
+  window.setMode = function (mode) {
+    try {
+      updateChallengePanelVisibility(mode);
+    } catch (e) {}
+    return _setMode(mode);
+  };
+
+  // default to sandbox on load so challenge box is hidden until a challenge starts
+  try {
+    setMode('sandbox');
+    updateChallengePanelVisibility('sandbox');
+  } catch (e) {}
+
   function updateDeviceList() {
     if (!deviceListEl) return;
     deviceListEl.innerHTML = "";
@@ -124,6 +182,8 @@ document.addEventListener("DOMContentLoaded", () => {
         topmenuEl.parentNode.removeChild(topmenuEl);
       hideSplash(() => {
         if (typeof startSim === "function") startSim();
+        // default splash start behaves as sandbox (no automatic challenge).
+        // If splash wanted challenge it would include a hash; menu will control mode.
         updateDeviceList();
       });
     });
@@ -135,11 +195,18 @@ document.addEventListener("DOMContentLoaded", () => {
         helpModal.setAttribute("aria-hidden", "false");
       }
     });
-  // If the page was opened with #start, automatically hide the splash and start
-  // the simulation (this supports the menu linking to index.html#start).
-  if (window.location.hash === "#start") {
+  // If the page was opened with a start hash, automatically hide the splash and start
+  // the simulation in the requested mode. Supported hashes:
+  //  - #start or #start-challenge  => start simulation + startChallenge()
+  //  - #sandbox or #start-sandbox  => start simulation only (free world)
+  const h = (window.location.hash || "").toLowerCase();
+  if (h.includes("#start") || h.includes("#sandbox")) {
     hideSplash(() => {
       if (typeof startSim === "function") startSim();
+      // challenge variants
+      if (h.includes("challenge") || h === "#start") {
+        if (typeof startChallenge === "function") startChallenge();
+      }
       try {
         history.replaceState(null, document.title, window.location.pathname + window.location.search);
       } catch (e) {

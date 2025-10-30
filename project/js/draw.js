@@ -271,6 +271,42 @@ function draw(timestamp) {
   if (powerWEl) powerWEl.textContent = Math.round(totalW);
   if (energyWhEl) energyWhEl.textContent = energyWh.toFixed(2);
 
+  // Challenge mode handling: decrement timer and check thresholds
+  if (typeof challengeActive !== "undefined" && challengeActive) {
+    // decrement
+    challengeRemaining = Math.max(0, challengeRemaining - dt);
+    const timerEl = document.getElementById("challengeTimer");
+    const thresholdEl = document.getElementById("challengeThreshold");
+    const statusEl = document.getElementById("challengeStatus");
+    if (thresholdEl) thresholdEl.textContent = Math.round(challengeThresholdW);
+    if (timerEl) {
+      const mins = Math.floor(challengeRemaining / 60);
+      const secs = Math.floor(challengeRemaining % 60);
+      timerEl.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    if (statusEl) statusEl.textContent = "A decorrer";
+
+    // lose condition: instantaneous if consumption too high
+    if (totalW > challengeThresholdW) {
+      // lose
+      if (statusEl) statusEl.textContent = "Perdeu — consumo demasiado alto";
+      stopChallenge();
+      pauseSim();
+      // notify player
+      setTimeout(() => alert("Perdeu — o consumo excedeu o limite."), 50);
+      return;
+    }
+
+    // win condition: survived until zero
+    if (challengeRemaining <= 0) {
+      if (statusEl) statusEl.textContent = "Ganhou — tempo esgotado";
+      stopChallenge();
+      pauseSim();
+      setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
+      return;
+    }
+  }
+
   // update player step phase
   // movement based on keys object (updated by ui.js)
   let vx = 0,

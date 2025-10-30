@@ -29,7 +29,7 @@
           <a
             class="btn-start"
             id="btnJogar"
-            href="index.html#start"
+            href="#"
             style="display: block; text-align: center"
             >Jogar</a
           >
@@ -41,6 +41,19 @@
           Use as setas para mover o boneco. Prima <strong>E</strong> para
           interagir com dispositivos próximos.
         </div>
+      </div>
+    </div>
+
+    <!-- Play mode chooser modal -->
+    <div id="playModal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="playTitle">
+      <div class="modal-panel" role="document">
+        <button class="modal-close" id="playClose" aria-label="Fechar">×</button>
+        <h3 id="playTitle">Escolher modo</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:10px">
+          <a id="playChallenge" class="btn-start" href="index.html#start" style="display:block;text-align:center">Desafio — 2 minutos</a>
+          <a id="playSandbox" class="btn-secondary" href="index.html#sandbox" style="display:block;text-align:center">Mundo livre</a>
+        </div>
+        <p style="margin-top:12px;color:var(--muted);font-size:13px">Escolhe "Desafio" para a partida cronometrada ou "Mundo livre" para explorar sem restrições.</p>
       </div>
     </div>
 
@@ -69,7 +82,13 @@
     </div>
 
     <script>
-      // 'Jogar' já aponta para index.html#start (auto-start handled there).
+      // 'Jogar' opens a play-mode chooser modal; personagem navigates to character selection
+      const btnJogar = document.getElementById("btnJogar");
+      const playModal = document.getElementById("playModal");
+      const playClose = document.getElementById("playClose");
+      const playChallenge = document.getElementById("playChallenge");
+      const playSandbox = document.getElementById("playSandbox");
+
       const btnPersonagem = document.getElementById("btnPersonagem");
       if (btnPersonagem) {
         btnPersonagem.addEventListener("click", function () {
@@ -108,6 +127,45 @@
       modal &&
         modal.addEventListener("click", function (ev) {
           if (ev.target === modal) hideModal();
+        });
+
+      // Play modal show/hide
+      function showPlayModal() {
+        if (!playModal) return;
+        playModal.classList.add("visible");
+        playModal.setAttribute("aria-hidden", "false");
+      }
+      function hidePlayModal() {
+        if (!playModal) return;
+        playModal.classList.remove("visible");
+        playModal.setAttribute("aria-hidden", "true");
+      }
+
+      btnJogar &&
+        btnJogar.addEventListener("click", function (ev) {
+          ev.preventDefault();
+          showPlayModal();
+        });
+
+      playClose &&
+        playClose.addEventListener("click", function () {
+          hidePlayModal();
+        });
+
+      // clicking outside the panel closes
+      playModal &&
+        playModal.addEventListener("click", function (ev) {
+          if (ev.target === playModal) hidePlayModal();
+        });
+
+      // optional: if user clicks an option, modal will close by navigation—but just in case
+      playChallenge &&
+        playChallenge.addEventListener("click", function () {
+          // leave page to index with hash; no extra action needed
+        });
+      playSandbox &&
+        playSandbox.addEventListener("click", function () {
+          // leave page to index with hash; no extra action needed
         });
     </script>
   </body>
