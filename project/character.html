@@ -34,7 +34,7 @@
 
         <div class="actions-row">
           <a class="btn-secondary" href="menu.html">Voltar</a>
-          <button class="btn-start" id="confirmChar">Confirmar e Jogar</button>
+          <button class="btn-start" id="confirmChar">Confirmar</button>
         </div>
       </div>
     </main>
@@ -61,8 +61,8 @@
       document.getElementById("confirmChar").addEventListener("click", () => {
         const chosenColor = (colorPicker && colorPicker.value) || "#ffdd88";
         localStorage.setItem("selectedColor", chosenColor);
-        localStorage.removeItem("selectedCharacter");
-        window.location.href = "index.html#start";
+        // Redirect back to the menu so the player can start the game from there
+        window.location.href = "menu.html";
       });
     </script>
   </body>
