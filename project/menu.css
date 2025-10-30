@@ -34,8 +34,12 @@ body {
   margin: 0 0 24px;
   /* use Jersey 25 (loaded from HTML). Fallback to a strong display serif */
   font-family: 'Jersey 25', 'Press Start 2P', Georgia, serif;
-  font-size: clamp(40px, 9vw, 120px);
+  /* increase title size for better visibility */
+  font-size: clamp(56px, 10vw, 160px);
   line-height: 0.95;
+  /* ensure the title is centered within the panel */
+  text-align: center;
+  display: block;
   color: #ffffff;
   /* stronger outline for pixel style */
   -webkit-text-stroke: 1.8px rgba(0,0,0,0.85);
@@ -81,34 +85,37 @@ body {
 }
 .btn-start {
   /* primary start button: centered, no background */
-  background: transparent;
-  border: 0;
-  color: #0ff1d8;
-  font-weight: 800;
-  padding: 8px 12px;
-  font-size: 22px;
-  /* use the same pixel font family as the title (include Press Start as fallback) */
+  /* primary start button: pill with green gradient background */
+  background: linear-gradient(180deg, #4cc48a 0%, #2b9a67 100%);
+  border: 1px solid rgba(0,0,0,0.15);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 12px 18px;
+  font-size: 20px;
   font-family: 'Jersey 25', 'Press Start 2P', monospace;
   text-transform: uppercase;
-  -webkit-text-stroke: 1.4px rgba(0,0,0,0.95);
-  text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 3px 6px rgba(0,0,0,0.7);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .menu-panel .btn-start:hover,
 .menu-panel .btn-start:focus {
-  color: #7ef1dd;
   transform: translateY(-2px);
+  filter: brightness(1.06);
 }
 .btn-secondary {
-  background: transparent;
-  border: 0;
-  color: #d9f7ee;
-  padding: 6px 0;
+  /* secondary pill (dark blue) */
+  background: linear-gradient(180deg, #294a5c 0%, #18303a 100%);
+  border: 1px solid rgba(0,0,0,0.22);
+  color: #ffffff;
+  padding: 12px 0;
   font-size: 16px;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .menu-panel .btn-secondary:hover,
 .menu-panel .btn-secondary:focus {
-  color: #bfeef0;
   transform: translateX(6px);
+  filter: brightness(1.04);
 }
 
 /* accessible focus outline */
@@ -150,8 +157,10 @@ a.btn-start,
   text-align: center;
   padding: 14px 0;
   font-size: 28px;
-  border-radius: 0;
+  border-radius: 10px; /* pill corners match visual */
   font-family: 'Jersey 25', 'Press Start 2P', monospace;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
   color: #f6f6f6;
   text-transform: uppercase;
   /* stronger stroke/shadow for legibility */
