@@ -96,8 +96,24 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  canvas &&
+  // helper to show the click-disabled modal
+  function showClickModal() {
+    // don't show again if the user already acknowledged the warning
+    if (typeof window !== 'undefined' && window.clickModalAcknowledged) return;
+    const clickModalEl = document.getElementById('clickModal');
+    if (!clickModalEl) return;
+    clickModalEl.classList.add('visible');
+    clickModalEl.setAttribute('aria-hidden', 'false');
+  }
+
+  // handle clicks and also mousedown/touchstart so the modal appears even if the user is "clicking"
+  if (canvas) {
     canvas.addEventListener("click", (ev) => {
+      if (typeof challengeActive !== 'undefined' && challengeActive) {
+        showClickModal();
+        ev.preventDefault();
+        return;
+      }
       const rect = canvas.getBoundingClientRect();
       const x = ev.clientX - rect.left;
       const y = ev.clientY - rect.top;
@@ -110,6 +126,21 @@ document.addEventListener("DOMContentLoaded", () => {
         updateDeviceList();
       }
     });
+
+    // also capture mousedown and touchstart to surface the modal immediately while pressing/clicking
+    canvas.addEventListener('mousedown', (ev) => {
+      if (typeof challengeActive !== 'undefined' && challengeActive) {
+        showClickModal();
+        ev.preventDefault();
+      }
+    });
+    canvas.addEventListener('touchstart', (ev) => {
+      if (typeof challengeActive !== 'undefined' && challengeActive) {
+        showClickModal();
+        ev.preventDefault();
+      }
+    }, {passive: false});
+  }
 
   // keyboard for movement and interaction
   document.addEventListener("keydown", (ev) => {
@@ -218,4 +249,32 @@ document.addEventListener("DOMContentLoaded", () => {
   // expose helpers to other modules
   window.updateDeviceList = updateDeviceList;
   window.toggleNearbyDevices = toggleNearbyDevices;
+
+  // clickModal handlers: close button hides the modal but clicks remain disabled while challengeActive
+  const clickModal = document.getElementById('clickModal');
+  const clickModalClose = document.getElementById('clickModalClose');
+  if (clickModalClose) {
+    clickModalClose.addEventListener('click', () => {
+      // remember that the player acknowledged the modal so it won't reappear
+      try {
+        if (typeof window !== 'undefined') window.clickModalAcknowledged = true;
+      } catch (e) {}
+      clickModal.classList.remove('visible');
+      clickModal.setAttribute('aria-hidden', 'true');
+      // if a challenge was initialized but not started, begin it now
+      try {
+        if (typeof beginChallenge === 'function' && typeof challengeStarted !== 'undefined' && !challengeStarted) {
+          beginChallenge();
+        }
+      } catch (e) {}
+    });
+  }
+  if (clickModal) {
+    clickModal.addEventListener('click', (ev) => {
+      if (ev.target === clickModal) {
+        clickModal.classList.remove('visible');
+        clickModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
 });

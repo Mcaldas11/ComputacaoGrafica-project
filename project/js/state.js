@@ -96,7 +96,8 @@ let challengeActive = false;
 let challengeDuration = 120; // seconds
 let challengeRemaining = 0; // seconds
 // default threshold set to 1500W per request
-let challengeThresholdW = 1500; // W - if totalW > threshold -> lose
+let challengeThresholdW = 1200; // W - if totalW > threshold -> lose
+let challengeStarted = false; // true once user confirms the challenge modal
 // interval id for the random-device toggler
 let _randomDevicesIntervalId = null;
 
@@ -126,30 +127,63 @@ function stopRandomDevices() {
 }
 
 function startChallenge(durationSec = 120, thresholdW = 1200) {
+  // Initialize challenge state but do not start timers or random devices until user confirms
   challengeActive = true;
+  challengeStarted = false;
   challengeDuration = durationSec;
   challengeRemaining = durationSec;
   challengeThresholdW = thresholdW;
-  // start random device routine (affects all devices now)
-  startRandomDevices();
-  // ensure UI shows challenge mode immediately if helper exists
+  // update UI to indicate challenge mode and show click-disabled modal
   try {
     if (typeof window.setMode === 'function') window.setMode('challenge');
+    // reset acknowledgement so the modal shows at the start of each challenge
+    if (typeof window !== 'undefined') window.clickModalAcknowledged = false;
     const timerEl = document.getElementById && document.getElementById('challengeTimer');
     const thresholdEl = document.getElementById && document.getElementById('challengeThreshold');
     const statusEl = document.getElementById && document.getElementById('challengeStatus');
     if (thresholdEl) thresholdEl.textContent = Math.round(challengeThresholdW);
     if (timerEl) timerEl.textContent = `${String(Math.floor(challengeRemaining/60)).padStart(2,'0')}:${String(Math.floor(challengeRemaining%60)).padStart(2,'0')}`;
-    if (statusEl) statusEl.textContent = 'A decorrer';
+    if (statusEl) statusEl.textContent = 'A iniciar — confirma para começar';
+    // show click-disabled modal to inform the player (they must click 'Entendi' to begin)
+    const clickModal = document.getElementById && document.getElementById('clickModal');
+    if (clickModal) {
+      clickModal.classList.add('visible');
+      clickModal.setAttribute('aria-hidden', 'false');
+    }
   } catch (e) {
     /* ignore if DOM not ready */
   }
+}
+
+// Called when the player confirms the challenge modal (clicks 'Entendi')
+function beginChallenge() {
+  if (!challengeActive || challengeStarted) return;
+  challengeStarted = true;
+  // start the periodic random toggles now
+  startRandomDevices();
+  // update UI status
+  try {
+    const statusEl = document.getElementById && document.getElementById('challengeStatus');
+    if (statusEl) statusEl.textContent = 'A decorrer';
+  } catch (e) {}
 }
 
 function stopChallenge() {
   challengeActive = false;
   challengeRemaining = 0;
   stopRandomDevices();
+  challengeStarted = false;
+  // hide click-disabled modal when challenge ends
+  try {
+    const clickModal = document.getElementById && document.getElementById('clickModal');
+    if (clickModal) {
+      clickModal.classList.remove('visible');
+      clickModal.setAttribute('aria-hidden', 'true');
+    }
+    if (typeof window.setMode === 'function') window.setMode('sandbox');
+    // reset acknowledgement when challenge ends so next challenge will show the modal again
+    if (typeof window !== 'undefined') window.clickModalAcknowledged = false;
+  } catch (e) {}
 }
 
 // imagens comodos

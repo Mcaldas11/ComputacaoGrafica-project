@@ -271,10 +271,8 @@ function draw(timestamp) {
   if (powerWEl) powerWEl.textContent = Math.round(totalW);
   if (energyWhEl) energyWhEl.textContent = energyWh.toFixed(2);
 
-  // Challenge mode handling: decrement timer and check thresholds
+  // Challenge mode handling: show values; only decrement/check while challengeStarted
   if (typeof challengeActive !== "undefined" && challengeActive) {
-    // decrement
-    challengeRemaining = Math.max(0, challengeRemaining - dt);
     const timerEl = document.getElementById("challengeTimer");
     const thresholdEl = document.getElementById("challengeThreshold");
     const statusEl = document.getElementById("challengeStatus");
@@ -284,26 +282,32 @@ function draw(timestamp) {
       const secs = Math.floor(challengeRemaining % 60);
       timerEl.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     }
-    if (statusEl) statusEl.textContent = "A decorrer";
 
-    // lose condition: instantaneous if consumption too high
-    if (totalW > challengeThresholdW) {
-      // lose
-      if (statusEl) statusEl.textContent = "Perdeu — consumo demasiado alto";
-      stopChallenge();
-      pauseSim();
-      // notify player
-      setTimeout(() => alert("Perdeu — o consumo excedeu o limite."), 50);
-      return;
-    }
+    // if challenge hasn't been confirmed by the player yet, show pending status
+    if (typeof challengeStarted === "undefined" || !challengeStarted) {
+      if (statusEl) statusEl.textContent = "A iniciar — confirma para começar";
+    } else {
+      // now the challenge is running: decrement and check
+      challengeRemaining = Math.max(0, challengeRemaining - dt);
+      if (statusEl) statusEl.textContent = "A decorrer";
 
-    // win condition: survived until zero
-    if (challengeRemaining <= 0) {
-      if (statusEl) statusEl.textContent = "Ganhou — tempo esgotado";
-      stopChallenge();
-      pauseSim();
-      setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
-      return;
+      // lose condition: instantaneous if consumption too high
+      if (totalW > challengeThresholdW) {
+        if (statusEl) statusEl.textContent = "Perdeu — consumo demasiado alto";
+        stopChallenge();
+        pauseSim();
+        setTimeout(() => alert("Perdeu — o consumo excedeu o limite."), 50);
+        return;
+      }
+
+      // win condition: survived until zero
+      if (challengeRemaining <= 0) {
+        if (statusEl) statusEl.textContent = "Ganhou — tempo esgotado";
+        stopChallenge();
+        pauseSim();
+        setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
+        return;
+      }
     }
   }
 
