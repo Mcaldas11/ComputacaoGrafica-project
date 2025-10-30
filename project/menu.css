@@ -48,6 +48,14 @@ body {
   text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 6px 10px rgba(0,0,0,0.7);
   letter-spacing: 2px;
 }
+
+/* Reduce the menu page title slightly and keep it centered (overrides global h1) */
+.menu-panel.menu-main h1 {
+  font-size: clamp(48px, 8.5vw, 120px);
+  line-height: 1.0;
+  text-align: center;
+  margin-bottom: 18px;
+}
 .menu-panel p {
   color: var(--muted);
   margin-bottom: 18px;
