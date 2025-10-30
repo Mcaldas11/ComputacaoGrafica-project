@@ -352,22 +352,24 @@ document.addEventListener("DOMContentLoaded", () => {
   if (resultClose) {
     resultClose.addEventListener('click', () => {
       try {
-        // ensure the challenge and simulation are stopped before navigating away
+        // stop any running challenge
         if (typeof stopChallenge === 'function') stopChallenge();
       } catch (e) {}
       try {
+        // pause simulation to avoid background activity
         if (typeof pauseSim === 'function') pauseSim();
       } catch (e) {}
       // navigate back to the menu page
       try {
         window.location.href = 'menu.html';
       } catch (e) {
-        // fallback: just hide the modal
+        // fallback: hide modal and set sandbox mode
         try {
           if (resultModal) {
             resultModal.classList.remove('visible');
             resultModal.setAttribute('aria-hidden', 'true');
           }
+          if (typeof setMode === 'function') setMode('sandbox');
         } catch (e2) {}
       }
     });
