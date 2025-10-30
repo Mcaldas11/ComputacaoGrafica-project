@@ -40,6 +40,17 @@
       <button id="clickModalClose" class="help-close">Entendi</button>
     </div>
 
+    <!-- Result modal shown when a challenge ends (win / lose) -->
+    <div id="resultModal" class="help-modal" role="dialog" aria-hidden="true">
+      <h3 id="resultTitle">Resultado</h3>
+      <p id="resultMessage">Resultado do desafio</p>
+      <p>Energia usada: <strong id="resultEnergy">0</strong> Wh</p>
+      <div style="margin-top:10px;">
+  <button id="resultRestart" style="background:#7be26a;color:#000;border:none;padding:8px 12px;border-radius:4px;cursor:pointer">Reiniciar</button>
+  <button id="resultClose" class="help-close">Retornar ao menu</button>
+      </div>
+    </div>
+
     <main class="container">
       <section class="left">
         <div class="canvasArea">

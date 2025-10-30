@@ -98,6 +98,8 @@ let challengeRemaining = 0; // seconds
 // default threshold set to 1500W per request
 let challengeThresholdW = 1200; // W - if totalW > threshold -> lose
 let challengeStarted = false; // true once user confirms the challenge modal
+// energy at the start of the current challenge (used to compute energy consumed during the challenge)
+let challengeEnergyStart = 0;
 // interval id for the random-device toggler
 let _randomDevicesIntervalId = null;
 
@@ -133,6 +135,12 @@ function startChallenge(durationSec = 120, thresholdW = 1200) {
   challengeDuration = durationSec;
   challengeRemaining = durationSec;
   challengeThresholdW = thresholdW;
+  // record energy at the start so we can compute energy used during the challenge
+  try {
+    challengeEnergyStart = typeof energyWh !== 'undefined' ? energyWh : 0;
+  } catch (e) {
+    challengeEnergyStart = 0;
+  }
   // update UI to indicate challenge mode and show click-disabled modal
   try {
     if (typeof window.setMode === 'function') window.setMode('challenge');
@@ -185,6 +193,13 @@ function stopChallenge() {
     if (typeof window !== 'undefined') window.clickModalAcknowledged = false;
   } catch (e) {}
 }
+
+function resetChallenge(){
+  challengeActive = false;
+  challengeStarted = false;
+  challengeRemaining = 0;
+  stopRandomDevices();
+} 
 
 // imagens comodos
 const salaImg = new Image();

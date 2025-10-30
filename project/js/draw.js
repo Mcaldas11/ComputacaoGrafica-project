@@ -296,7 +296,17 @@ function draw(timestamp) {
         if (statusEl) statusEl.textContent = "Perdeu — consumo demasiado alto";
         stopChallenge();
         pauseSim();
-        setTimeout(() => alert("Perdeu — o consumo excedeu o limite."), 50);
+        // compute energy used during challenge
+        try {
+          const used = typeof energyWh !== 'undefined' && typeof challengeEnergyStart !== 'undefined' ? (energyWh - challengeEnergyStart) : 0;
+          if (typeof window.showChallengeResult === 'function') {
+            setTimeout(() => window.showChallengeResult(false, used), 50);
+          } else {
+            setTimeout(() => alert("Perdeu — o consumo excedeu o limite."), 50);
+          }
+        } catch (e) {
+          setTimeout(() => alert("Perdeu — o consumo excedeu o limite."), 50);
+        }
         return;
       }
 
@@ -305,7 +315,16 @@ function draw(timestamp) {
         if (statusEl) statusEl.textContent = "Ganhou — tempo esgotado";
         stopChallenge();
         pauseSim();
-        setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
+        try {
+          const used = typeof energyWh !== 'undefined' && typeof challengeEnergyStart !== 'undefined' ? (energyWh - challengeEnergyStart) : 0;
+          if (typeof window.showChallengeResult === 'function') {
+            setTimeout(() => window.showChallengeResult(true, used), 50);
+          } else {
+            setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
+          }
+        } catch (e) {
+          setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
+        }
         return;
       }
     }

@@ -277,4 +277,99 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // Result modal: show final outcome (win/lose) and energy used during the challenge
+  const resultModal = document.getElementById('resultModal');
+  const resultTitle = document.getElementById('resultTitle');
+  const resultMessage = document.getElementById('resultMessage');
+  const resultEnergy = document.getElementById('resultEnergy');
+  const resultRestart = document.getElementById('resultRestart');
+  const resultClose = document.getElementById('resultClose');
+
+  // Expose a helper for other modules to show the end-of-challenge modal
+  window.showChallengeResult = function (won, energyUsed) {
+    try {
+      if (!resultModal) {
+        // fallback to alert
+        alert((won ? 'Ganhou — ' : 'Perdeu — ') + 'energia usada: ' + (Math.round(energyUsed * 100) / 100) + ' Wh');
+        return;
+      }
+      if (resultTitle) resultTitle.textContent = won ? 'Ganhou!' : 'Perdeu';
+      if (resultMessage) resultMessage.textContent = won ? 'Conseguiu manter o consumo aceitável.' : 'O consumo excedeu o limite durante o desafio.';
+      if (resultEnergy) resultEnergy.textContent = (Math.round(energyUsed * 100) / 100).toFixed(2);
+      resultModal.classList.add('visible');
+      resultModal.setAttribute('aria-hidden', 'false');
+    } catch (e) {
+      console.error('showChallengeResult error', e);
+    }
+  };
+
+  if (resultRestart) {
+    resultRestart.addEventListener('click', () => {
+      try {
+        // ensure any previous challenge is stopped
+        if (typeof stopChallenge === 'function') stopChallenge();
+      } catch (e) {}
+      try {
+        // reset devices and accumulated energy
+        devices.forEach((d) => (d.on = false));
+        energyWh = 0;
+        if (typeof updateDeviceList === 'function') updateDeviceList();
+      } catch (e) {}
+      // hide result modal
+      try {
+        if (resultModal) {
+          resultModal.classList.remove('visible');
+          resultModal.setAttribute('aria-hidden', 'true');
+        }
+      } catch (e) {}
+
+      // Re-initialize and start the challenge immediately (skip the click-modal)
+      try {
+        if (typeof startChallenge === 'function') startChallenge(challengeDuration, challengeThresholdW);
+        // mark the clickModal as acknowledged so it won't appear
+        try {
+          if (typeof window !== 'undefined') window.clickModalAcknowledged = true;
+        } catch (e) {}
+        // hide the clickModal UI if present
+        try {
+          const clickModalEl = document.getElementById('clickModal');
+          if (clickModalEl) {
+            clickModalEl.classList.remove('visible');
+            clickModalEl.setAttribute('aria-hidden', 'true');
+          }
+        } catch (e) {}
+        // ensure the simulation is running
+        if (typeof startSim === 'function') startSim();
+        // actually begin the challenge (starts the timer and random toggles)
+        if (typeof beginChallenge === 'function') beginChallenge();
+      } catch (e) {
+        console.error('Failed to force-restart challenge immediately', e);
+      }
+    });
+  }
+
+  if (resultClose) {
+    resultClose.addEventListener('click', () => {
+      try {
+        // ensure the challenge and simulation are stopped before navigating away
+        if (typeof stopChallenge === 'function') stopChallenge();
+      } catch (e) {}
+      try {
+        if (typeof pauseSim === 'function') pauseSim();
+      } catch (e) {}
+      // navigate back to the menu page
+      try {
+        window.location.href = 'menu.html';
+      } catch (e) {
+        // fallback: just hide the modal
+        try {
+          if (resultModal) {
+            resultModal.classList.remove('visible');
+            resultModal.setAttribute('aria-hidden', 'true');
+          }
+        } catch (e2) {}
+      }
+    });
+  }
 });
