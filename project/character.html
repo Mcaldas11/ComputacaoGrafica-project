@@ -40,16 +40,13 @@
     </main>
 
     <script>
-      // Only keep color customization for the player 'ball'. Save color and redirect to the game.
       const colorPicker = document.getElementById("colorPicker");
       const preview = document.getElementById("previewBall");
-      // Load previously chosen color if present
       const prevColor = localStorage.getItem("selectedColor");
       if (prevColor) colorPicker.value = prevColor;
       // initialize preview
       function updatePreview(c) {
         preview.style.background = c;
-        // also set an inner shadow to give a little depth
         preview.style.boxShadow = `inset -6px -8px 18px rgba(0,0,0,0.25), 0 6px 18px rgba(0,0,0,0.45)`;
       }
       updatePreview(colorPicker.value);
@@ -61,7 +58,6 @@
       document.getElementById("confirmChar").addEventListener("click", () => {
         const chosenColor = (colorPicker && colorPicker.value) || "#ffdd88";
         localStorage.setItem("selectedColor", chosenColor);
-        // Redirect back to the menu so the player can start the game from there
         window.location.href = "menu.html";
       });
     </script>
