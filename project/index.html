@@ -34,17 +34,42 @@
 
     <main class="container">
       <section class="left">
-        <canvas
-          id="houseCanvas"
-          width="900"
-          height="600"
-          aria-label="Canvas da casa com dispositivos"
-        ></canvas>
-        <div class="controls">
-          <button id="resetBtn">Repor estados</button>
-          <button id="startHandpose">Ativar Handpose</button>
-          <button id="startClassifier">Ativar Classificador</button>
-          <button id="snapshotClassify">Classificar (snapshot)</button>
+        <div class="canvasArea">
+          <canvas
+            id="houseCanvas"
+            width="900"
+            height="600"
+            aria-label="Canvas da casa com dispositivos"
+          ></canvas>
+          <div class="controls">
+            <button id="resetBtn">Repor estados</button>
+            <button id="startHandpose">Ativar Handpose</button>
+            <button id="startClassifier">Ativar Classificador</button>
+            <button id="snapshotClassify">Classificar (snapshot)</button>
+          </div>
+        </div>
+        <!-- moved ml5 and challenge panels here so they appear beside the house -->
+        <div class="leftSidePanels">
+          <div class="mlBox">
+            <h4>ml5.js</h4>
+            <video
+              id="webcam"
+              autoplay
+              muted
+              playsinline
+              width="240"
+              height="180"
+            ></video>
+            <div id="mlStatus">Estado: inativo</div>
+            <div id="classifierResult"></div>
+          </div>
+
+          <div class="challengeBox">
+            <h4>Desafio — 2 minutos</h4>
+            <div>Tempo restante: <strong id="challengeTimer">02:00</strong></div>
+            <div>Limite de consumo: <strong id="challengeThreshold">500</strong> W</div>
+            <div>Status: <strong id="challengeStatus">A decorrer</strong></div>
+          </div>
         </div>
       </section>
 
@@ -66,26 +91,7 @@
           <ul id="deviceList"></ul>
         </div>
 
-        <div class="mlBox">
-          <h4>ml5.js</h4>
-          <video
-            id="webcam"
-            autoplay
-            muted
-            playsinline
-            width="240"
-            height="180"
-          ></video>
-          <div id="mlStatus">Estado: inativo</div>
-          <div id="classifierResult"></div>
-        </div>
-
-        <div class="challengeBox">
-          <h4>Desafio — 2 minutos</h4>
-          <div>Tempo restante: <strong id="challengeTimer">02:00</strong></div>
-          <div>Limite de consumo: <strong id="challengeThreshold">500</strong> W</div>
-          <div>Status: <strong id="challengeStatus">A decorrer</strong></div>
-        </div>
+        
       </aside>
     </main>
 

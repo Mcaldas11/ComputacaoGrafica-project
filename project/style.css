@@ -175,16 +175,50 @@ body {
   align-items: flex-start;
 }
 .left {
-  flex: 1;
+  /* make left column a two-column grid: canvas area + side panels */
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 18px;
+  align-items: start;
+}
+
+.canvasArea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.canvasArea .controls {
+  /* keep controls under the canvas and full-width of canvas column */
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .right {
   width: 320px;
+  /* keep the right column visible without forcing the whole page to scroll
+     make it sticky and allow its content to scroll internally when needed */
+  position: sticky;
+  top: 80px; /* below the header area */
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  padding-right: 6px;
 }
 canvas {
   background: linear-gradient(180deg, #e9f6ff06, #ffffff03);
   border-radius: 8px;
   display: block;
   box-shadow: 0 6px 24px rgba(2, 6, 23, 0.6);
+}
+.leftSidePanels {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.leftSidePanels .mlBox,
+.leftSidePanels .challengeBox {
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: 8px;
 }
 .controls {
   margin-top: 8px;
@@ -255,6 +289,8 @@ canvas {
   background: #000;
   border-radius: 4px;
   display: block;
+  width: 200px;
+  height: 150px;
 }
 #mlStatus {
   margin-top: 6px;
@@ -285,4 +321,18 @@ canvas {
   .right {
     width: 100%;
   }
+  .left {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* small enhancement: reduce right-column spacing on shorter viewports */
+@media (max-height: 720px) {
+  .right {
+    top: 64px;
+    max-height: calc(100vh - 96px);
+  }
+  .meterBar { height: 14px; }
+  .numbers { font-size: 13px; }
+  .devicesList li { padding: 4px 2px; }
 }
