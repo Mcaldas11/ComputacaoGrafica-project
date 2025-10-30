@@ -14,58 +14,126 @@ body {
 .menu-wrapper {
   min-height: 100vh;
   display: flex;
+  /* align menu to the top-left like the reference image */
+  /* center everything like before */
   align-items: center;
   justify-content: center;
   padding: 28px;
 }
 .menu-panel {
+  /* Centered panel but transparent (no visible background) */
   max-width: 520px;
   width: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(3, 10, 18, 0.9),
-    rgba(6, 12, 20, 0.9)
-  );
+  background: transparent;
   padding: 28px;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  border-radius: 0;
+  box-shadow: none;
   text-align: center;
 }
 .menu-panel h1 {
-  margin: 0 0 6px;
-  font-size: 28px;
-  color: var(--accent);
+  margin: 0 0 24px;
+  /* use Jersey 25 (loaded from HTML). Fallback to a strong display serif */
+  font-family: 'Jersey 25', 'Press Start 2P', Georgia, serif;
+  font-size: clamp(40px, 9vw, 120px);
+  line-height: 0.95;
+  color: #ffffff;
+  /* stronger outline for pixel style */
+  -webkit-text-stroke: 1.8px rgba(0,0,0,0.85);
+  /* stronger outline + multiple shadows for improved contrast on varied backgrounds */
+  -webkit-text-stroke: 2.6px rgba(0,0,0,0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 6px 10px rgba(0,0,0,0.7);
+  letter-spacing: 2px;
 }
 .menu-panel p {
   color: var(--muted);
   margin-bottom: 18px;
 }
+.menu-panel .subtitle {
+  color: rgba(180,240,230,0.9);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+/* make subtitle and note more legible */
+.menu-panel .subtitle,
+.menu-note {
+  color: #cffcf3;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.6);
+}
 .menu-actions {
   display: flex;
   gap: 12px;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
 }
 .menu-actions a,
 .menu-actions button {
   padding: 12px 18px;
-  border-radius: 10px;
+  border-radius: 6px;
   border: 0;
   cursor: pointer;
+  transition: color 140ms ease, transform 140ms ease;
+  will-change: color, transform;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 .btn-start {
-  background: linear-gradient(180deg, #2a6b5a, #1b5343);
-  color: #eafff7;
-  font-weight: 700;
+  /* primary start button: centered, no background */
+  background: transparent;
+  border: 0;
+  color: #0ff1d8;
+  font-weight: 800;
+  padding: 8px 12px;
+  font-size: 22px;
+  /* use the same pixel font family as the title (include Press Start as fallback) */
+  font-family: 'Jersey 25', 'Press Start 2P', monospace;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1.4px rgba(0,0,0,0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 3px 6px rgba(0,0,0,0.7);
+}
+.menu-panel .btn-start:hover,
+.menu-panel .btn-start:focus {
+  color: #7ef1dd;
+  transform: translateY(-2px);
 }
 .btn-secondary {
-  background: #18314a;
-  color: #eafff7;
+  background: transparent;
+  border: 0;
+  color: #d9f7ee;
+  padding: 6px 0;
+  font-size: 16px;
+}
+.menu-panel .btn-secondary:hover,
+.menu-panel .btn-secondary:focus {
+  color: #bfeef0;
+  transform: translateX(6px);
+}
+
+/* accessible focus outline */
+a.btn-start:focus-visible,
+.btn-start:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 3px solid rgba(107, 227, 255, 0.14);
+  outline-offset: 4px;
+}
+/* Ensure anchor buttons never show an underline in any state (simple rule) */
+a.btn-start,
+.btn-start,
+.btn-secondary,
+.menu-vertical a.btn-start,
+.menu-vertical a.btn-secondary {
+  text-decoration: none !important;
 }
 .menu-note {
-  margin-top: 14px;
+  /* ensure same pixel font as the other menu items */
+  font-family: 'Jersey 25', monospace;
+  text-transform: uppercase;
+  margin-top: 12px;
   color: var(--muted);
   font-size: 13px;
+  max-width: 420px;
 }
 
 /* vertical layout variant used on the menu page */
@@ -73,15 +141,22 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-top: 18px;
-  align-items: stretch;
+  margin-top: 18px; /* centered layout: smaller gap under title */
+  align-items: center;
 }
 .menu-vertical .btn-start,
 .menu-vertical .btn-secondary {
   display: block;
   text-align: center;
-  padding: 14px 18px;
-  font-size: 16px;
+  padding: 14px 0;
+  font-size: 28px;
+  border-radius: 0;
+  font-family: 'Jersey 25', 'Press Start 2P', monospace;
+  color: #f6f6f6;
+  text-transform: uppercase;
+  /* stronger stroke/shadow for legibility */
+  -webkit-text-stroke: 1.4px rgba(0,0,0,0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 4px 8px rgba(0,0,0,0.7);
 }
 
 @media (max-width: 520px) {
