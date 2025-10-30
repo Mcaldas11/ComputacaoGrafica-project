@@ -58,6 +58,34 @@ body {
   margin-bottom: 12px;
 }
 
+/* layout for small action rows (character page) */
+.actions-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  justify-content: space-between;
+}
+
+/* Ensure action buttons on character.html match the menu buttons exactly */
+.menu-panel .actions-row .btn-start,
+.menu-panel .actions-row .btn-secondary {
+  font-family: 'Jersey 25', 'Press Start 2P', monospace;
+  font-size: 28px;
+  padding: 14px 0;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #f6f6f6;
+  -webkit-text-stroke: 1.4px rgba(0,0,0,0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 4px 8px rgba(0,0,0,0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-panel .actions-row .btn-start { background: linear-gradient(180deg, #4cc48a 0%, #2b9a67 100%); border: 1px solid rgba(0,0,0,0.15); }
+.menu-panel .actions-row .btn-secondary { background: linear-gradient(180deg, #294a5c 0%, #18303a 100%); border: 1px solid rgba(0,0,0,0.22); }
+
 /* make subtitle and note more legible */
 .menu-panel .subtitle,
 .menu-note {
