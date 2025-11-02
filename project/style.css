@@ -13,6 +13,9 @@
 html,
 body {
   margin: 0;
+  /* prevent page-level scrolling so the canvas and UI remain fixed in the viewport */
+  overflow: hidden;
+  height: 100vh;
   background-image: linear-gradient(
       180deg,
       rgba(7, 17, 38, 0.65) 0%,
