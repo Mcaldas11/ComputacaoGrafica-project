@@ -2,19 +2,6 @@
 let canvas, ctx;
 let running = false;
 let _animId = null;
-// character sprite assets
-const characterSprites = {};
-const characterSpritesLoaded = {};
-function loadCharacterSprites() {
-  const chars = ["Shinobi", "Samurai", "Fighter"];
-  for (const c of chars) {
-    const img = new Image();
-    img.src = `img/personagem/${c}/Idle.png`;
-    img.onload = () => (characterSpritesLoaded[c] = true);
-    img.onerror = () => (characterSpritesLoaded[c] = false);
-    characterSprites[c] = img;
-  }
-}
 
 function initCanvas() {
   canvas = document.getElementById("houseCanvas");
@@ -22,8 +9,7 @@ function initCanvas() {
   if (!canvas) return;
   canvas.width = canvas.width || 900;
   canvas.height = canvas.height || 600;
-  // start loading character sprites once canvas exists
-  loadCharacterSprites();
+  // canvas initialized
 }
 
 function computePowerW() {

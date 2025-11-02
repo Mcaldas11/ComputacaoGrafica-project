@@ -146,14 +146,14 @@ function startChallenge(durationSec = 120, thresholdW = 1200) {
     if (typeof window.setMode === 'function') window.setMode('challenge');
     // reset acknowledgement so the modal shows at the start of each challenge
     if (typeof window !== 'undefined') window.clickModalAcknowledged = false;
-    const timerEl = document.getElementById && document.getElementById('challengeTimer');
-    const thresholdEl = document.getElementById && document.getElementById('challengeThreshold');
-    const statusEl = document.getElementById && document.getElementById('challengeStatus');
+  const timerEl = document.getElementById('challengeTimer');
+  const thresholdEl = document.getElementById('challengeThreshold');
+  const statusEl = document.getElementById('challengeStatus');
     if (thresholdEl) thresholdEl.textContent = Math.round(challengeThresholdW);
     if (timerEl) timerEl.textContent = `${String(Math.floor(challengeRemaining/60)).padStart(2,'0')}:${String(Math.floor(challengeRemaining%60)).padStart(2,'0')}`;
     if (statusEl) statusEl.textContent = 'A iniciar — confirma para começar';
     // show click-disabled modal to inform the player (they must click 'Entendi' to begin)
-    const clickModal = document.getElementById && document.getElementById('clickModal');
+  const clickModal = document.getElementById('clickModal');
     if (clickModal) {
       clickModal.classList.add('visible');
       clickModal.setAttribute('aria-hidden', 'false');
@@ -171,7 +171,7 @@ function beginChallenge() {
   startRandomDevices();
   // update UI status
   try {
-    const statusEl = document.getElementById && document.getElementById('challengeStatus');
+    const statusEl = document.getElementById('challengeStatus');
     if (statusEl) statusEl.textContent = 'A decorrer';
   } catch (e) {}
 }
@@ -183,7 +183,7 @@ function stopChallenge() {
   challengeStarted = false;
   // hide click-disabled modal when challenge ends
   try {
-    const clickModal = document.getElementById && document.getElementById('clickModal');
+    const clickModal = document.getElementById('clickModal');
     if (clickModal) {
       clickModal.classList.remove('visible');
       clickModal.setAttribute('aria-hidden', 'true');

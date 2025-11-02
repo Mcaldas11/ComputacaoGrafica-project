@@ -5,6 +5,16 @@ let handposeModel = null;
 let classifier = null;
 let lastGesture = 0;
 const gestureCooldown = 2000;
+ 
+ // small helper to update the ML status text in the UI (reduces repetition)
+ function setMlStatus(text) {
+   try {
+     const el = document.getElementById("mlStatus");
+     if (el) el.textContent = text;
+   } catch (e) {
+     /* ignore when DOM not ready */
+   }
+ }
 
 async function startWebcam() {
   if (webcamStarted) return Promise.resolve();
@@ -18,12 +28,10 @@ async function startWebcam() {
     video.srcObject = stream;
     await video.play();
     webcamStarted = true;
-    const mlStatus = document.getElementById("mlStatus");
-    if (mlStatus) mlStatus.textContent = "Estado: webcam ativa";
+    setMlStatus("Estado: webcam ativa");
   } catch (err) {
     console.error("Webcam error", err);
-    const mlStatus = document.getElementById("mlStatus");
-    if (mlStatus) mlStatus.textContent = "Erro a aceder webcam";
+    setMlStatus("Erro a aceder webcam");
     throw err;
   }
 }
@@ -33,14 +41,15 @@ function startHandpose() {
     .then(() => {
       const mlStatus = document.getElementById("mlStatus");
       if (mlStatus) mlStatus.textContent = "Carregando Handpose...";
+      setMlStatus("Carregando Handpose...");
       try {
         handposeModel = ml5.handpose(video, () => {
-          if (mlStatus) mlStatus.textContent = "Handpose pronta";
+          setMlStatus("Handpose pronta");
         });
         handposeModel.on("predict", gotHands);
       } catch (e) {
         console.warn("handpose error", e);
-        if (mlStatus) mlStatus.textContent = "Erro Handpose";
+        setMlStatus("Erro Handpose");
       }
     })
     .catch(() => {});
@@ -63,9 +72,7 @@ function gotHands(predictions) {
       }
     }
     if (changed && typeof updateDeviceList === "function") updateDeviceList();
-    const mlStatus = document.getElementById("mlStatus");
-    if (mlStatus)
-      mlStatus.textContent = "Gesto: mao levantada — luzes desligadas";
+    setMlStatus("Gesto: mao levantada — luzes desligadas");
     lastGesture = Date.now();
     pulses.push({ x: 450, y: 300, t: 0 });
   }
@@ -75,10 +82,9 @@ function startClassifier() {
   startWebcam()
     .then(() => {
       const mlStatus = document.getElementById("mlStatus");
-      if (mlStatus)
-        mlStatus.textContent = "Carregando classificador (MobileNet)...";
+      setMlStatus("Carregando classificador (MobileNet)...");
       classifier = ml5.imageClassifier("MobileNet", video, () => {
-        if (mlStatus) mlStatus.textContent = "Classificador pronto";
+        setMlStatus("Classificador pronto");
       });
     })
     .catch(() => {});
@@ -86,16 +92,14 @@ function startClassifier() {
 
 function snapshotClassify() {
   if (!classifier || !video) {
-    const mlStatus = document.getElementById("mlStatus");
-    if (mlStatus) mlStatus.textContent = "Classificador não ativo";
+    setMlStatus("Classificador não ativo");
     return;
   }
-  const mlStatus = document.getElementById("mlStatus");
-  if (mlStatus) mlStatus.textContent = "A classificar...";
+  setMlStatus("A classificar...");
   classifier.classify((err, results) => {
     if (err) {
       console.error(err);
-      if (mlStatus) mlStatus.textContent = "Erro no classificador";
+      setMlStatus("Erro no classificador");
       return;
     }
     const top = results[0];
@@ -104,7 +108,7 @@ function snapshotClassify() {
       classifierResult.innerHTML = `<strong>${
         top.label
       }</strong> — confiança ${(top.confidence * 100).toFixed(1)}%`;
-    if (mlStatus) mlStatus.textContent = "Classificação concluída";
+    setMlStatus("Classificação concluída");
     const suggestion = guessConsumptionFromLabel(top.label);
     if (classifierResult)
       classifierResult.innerHTML += `<div>Sugestão consumo médio: <strong>${suggestion} W</strong></div>`;
@@ -135,8 +139,7 @@ document.addEventListener("visibilitychange", () => {
     const tracks = video.srcObject.getTracks();
     tracks.forEach((t) => t.stop());
     webcamStarted = false;
-    const mlStatus = document.getElementById("mlStatus");
-    if (mlStatus) mlStatus.textContent = "Webcam parada";
+    setMlStatus("Webcam parada");
   }
 });
 
