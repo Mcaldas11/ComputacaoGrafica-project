@@ -270,6 +270,25 @@ function draw(timestamp) {
   }
   if (powerWEl) powerWEl.textContent = Math.round(totalW);
   if (energyWhEl) energyWhEl.textContent = energyWh.toFixed(2);
+  // consumption status message (icon + text, with pulsing when high)
+  try {
+    const consEl = document.getElementById("consumptionStatus");
+    if (consEl) {
+      const iconEl = consEl.querySelector(".icon");
+      const textEl = consEl.querySelector(".text");
+      if (totalW > 800) {
+        if (iconEl) iconEl.style.display = "";
+        if (textEl) textEl.textContent = "Consumo demasiado elevado";
+        consEl.classList.add("high");
+      } else {
+        if (iconEl) iconEl.style.display = "none";
+        if (textEl) textEl.textContent = "Consumo controlado";
+        consEl.classList.remove("high");
+      }
+    }
+  } catch (e) {
+    /* ignore DOM errors when not present */
+  }
 
   // Challenge mode handling: show values; only decrement/check while challengeStarted
   if (typeof challengeActive !== "undefined" && challengeActive) {
@@ -280,7 +299,9 @@ function draw(timestamp) {
     if (timerEl) {
       const mins = Math.floor(challengeRemaining / 60);
       const secs = Math.floor(challengeRemaining % 60);
-      timerEl.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+      timerEl.textContent = `${String(mins).padStart(2, "0")}:${String(
+        secs
+      ).padStart(2, "0")}`;
     }
 
     // if challenge hasn't been confirmed by the player yet, show pending status
@@ -298,8 +319,12 @@ function draw(timestamp) {
         pauseSim();
         // compute energy used during challenge
         try {
-          const used = typeof energyWh !== 'undefined' && typeof challengeEnergyStart !== 'undefined' ? (energyWh - challengeEnergyStart) : 0;
-          if (typeof window.showChallengeResult === 'function') {
+          const used =
+            typeof energyWh !== "undefined" &&
+            typeof challengeEnergyStart !== "undefined"
+              ? energyWh - challengeEnergyStart
+              : 0;
+          if (typeof window.showChallengeResult === "function") {
             setTimeout(() => window.showChallengeResult(false, used), 50);
           } else {
             setTimeout(() => alert("Perdeu — o consumo excedeu o limite."), 50);
@@ -316,14 +341,24 @@ function draw(timestamp) {
         stopChallenge();
         pauseSim();
         try {
-          const used = typeof energyWh !== 'undefined' && typeof challengeEnergyStart !== 'undefined' ? (energyWh - challengeEnergyStart) : 0;
-          if (typeof window.showChallengeResult === 'function') {
+          const used =
+            typeof energyWh !== "undefined" &&
+            typeof challengeEnergyStart !== "undefined"
+              ? energyWh - challengeEnergyStart
+              : 0;
+          if (typeof window.showChallengeResult === "function") {
             setTimeout(() => window.showChallengeResult(true, used), 50);
           } else {
-            setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
+            setTimeout(
+              () => alert("Ganhou — conseguiu manter o consumo aceitável!"),
+              50
+            );
           }
         } catch (e) {
-          setTimeout(() => alert("Ganhou — conseguiu manter o consumo aceitável!"), 50);
+          setTimeout(
+            () => alert("Ganhou — conseguiu manter o consumo aceitável!"),
+            50
+          );
         }
         return;
       }

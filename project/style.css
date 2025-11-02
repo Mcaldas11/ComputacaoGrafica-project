@@ -262,6 +262,44 @@ canvas {
   color: var(--muted);
 }
 
+.consumption-status {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* pulsing warning style when consumption is high */
+.consumption-status.high {
+  animation: consumptionPulse 900ms ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Force the text color via CSS so it stays red when high */
+.consumption-status .text {
+  color: #78c2a8; /* default greenish */
+}
+
+.consumption-status.high .text {
+  color: #ff4d4d !important; /* important to override other styles */
+}
+.consumption-status .icon {
+  margin-right: 8px;
+}
+
+@keyframes consumptionPulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 77, 77, 0));
+  }
+  50% {
+    transform: scale(1.04);
+    filter: drop-shadow(0 6px 18px rgba(255, 77, 77, 0.18));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgba(255, 77, 77, 0));
+  }
+}
+
 .devicesList {
   background: rgba(255, 255, 255, 0.02);
   padding: 12px;
@@ -332,7 +370,13 @@ canvas {
     top: 64px;
     max-height: calc(100vh - 96px);
   }
-  .meterBar { height: 14px; }
-  .numbers { font-size: 13px; }
-  .devicesList li { padding: 4px 2px; }
+  .meterBar {
+    height: 14px;
+  }
+  .numbers {
+    font-size: 13px;
+  }
+  .devicesList li {
+    padding: 4px 2px;
+  }
 }
