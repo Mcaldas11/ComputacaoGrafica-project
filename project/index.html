@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>EcoPower</title>
     <link rel="stylesheet" href="style.css" />
-    <!-- p5 + ml5 (for handpose + image classifier). p5 is used by ml5 in many builds. -->
-    <script src="https://unpkg.com/ml5@1/dist/ml5.js"></script>
+
+    <!-- ✅ TensorFlow.js (necessário para ml5.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+
+    <!-- ✅ ml5.js (versão compatível com handpose) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
-    <!-- Redirect logic moved to external JS file to keep HTML clean -->
+
+    <!-- Script de redirecionamento (do teu projeto) -->
     <script src="js/redirect.js"></script>
   </head>
   <body>
