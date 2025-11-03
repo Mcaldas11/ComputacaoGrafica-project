@@ -151,27 +151,112 @@ function snapshotClassify() {
       setMlStatus("Erro no classificador");
       return;
     }
-    const top = results[0];
     const classifierResult = document.getElementById("classifierResult");
-    if (classifierResult)
-      classifierResult.innerHTML = `<strong>${top.label}</strong> — confiança ${(top.confidence * 100).toFixed(1)}%`;
+    // Limpa o resultado anterior e NÃO mostra o rótulo bruto (pedido do utilizador)
+    if (classifierResult) classifierResult.innerHTML = "";
     setMlStatus("Classificação concluída");
-    const suggestion = guessConsumptionFromLabel(top.label);
-    if (classifierResult)
-      classifierResult.innerHTML += `<div>Sugestão consumo médio: <strong>${suggestion} W</strong></div>`;
+    // Escolhe o MELHOR resultado dentro das 4 categorias suportadas (procura no top-K)
+    const minConf = (typeof window.CLASSIFIER_MIN_CONFIDENCE !== 'undefined') ? window.CLASSIFIER_MIN_CONFIDENCE : 0.12;
+    let picked = null; // {cat, label, confidence}
+    if (Array.isArray(results)) {
+      for (const r of results) {
+        const c = normalizeDeviceCategory(r.label);
+        if (c && (r.confidence >= minConf)) {
+          picked = { cat: c, label: r.label, confidence: r.confidence };
+          break;
+        }
+      }
+      // fallback: se nada acima do limiar, tenta a melhor categoria mesmo com confiança baixa
+      if (!picked) {
+        for (const r of results) {
+          const c = normalizeDeviceCategory(r.label);
+          if (c) { picked = { cat: c, label: r.label, confidence: r.confidence }; break; }
+        }
+      }
+    }
+
+    if (!picked) {
+      if (classifierResult) {
+        classifierResult.innerHTML += `<div style=\"color:#c0392b\">Objeto não suportado. Mostra: <strong>telemóvel</strong>, <strong>fones</strong>, <strong>rato</strong> ou <strong>TV</strong>.</div>`;
+        // Opcional: modo debug para mostrar label/confiança original se necessário
+        if (window.DEBUG_CLASSIFIER) {
+          const dbg = (results && results[0]) ? results[0] : null;
+          if (dbg) classifierResult.innerHTML += `<small style=\"color:#7a8b96\">Top: ${dbg.label} — ${(dbg.confidence * 100).toFixed(1)}%</small>`;
+        }
+      }
+      return;
+    }
+    const cat = picked.cat;
+    const suggestion = getAverageConsumptionForCategory(cat);
+    if (classifierResult) {
+      classifierResult.innerHTML += `<div>Categoria: <strong>${cat.toUpperCase()}</strong></div>`;
+      classifierResult.innerHTML += `<div>Consumo médio estimado: <strong>${suggestion} W</strong></div>`;
+      // Nota: para fones/rato, o consumo significativo acontece sobretudo durante o carregamento
+      if (cat === 'fones' || cat === 'rato') {
+        classifierResult.innerHTML += `<small style=\"color:#7a8b96\">Valor típico durante <em>carregamento</em>; em uso normal tende a ser muito baixo.</small>`;
+      } else {
+        classifierResult.innerHTML += `<small style=\"color:#7a8b96\">Estimativa aproximada; pode variar consoante o modelo.</small>`;
+      }
+      if (window.DEBUG_CLASSIFIER) {
+        classifierResult.innerHTML += `<div><small style=\"color:#7a8b96\">Deteção: ${picked.label} — ${(picked.confidence * 100).toFixed(1)}%</small></div>`;
+      }
+    }
   });
 }
 
+
+function normalizeDeviceCategory(label) {
+  const l = (label || '').toLowerCase();
+  // telemóvel
+  const phoneKw = [
+    'cellular telephone','cell phone','mobile phone','smartphone','telephone','phone',
+    'telemovel','telemóvel','iphone','android'
+  ];
+  if (phoneKw.some(k => l.includes(k))) return 'telemovel';
+
+  // fones (headphones/earphones/earbuds/headset)
+  const phonesAudioKw = [
+    'headphone','headphones','earphone','earphones','earbud','earbuds','headset','fones','auriculares'
+  ];
+  if (phonesAudioKw.some(k => l.includes(k))) return 'fones';
+
+  // rato (computer mouse)
+  // Preferir "computer mouse"; aceitar "mouse" apenas quando acompanhado de termos de computação
+  if (l.includes('computer mouse')) return 'rato';
+  if (l.includes('mouse') && (l.includes('computer') || l.includes('wireless') || l.includes('optical') || l.includes('gaming'))) return 'rato';
+  if (l.includes('rato') || l.includes('raton')) return 'rato';
+
+  // tv (television)
+  const tvKw = ['television','tv','smart tv'];
+  if (tvKw.some(k => l.includes(k))) return 'tv';
+
+  return null;
+}
+
+// Retorna W médios típicos para a categoria pedida
+function getAverageConsumptionForCategory(cat) {
+  switch (cat) {
+    case 'telemovel':
+      // carregamento rápido ~8–18 W; uso/idle é inferior
+      return 8;
+    case 'fones':
+      // carregamento de auriculares/headset
+      return 2;
+    case 'rato':
+      // rato sem fios durante carregamento; com fio em uso ~0.5–1 W
+      return 1;
+    case 'tv':
+      // TV LED/LCD média
+      return 120;
+    default:
+      return 100;
+  }
+}
+
 function guessConsumptionFromLabel(label) {
-  const l = (label || "").toLowerCase();
-  if (l.includes("microwave") || l.includes("micro")) return 1000;
-  if (l.includes("toaster") || l.includes("toast")) return 800;
-  if (l.includes("refrigerator") || l.includes("fridge") || l.includes("frigor")) return 150;
-  if (l.includes("tv") || l.includes("television")) return 120;
-  if (l.includes("laptop") || l.includes("computer") || l.includes("notebook")) return 60;
-  if (l.includes("fan")) return 60;
-  if (l.includes("oven")) return 2000;
-  return 100;
+  // Apenas as 4 categorias pedidas
+  const cat = normalizeDeviceCategory(label);
+  return cat ? getAverageConsumptionForCategory(cat) : null;
 }
 
 // safety: stop webcam when page hidden
