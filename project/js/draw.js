@@ -35,7 +35,6 @@ function draw(timestamp) {
     ctx.fillStyle = "#082033";
     ctx.fillRect(40, 40, 815, 520);
   }
-
   // devices
   for (const d of devices) {
     ctx.save();
