@@ -8,8 +8,8 @@ const devices = [
     label: "Luz Sala",
     type: "light",
     power: 60,
-    x: 140,
-    y: 120,
+    x: 175,
+    y: 445,
     w: 48,
     h: 48,
     on: false,
@@ -19,8 +19,8 @@ const devices = [
     label: "Luz Quarto",
     type: "light",
     power: 60,
-    x: 640,
-    y: 120,
+    x: 650,
+    y: 100,
     w: 48,
     h: 48,
     on: false,
@@ -30,8 +30,8 @@ const devices = [
     label: "Luz Cozinha",
     type: "light",
     power: 60,
-    x: 320,
-    y: 360,
+    x: 508,
+    y: 170,
     w: 48,
     h: 48,
     on: false,
@@ -41,10 +41,10 @@ const devices = [
     label: "Frigorífico",
     type: "fridge",
     power: 120,
-    x: 140,
-    y: 360,
+    x: 555,
+    y: 145,
     w: 60,
-    h: 70,
+    h: 80,
     on: false,
   },
   {
@@ -52,7 +52,7 @@ const devices = [
     label: "TV",
     type: "tv",
     power: 100,
-    x: 420,
+    x: 241,
     y: 360,
     w: 80,
     h: 56,
@@ -63,16 +63,22 @@ const devices = [
     label: "Aquecedor",
     type: "heater",
     power: 1000,
-    x: 640,
-    y: 360,
-    w: 64,
-    h: 76,
+    x: 730,
+    y: 150,
+    w: 68,
+    h: 85,
     on: false,
   },
 ];
 
 // player (boneco)
 const player = { x: 220, y: 160, r: 14, speed: 160, stepPhase: 0 };
+
+// imagem fundo
+const casaImg = new Image();
+let casaLoaded = false;
+casaImg.onload = () => (casaLoaded = true);
+casaImg.src = "img/casa.png";
 
 // movement areas & inputs
 const allowedAreas = [
@@ -137,26 +143,31 @@ function startChallenge(durationSec = 120, thresholdW = 1200) {
   challengeThresholdW = thresholdW;
   // record energy at the start so we can compute energy used during the challenge
   try {
-    challengeEnergyStart = typeof energyWh !== 'undefined' ? energyWh : 0;
+    challengeEnergyStart = typeof energyWh !== "undefined" ? energyWh : 0;
   } catch (e) {
     challengeEnergyStart = 0;
   }
   // update UI to indicate challenge mode and show click-disabled modal
   try {
-    if (typeof window.setMode === 'function') window.setMode('challenge');
+    if (typeof window.setMode === "function") window.setMode("challenge");
     // reset acknowledgement so the modal shows at the start of each challenge
-    if (typeof window !== 'undefined') window.clickModalAcknowledged = false;
-  const timerEl = document.getElementById('challengeTimer');
-  const thresholdEl = document.getElementById('challengeThreshold');
-  const statusEl = document.getElementById('challengeStatus');
+    if (typeof window !== "undefined") window.clickModalAcknowledged = false;
+    const timerEl = document.getElementById("challengeTimer");
+    const thresholdEl = document.getElementById("challengeThreshold");
+    const statusEl = document.getElementById("challengeStatus");
     if (thresholdEl) thresholdEl.textContent = Math.round(challengeThresholdW);
-    if (timerEl) timerEl.textContent = `${String(Math.floor(challengeRemaining/60)).padStart(2,'0')}:${String(Math.floor(challengeRemaining%60)).padStart(2,'0')}`;
-    if (statusEl) statusEl.textContent = 'A iniciar — confirma para começar';
+    if (timerEl)
+      timerEl.textContent = `${String(
+        Math.floor(challengeRemaining / 60)
+      ).padStart(2, "0")}:${String(
+        Math.floor(challengeRemaining % 60)
+      ).padStart(2, "0")}`;
+    if (statusEl) statusEl.textContent = "A iniciar — confirma para começar";
     // show click-disabled modal to inform the player (they must click 'Entendi' to begin)
-  const clickModal = document.getElementById('clickModal');
+    const clickModal = document.getElementById("clickModal");
     if (clickModal) {
-      clickModal.classList.add('visible');
-      clickModal.setAttribute('aria-hidden', 'false');
+      clickModal.classList.add("visible");
+      clickModal.setAttribute("aria-hidden", "false");
     }
   } catch (e) {
     /* ignore if DOM not ready */
@@ -171,8 +182,8 @@ function beginChallenge() {
   startRandomDevices();
   // update UI status
   try {
-    const statusEl = document.getElementById('challengeStatus');
-    if (statusEl) statusEl.textContent = 'A decorrer';
+    const statusEl = document.getElementById("challengeStatus");
+    if (statusEl) statusEl.textContent = "A decorrer";
   } catch (e) {}
 }
 
@@ -183,23 +194,23 @@ function stopChallenge() {
   challengeStarted = false;
   // hide click-disabled modal when challenge ends
   try {
-    const clickModal = document.getElementById('clickModal');
+    const clickModal = document.getElementById("clickModal");
     if (clickModal) {
-      clickModal.classList.remove('visible');
-      clickModal.setAttribute('aria-hidden', 'true');
+      clickModal.classList.remove("visible");
+      clickModal.setAttribute("aria-hidden", "true");
     }
-    if (typeof window.setMode === 'function') window.setMode('sandbox');
+    if (typeof window.setMode === "function") window.setMode("sandbox");
     // reset acknowledgement when challenge ends so next challenge will show the modal again
-    if (typeof window !== 'undefined') window.clickModalAcknowledged = false;
+    if (typeof window !== "undefined") window.clickModalAcknowledged = false;
   } catch (e) {}
 }
 
-function resetChallenge(){
+function resetChallenge() {
   challengeActive = false;
   challengeStarted = false;
   challengeRemaining = 0;
   stopRandomDevices();
-} 
+}
 
 // imagens comodos
 const salaImg = new Image();
