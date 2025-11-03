@@ -6,11 +6,10 @@
     <title>EcoPower</title>
     <link rel="stylesheet" href="style.css" />
 
-    <!-- TensorFlow.js  -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
-
-    <!-- ml5.js (versão compatível com handpose) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
+    <!-- Nota: não incluímos tfjs manualmente para evitar incompatibilidades com ml5.
+      A build do ml5 abaixo já traz a versão compatível embebida. -->
+  <!-- ml5.js (versão compatível com handpose) -->
+  <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
 
     <!-- Script de redirecionamento (do teu projeto) -->
     <script src="js/redirect.js"></script>

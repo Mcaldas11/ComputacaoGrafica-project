@@ -168,11 +168,37 @@ document.addEventListener("DOMContentLoaded", () => {
       updateDeviceList();
     });
 
-  startHandposeBtn &&
-    startHandposeBtn.addEventListener("click", () => {
-      startWebcam();
-      startHandpose();
+  // Toggleable Handpose button: starts/stops model and updates UI
+  if (startHandposeBtn) {
+    startHandposeBtn.addEventListener("click", async () => {
+      try {
+        startHandposeBtn.disabled = true;
+        const active = !!window.handposeActive;
+        if (!active) {
+          // start and wait until ready
+          try {
+            await startHandpose();
+            startHandposeBtn.textContent = 'Parar Handpose';
+          } catch (err) {
+            console.error('UI: startHandpose failed', err);
+            // show user-visible message
+            const s = document.getElementById('mlStatus');
+            if (s) s.textContent = 'Erro ao ativar Handpose — verifica permissões/console';
+            return;
+          }
+        } else {
+          if (typeof stopHandpose === 'function') stopHandpose();
+          startHandposeBtn.textContent = 'Ativar Handpose';
+        }
+      } catch (e) {
+        console.error('Falha ao ativar Handpose', e);
+        // show minimal feedback
+        try { const s = document.getElementById('mlStatus'); if (s) s.textContent = 'Erro ao ativar Handpose'; } catch (e) {}
+      } finally {
+        startHandposeBtn.disabled = false;
+      }
     });
+  }
   startClassifierBtn &&
     startClassifierBtn.addEventListener("click", () => {
       startWebcam();

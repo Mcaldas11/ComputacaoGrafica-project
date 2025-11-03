@@ -25,53 +25,15 @@ function draw(timestamp) {
   // clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (salaLoaded) {
-    drawImageCropped(salaImg, 40, 40, 360, 240);
+//carregar casa
+  if (casaLoaded) {
+    drawImageCropped(casaImg, 40, 40, 815, 520);
     // subtle dark overlay so devices/labels remain legible
     ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(40, 40, 360, 240);
+    ctx.fillRect(40, 40, 815, 520);
   } else {
     ctx.fillStyle = "#082033";
-    ctx.fillRect(40, 40, 360, 240);
-  }
-
-  if (quartoLoaded) {
-    drawImageCropped(quartoImg, 500, 40, 360, 240);
-    ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(500, 40, 360, 240);
-  } else {
-    ctx.fillStyle = "#082033";
-    ctx.fillRect(500, 40, 360, 240);
-  }
-
-  if (despensaLoaded) {
-    drawImageCropped(despensaImg, 500, 310, 360, 240);
-    ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(500, 310, 360, 240);
-  } else {
-    ctx.fillStyle = "#082033";
-    ctx.fillRect(500, 310, 360, 240);
-  }
-
-  if (cozinhaLoaded) {
-    drawImageCropped(cozinhaImg, 40, 310, 360, 240);
-    ctx.fillStyle = "rgba(6,12,18,0.28)";
-    ctx.fillRect(40, 310, 360, 240);
-  } else {
-    ctx.fillStyle = "#082033";
-    ctx.fillRect(40, 310, 360, 240);
-  }
-
-  // room labels (dinâmicos para todas as allowedAreas)
-  // Use allowedAreas from state.js and draw a label near the top-left of each area.
-  const roomNames = ["Sala", "Quarto", "Cozinha / Despensa"];
-  ctx.fillStyle = "#9fb6c3";
-  ctx.font = "14px Arial";
-  for (let i = 0; i < allowedAreas.length; i++) {
-    const a = allowedAreas[i];
-    const name = roomNames[i] || `Zona ${i + 1}`;
-    // position near top-left inside the area (matches previous fixed coords)
-    ctx.fillText(name, a.x + 20, a.y + 20);
+    ctx.fillRect(40, 40, 815, 520);
   }
 
   // devices
