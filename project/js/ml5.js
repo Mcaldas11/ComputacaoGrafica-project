@@ -214,7 +214,6 @@ function snapshotClassify() {
     if (classifierResult) {
       classifierResult.innerHTML += `<div>Categoria: <strong>${cat.toUpperCase()}</strong></div>`;
       classifierResult.innerHTML += `<div>Consumo médio estimado: <strong>${suggestion} W</strong></div>`;
-      // Nota: para fones/rato, o consumo significativo acontece sobretudo durante o carregamento
       if (cat === 'fones' || cat === 'rato') {
         classifierResult.innerHTML += `<small style=\"color:#7a8b96\">Valor típico durante <em>carregamento</em>; em uso normal tende a ser muito baixo.</small>`;
       } else {
