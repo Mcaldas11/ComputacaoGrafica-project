@@ -71,6 +71,9 @@ let handposeModel = null;
 let classifier = null;
 let lastGesture = 0;
 const gestureCooldown = 2000;
+// offscreen canvas para classificação espelhada
+let mirrorCanvas = null;
+let mirrorCtx = null;
 
 async function startWebcam() {
   if (webcamStarted) return Promise.resolve();
@@ -81,6 +84,11 @@ async function startWebcam() {
     video.srcObject = stream;
     await video.play();
     webcamStarted = true;
+    // espelhar a pré-visualização para corresponder à experiência de selfie
+    try {
+      video.style.transform = 'scaleX(-1)';
+      video.style.webkitTransform = 'scaleX(-1)';
+    } catch (e) {}
     setMlStatus("Estado: webcam ativa");
     return;
   } catch (err) {
@@ -133,7 +141,8 @@ function gotHands(predictions) {
 function startClassifier() {
   return startWebcam().then(() => {
     setMlStatus("Carregando classificador (MobileNet)...");
-    classifier = ml5.imageClassifier("MobileNet", video, () => {
+    // criar sem fonte atrelada; iremos passar um canvas espelhado no snapshot
+    classifier = ml5.imageClassifier("MobileNet", () => {
       setMlStatus("Classificador pronto");
     });
   }).catch(() => {});
@@ -145,7 +154,21 @@ function snapshotClassify() {
     return;
   }
   setMlStatus("A classificar...");
-  classifier.classify((err, results) => {
+  // preparar canvas espelhado
+  if (!mirrorCanvas) {
+    mirrorCanvas = document.createElement('canvas');
+    mirrorCtx = mirrorCanvas.getContext('2d');
+  }
+  const w = (video && (video.videoWidth || video.width)) || 240;
+  const h = (video && (video.videoHeight || video.height)) || 180;
+  mirrorCanvas.width = w;
+  mirrorCanvas.height = h;
+  mirrorCtx.save();
+  mirrorCtx.scale(-1, 1);
+  mirrorCtx.drawImage(video, -w, 0, w, h);
+  mirrorCtx.restore();
+
+  classifier.classify(mirrorCanvas, (err, results) => {
     if (err) {
       console.error(err);
       setMlStatus("Erro no classificador");
