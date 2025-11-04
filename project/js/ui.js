@@ -149,14 +149,17 @@ document.addEventListener("DOMContentLoaded", () => {
       ev.preventDefault();
       return;
     }
-    if (ev.key in keys) {
-      keys[ev.key] = true;
+    // normaliza letras para minúsculas (WASD)
+    const k = ev.key && ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
+    if (k in keys) {
+      keys[k] = true;
       ev.preventDefault();
     }
   });
   document.addEventListener("keyup", (ev) => {
-    if (ev.key in keys) {
-      keys[ev.key] = false;
+    const k = ev.key && ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
+    if (k in keys) {
+      keys[k] = false;
       ev.preventDefault();
     }
   });

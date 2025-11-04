@@ -124,7 +124,8 @@ function draw(timestamp) {
   ctx.save();
   // determine if user is currently sending movement input
   const movingNow = Boolean(
-    keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight
+    keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight ||
+    keys.w || keys.a || keys.s || keys.d
   );
   // bob for walking animation vs idle 'breathing' animation
   let bob = 0;
@@ -316,10 +317,10 @@ function draw(timestamp) {
   // movement based on keys object (updated by ui.js)
   let vx = 0,
     vy = 0;
-  if (keys.ArrowUp) vy -= 1;
-  if (keys.ArrowDown) vy += 1;
-  if (keys.ArrowLeft) vx -= 1;
-  if (keys.ArrowRight) vx += 1;
+  if (keys.ArrowUp || keys.w) vy -= 1;
+  if (keys.ArrowDown || keys.s) vy += 1;
+  if (keys.ArrowLeft || keys.a) vx -= 1;
+  if (keys.ArrowRight || keys.d) vx += 1;   
   if (vx !== 0 || vy !== 0) {
     const len = Math.sqrt(vx * vx + vy * vy);
     vx = (vx / len) * player.speed;
