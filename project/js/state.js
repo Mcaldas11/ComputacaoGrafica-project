@@ -81,7 +81,7 @@ const devices = [
 ];
 
 // Posição inicial do jogador ajustada para ficar à frente da porta/corredor,
-const player = { x: 442, y: 520, r: 14, speed: 160, stepPhase: 0 };
+const player = { x: 442, y: 520, r: 14, speed: 170, stepPhase: 0 };
 
 const casaImg = new Image();
 let casaLoaded = false;
