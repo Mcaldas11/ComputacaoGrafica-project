@@ -26,12 +26,12 @@ const devices = [
   {
     id: "light_kitchen",
     label: "Luz Cozinha",
-    type: "light",
+    type: "light2",
     power: 60,
-    x: 508,
-    y: 170,
-    w: 48,
-    h: 48,
+    x: 503,
+    y: 80,
+    w: 58,
+    h: 58,
     on: false,
   },
   {
@@ -43,6 +43,17 @@ const devices = [
     y: 105,
     w: 105,
     h: 125,
+    on: false,
+  },
+  {
+    id: "microwave",
+    label: "Micro-ondas",
+    type: "microwave",
+    power: 120,
+    x: 367,
+    y: 135,
+    w: 60,
+    h: 60,
     on: false,
   },
   {
@@ -224,6 +235,15 @@ lampOffImg.onload = () => (lampOffLoaded = true);
 lampOnImg.src = "img/lamp_on.png";
 lampOffImg.src = "img/lamp_off.png";
 
+const lamp2OnImg = new Image();
+const lamp2OffImg = new Image();
+let lamp2OnLoaded = false;
+let lamp2OffLoaded = false;
+lamp2OnImg.onload = () => (lamp2OnLoaded = true);
+lamp2OffImg.onload = () => (lamp2OffLoaded = true);
+lamp2OnImg.src = "img/lamp2_on.png";
+lamp2OffImg.src = "img/lamp2_off.png";
+
 const tvOnImg = new Image();
 const tvOffImg = new Image();
 let tvOnLoaded = false;
@@ -241,6 +261,15 @@ fridgeOnImg.onload = () => (fridgeOnLoaded = true);
 fridgeOffImg.onload = () => (fridgeOffLoaded = true);
 fridgeOnImg.src = "img/fridge_on.png";
 fridgeOffImg.src = "img/fridge_off.png";
+
+const microwaveOnImg = new Image();
+const microwaveOffImg = new Image();
+let microwaveOnLoaded = false;
+let microwaveOffLoaded = false;
+microwaveOnImg.onload = () => (microwaveOnLoaded = true);
+microwaveOffImg.onload = () => (microwaveOffLoaded = true);
+microwaveOnImg.src = "img/micro-ondas_on.png";
+microwaveOffImg.src = "img/micro-ondas_off.png";
 
 const heaterOnImg = new Image();
 const heaterOffImg = new Image();
