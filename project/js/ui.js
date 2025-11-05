@@ -34,6 +34,25 @@ document.addEventListener("DOMContentLoaded", () => {
       box.setAttribute('aria-hidden', 'true');
     }
   }
+  // Esconder/mostrar a UI do ml5 e os botões associados conforme o modo
+  function updateMlUiVisibility(mode) {
+    const mlBox = document.querySelector('.mlBox');
+    const handposeBtn = document.getElementById('startHandpose');
+    const classifierBtn = document.getElementById('startClassifier');
+    const snapshotBtn = document.getElementById('snapshotClassify');
+    const show = mode !== 'challenge';
+    if (mlBox) {
+      mlBox.style.display = show ? '' : 'none';
+      mlBox.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+    if (handposeBtn) handposeBtn.style.display = show ? '' : 'none';
+    if (classifierBtn) classifierBtn.style.display = show ? '' : 'none';
+    if (snapshotBtn) snapshotBtn.style.display = show ? '' : 'none';
+    // Quando entrar em desafio, parar qualquer ML ativo por privacidade e para evitar distrações
+    if (!show) {
+      try { if (typeof window.stopAllMl === 'function') window.stopAllMl(); } catch (e) {}
+    }
+  }
   if (typeof startChallenge === "function") {
     const _sc = startChallenge;
     window.startChallenge = function (...args) {
@@ -59,11 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       updateChallengePanelVisibility(mode);
     } catch (e) {}
+    try { updateMlUiVisibility(mode); } catch (e) {}
     return _setMode(mode);
   };
   try {
     setMode('sandbox');
     updateChallengePanelVisibility('sandbox');
+    updateMlUiVisibility('sandbox');
   } catch (e) {}
 
   function updateDeviceList() {
