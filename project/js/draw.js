@@ -66,10 +66,6 @@ function draw(timestamp) {
       ctx.strokeStyle = "#0b2430";
       ctx.strokeRect(d.x, d.y, d.w, d.h);
     }
-    ctx.fillStyle = "#07202a";
-    ctx.font = "12px Arial";
-    ctx.fillText(d.label, d.x, d.y + d.h + 16);
-    ctx.restore();
 
     if (d.on) {
       const t = now / 300 + 1.2;
@@ -110,8 +106,14 @@ function draw(timestamp) {
 
   ctx.save();
   const movingNow = Boolean(
-    keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight ||
-    keys.w || keys.a || keys.s || keys.d
+    keys.ArrowUp ||
+      keys.ArrowDown ||
+      keys.ArrowLeft ||
+      keys.ArrowRight ||
+      keys.w ||
+      keys.a ||
+      keys.s ||
+      keys.d
   );
   let bob = 0;
   let drawRadius = player.r;
@@ -284,7 +286,7 @@ function draw(timestamp) {
   if (keys.ArrowUp || keys.w) vy -= 1;
   if (keys.ArrowDown || keys.s) vy += 1;
   if (keys.ArrowLeft || keys.a) vx -= 1;
-  if (keys.ArrowRight || keys.d) vx += 1;   
+  if (keys.ArrowRight || keys.d) vx += 1;
   if (vx !== 0 || vy !== 0) {
     const len = Math.sqrt(vx * vx + vy * vy);
     vx = (vx / len) * player.speed;
