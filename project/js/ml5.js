@@ -297,3 +297,18 @@ window.startHandpose = startHandpose;
 window.stopHandpose = stopHandpose;
 window.startClassifier = startClassifier;
 window.snapshotClassify = snapshotClassify;
+// Parar tudo relacionado a ML (handpose, classificador e câmara)
+function stopAllMl() {
+  try { if (typeof stopHandpose === 'function') stopHandpose(); } catch (e) {}
+  try { classifier = null; } catch (e) {}
+  try {
+    if (video && video.srcObject) {
+      const tracks = video.srcObject.getTracks();
+      tracks.forEach((t) => t.stop());
+      video.srcObject = null;
+    }
+  } catch (e) {}
+  try { webcamStarted = false; } catch (e) {}
+  setMlStatus('ML parado');
+}
+window.stopAllMl = stopAllMl;

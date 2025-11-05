@@ -34,17 +34,38 @@ function draw(timestamp) {
   for (const d of devices) {
     ctx.save();
     if (d.on) {
-      const grd = ctx.createRadialGradient(
-        d.x + d.w / 2,
-        d.y + d.h / 2,
-        4,
-        d.x + d.w / 2,
-        d.y + d.h / 2,
-        40
-      );
-      grd.addColorStop(0, "rgba(255,220,80,0.95)");
-      grd.addColorStop(0.4, "rgba(255,200,70,0.45)");
-      grd.addColorStop(1, "rgba(255,200,70,0)");
+      const cx = d.x + d.w / 2;
+      const cy = d.y + d.h / 2;
+      const grd = ctx.createRadialGradient(cx, cy, 4, cx, cy, 42);
+      // Cores de brilho por tipo
+      switch (d.type) {
+        case "heater": // amarelo avermelhado
+          grd.addColorStop(0, "rgba(255,140,50,0.95)");
+          grd.addColorStop(0.4, "rgba(255,100,40,0.45)");
+          grd.addColorStop(1, "rgba(255,90,30,0)");
+          break;
+        case "tv": // azul
+          grd.addColorStop(0, "rgba(80,160,255,0.92)");
+          grd.addColorStop(0.4, "rgba(60,130,255,0.42)");
+          grd.addColorStop(1, "rgba(60,130,255,0)");
+          break;
+        case "fridge": // branco
+          grd.addColorStop(0, "rgba(255,255,255,0.95)");
+          grd.addColorStop(0.4, "rgba(240,240,255,0.35)");
+          grd.addColorStop(1, "rgba(240,240,255,0)");
+          break;
+        case "microwave": // amarelo claro
+        case "light2": // candeeiro — amarelo claro
+          grd.addColorStop(0, "rgba(255,235,150,0.92)");
+          grd.addColorStop(0.4, "rgba(255,230,140,0.40)");
+          grd.addColorStop(1, "rgba(255,230,140,0)");
+          break;
+        case "light": // luz — manter igual
+        default:
+          grd.addColorStop(0, "rgba(255,220,80,0.95)");
+          grd.addColorStop(0.4, "rgba(255,200,70,0.45)");
+          grd.addColorStop(1, "rgba(255,200,70,0)");
+      }
       ctx.fillStyle = grd;
       ctx.fillRect(d.x - 18, d.y - 18, d.w + 36, d.h + 36);
     }
