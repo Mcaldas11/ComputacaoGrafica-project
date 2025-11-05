@@ -91,7 +91,6 @@ const keys = {
   ArrowDown: false,
   ArrowLeft: false,
   ArrowRight: false,
-  // WASD support (lowercase; UI normaliza para minúsculas)
   w: false,
   a: false,
   s: false,
