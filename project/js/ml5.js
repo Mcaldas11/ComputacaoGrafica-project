@@ -1,4 +1,4 @@
-// (ml5.js helpers) — main handpose/classifier helpers are defined below.
+// ml5.js — funções para Handpose e Classificador (MobileNet)
 
 function setMlStatus(status) {
   const mlStatus = document.getElementById("mlStatus");
@@ -6,7 +6,7 @@ function setMlStatus(status) {
 }
 
 function startHandpose() {
-  // Return a promise that resolves when the handpose model is ready
+  // Devolve uma promise que resolve quando o modelo Handpose estiver pronto
   return startWebcam()
     .then(() => {
       console.log('startHandpose: webcam ready, loading model...');
@@ -20,14 +20,14 @@ function startHandpose() {
             reject(new Error(msg));
             return;
           }
-          // prefer flipped option for webcam mirroring
+          // Preferir opção espelhada para corresponder ao espelho da webcam
           handposeModel = ml5.handpose(video, { flipHorizontal: true }, () => {
             console.log('startHandpose: model ready');
             setMlStatus("Handpose pronta");
             window.handposeActive = true;
             resolve();
           });
-          // listen for predictions
+          // Ouvir predições do modelo
           handposeModel.on("predict", gotHands);
         } catch (e) {
           console.warn("handpose error", e);
@@ -53,7 +53,7 @@ function stopHandpose() {
   handposeModel = null;
   window.handposeActive = false;
   setMlStatus('Handpose parada');
-  // stop webcam entirely (if classifier is not in use this will free camera)
+  // Parar completamente a webcam (se o classificador não estiver em uso liberta a câmara)
   try {
     if (video && video.srcObject) {
       const tracks = video.srcObject.getTracks();
@@ -64,7 +64,7 @@ function stopHandpose() {
   } catch (e) {}
 }
 
-// --- Lightweight webcam + classifier helpers (compat with UI expectations) ---
+// Webcam e classificador (em conformidade com a UI)
 let webcamStarted = false;
 let video = null;
 let handposeModel = null;
@@ -89,11 +89,11 @@ async function startWebcam() {
       video.style.transform = 'scaleX(-1)';
       video.style.webkitTransform = 'scaleX(-1)';
     } catch (e) {}
-    setMlStatus("Estado: webcam ativa");
+  setMlStatus("Estado: câmara ativa");
     return;
   } catch (err) {
-    console.error("Webcam error", err);
-    setMlStatus("Erro a aceder webcam");
+  console.error("Erro da câmara", err);
+  setMlStatus("Erro a aceder à câmara");
     throw err;
   }
 }
@@ -109,10 +109,10 @@ function gotHands(predictions) {
     const h = (video && (video.videoHeight || video.height)) || 240;
     // debug
     if (window.DEBUG_HANDPOSE) console.log('gotHands: avgY=', avgY, 'h=', h, 'ratio=', (avgY / h));
-    // threshold: hand raised toward top => avgY small; configurable ratio 0.45
+  // limiar: mão levantada (parte superior) => avgY pequeno; razão configurável 0.45
     const ratio = typeof window.handGestureThresholdRatio !== 'undefined' ? window.handGestureThresholdRatio : 0.45;
     if (avgY < h * ratio && Date.now() - lastGesture > gestureCooldown) {
-      // turn off ALL devices (not only lights)
+  // desligar TODOS os dispositivos
       let changed = false;
       try {
         for (const d of devices) {
@@ -125,12 +125,12 @@ function gotHands(predictions) {
       setMlStatus("Gesto: mao levantada — dispositivos desligados");
       lastGesture = Date.now();
       try {
-        // pulse roughly near center of canvas (if available)
+  // criar pulso visual perto do centro do canvas (se disponível)
         const cx = (typeof canvas !== 'undefined' && canvas) ? canvas.width/2 : 450;
         const cy = (typeof canvas !== 'undefined' && canvas) ? canvas.height/2 : 300;
         pulses.push({ x: cx, y: cy, t: 0 });
       } catch (e) {
-        try { pulses.push({ x: 450, y: 300, t: 0 }); } catch (e) {}
+  try { pulses.push({ x: 450, y: 300, t: 0 }); } catch (e) {}
       }
     }
   } catch (err) {
@@ -204,7 +204,7 @@ function snapshotClassify() {
         // Opcional: modo debug para mostrar label/confiança original se necessário
         if (window.DEBUG_CLASSIFIER) {
           const dbg = (results && results[0]) ? results[0] : null;
-          if (dbg) classifierResult.innerHTML += `<small style=\"color:#7a8b96\">Top: ${dbg.label} — ${(dbg.confidence * 100).toFixed(1)}%</small>`;
+          if (dbg) classifierResult.innerHTML += `<small style=\"color:#7a8b96\">Topo: ${dbg.label} — ${(dbg.confidence * 100).toFixed(1)}%</small>`;
         }
       }
       return;
@@ -281,7 +281,7 @@ function guessConsumptionFromLabel(label) {
   return cat ? getAverageConsumptionForCategory(cat) : null;
 }
 
-// safety: stop webcam when page hidden
+// Segurança: parar a câmara quando a página fica oculta
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && video && video.srcObject) {
     const tracks = video.srcObject.getTracks();

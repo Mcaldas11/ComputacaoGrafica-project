@@ -1,4 +1,4 @@
-// draw.js — rendering loop, simulation control and meter updates (moved from app.js)
+// draw.js — ciclo de desenho, controlo da simulação e atualização do medidor
 let canvas, ctx;
 let running = false;
 let _animId = null;
@@ -9,7 +9,6 @@ function initCanvas() {
   if (!canvas) return;
   canvas.width = canvas.width || 900;
   canvas.height = canvas.height || 600;
-  // canvas initialized
 }
 
 function computePowerW() {
@@ -22,20 +21,16 @@ function draw(timestamp) {
   const dt = Math.min(0.2, (now - lastTime) / 1000);
   lastTime = now;
 
-  // clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-//carregar casa
   if (casaLoaded) {
     drawImageCropped(casaImg, 40, 40, 815, 520);
-    // subtle dark overlay so devices/labels remain legible
     ctx.fillStyle = "rgba(6,12,18,0.28)";
     ctx.fillRect(40, 40, 815, 520);
   } else {
     ctx.fillStyle = "#082033";
     ctx.fillRect(40, 40, 815, 520);
   }
-  // devices
   for (const d of devices) {
     ctx.save();
     if (d.on) {
@@ -54,23 +49,18 @@ function draw(timestamp) {
       ctx.fillRect(d.x - 18, d.y - 18, d.w + 36, d.h + 36);
     }
     if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
-      // carrega imagem das lampadas
       const lampImg = d.on ? lampOnImg : lampOffImg;
       ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
     } else if (d.type === "tv" && tvOnLoaded && tvOffLoaded) {
-      // carrega imagem da TV
       const tvImg = d.on ? tvOnImg : tvOffImg;
       ctx.drawImage(tvImg, d.x, d.y, d.w, d.h);
     } else if (d.type === "fridge" && fridgeOnLoaded && fridgeOffLoaded) {
-      // carrega imagem do frigorífico
       const fridgeImg = d.on ? fridgeOnImg : fridgeOffImg;
       ctx.drawImage(fridgeImg, d.x, d.y, d.w, d.h);
     } else if (d.type === "heater" && heaterOnLoaded && heaterOffLoaded) {
-      // carrega imagem do aquecedor
       const heaterImg = d.on ? heaterOnImg : heaterOffImg;
       ctx.drawImage(heaterImg, d.x, d.y, d.w, d.h);
     } else {
-      // Fallback para outros dispositivos ou se as imagens não carregaram
       ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
       ctx.fillRect(d.x, d.y, d.w, d.h);
       ctx.strokeStyle = "#0b2430";
@@ -94,8 +84,6 @@ function draw(timestamp) {
       );
       ctx.stroke();
     }
-
-    // halo when player near
     const cx = d.x + d.w / 2;
     const cy = d.y + d.h / 2;
     const dx = player.x - cx;
@@ -120,29 +108,21 @@ function draw(timestamp) {
     }
   }
 
-  // player (draw sprite if available, otherwise fallback to circle)
   ctx.save();
-  // determine if user is currently sending movement input
   const movingNow = Boolean(
     keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight ||
     keys.w || keys.a || keys.s || keys.d
   );
-  // bob for walking animation vs idle 'breathing' animation
   let bob = 0;
-  // allow the ball to gently "breathe" (scale + small vertical bob) when idle
   let drawRadius = player.r;
   if (movingNow && player.stepPhase) {
-    // walking bob (keeps previous behavior)
     bob = Math.sin(player.stepPhase) * 2.4;
   } else {
-    // idle breathing: slow sine-based vertical offset + small radius scale
-    const idlePhase = now / 250; // milliseconds -> controls speed
-    bob = Math.sin(idlePhase) * 1.6; // gentle up/down
-    const breathScale = 1 + Math.sin(idlePhase * 0.9) * 0.035; // ~±3.5% size change
+    const idlePhase = now / 250;
+    bob = Math.sin(idlePhase) * 1.6;
+    const breathScale = 1 + Math.sin(idlePhase * 0.9) * 0.035;
     drawRadius = player.r * breathScale;
   }
-
-  // draw shadow/ground ellipse that follows the (possibly scaled) radius
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   ctx.beginPath();
   ctx.ellipse(
@@ -189,7 +169,6 @@ function draw(timestamp) {
   }
   ctx.restore();
 
-  // pulses
   for (let i = pulses.length - 1; i >= 0; i--) {
     const p = pulses[i];
     p.t = (p.t || 0) + dt;
@@ -204,7 +183,6 @@ function draw(timestamp) {
     ctx.stroke();
   }
 
-  // update energy
   const totalW = computePowerW();
   energyWh += totalW * (dt / 3600);
   const meterFillEl = document.getElementById("meterFill");
@@ -218,7 +196,6 @@ function draw(timestamp) {
   }
   if (powerWEl) powerWEl.textContent = Math.round(totalW);
   if (energyWhEl) energyWhEl.textContent = energyWh.toFixed(2);
-  // consumption status message (icon + text, with pulsing when high)
   try {
     const consEl = document.getElementById("consumptionStatus");
     if (consEl) {
@@ -234,11 +211,8 @@ function draw(timestamp) {
         consEl.classList.remove("high");
       }
     }
-  } catch (e) {
-    /* ignore DOM errors when not present */
-  }
+  } catch (e) {}
 
-  // Challenge mode handling: show values; only decrement/check while challengeStarted
   if (typeof challengeActive !== "undefined" && challengeActive) {
     const timerEl = document.getElementById("challengeTimer");
     const thresholdEl = document.getElementById("challengeThreshold");
@@ -251,21 +225,15 @@ function draw(timestamp) {
         secs
       ).padStart(2, "0")}`;
     }
-
-    // if challenge hasn't been confirmed by the player yet, show pending status
     if (typeof challengeStarted === "undefined" || !challengeStarted) {
       if (statusEl) statusEl.textContent = "A iniciar — confirma para começar";
     } else {
-      // now the challenge is running: decrement and check
       challengeRemaining = Math.max(0, challengeRemaining - dt);
       if (statusEl) statusEl.textContent = "A decorrer";
-
-      // lose condition: instantaneous if consumption too high
       if (totalW > challengeThresholdW) {
         if (statusEl) statusEl.textContent = "Perdeu — consumo demasiado alto";
         stopChallenge();
         pauseSim();
-        // compute energy used during challenge
         try {
           const used =
             typeof energyWh !== "undefined" &&
@@ -282,8 +250,6 @@ function draw(timestamp) {
         }
         return;
       }
-
-      // win condition: survived until zero
       if (challengeRemaining <= 0) {
         if (statusEl) statusEl.textContent = "Ganhou — tempo esgotado";
         stopChallenge();
@@ -313,8 +279,6 @@ function draw(timestamp) {
     }
   }
 
-  // update player step phase
-  // movement based on keys object (updated by ui.js)
   let vx = 0,
     vy = 0;
   if (keys.ArrowUp || keys.w) vy -= 1;

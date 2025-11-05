@@ -1,7 +1,5 @@
-// state.js — central shared state and helpers (moved from app.js)
-// Contains devices, images, player state and helper functions.
+// state.js — estado partilhado e funções auxiliares
 
-// Devices in the house (simple layout)
 const devices = [
   {
     id: "light_liv",
@@ -71,16 +69,13 @@ const devices = [
   },
 ];
 
-// player (boneco)
 const player = { x: 220, y: 160, r: 14, speed: 160, stepPhase: 0 };
 
-// imagem fundo
 const casaImg = new Image();
 let casaLoaded = false;
 casaImg.onload = () => (casaLoaded = true);
 casaImg.src = "img/casa.png";
 
-// movement areas & inputs
 const allowedAreas = [
   { x: 40, y: 40, w: 360, h: 240 },
   { x: 500, y: 40, w: 360, h: 240 },
@@ -98,33 +93,22 @@ const keys = {
 };
 const activationRadius = 80;
 
-// timing / energy
 let lastTime = performance.now();
 let energyWh = 0;
-// challenge state (2-minute game mode)
 let challengeActive = false;
-let challengeDuration = 120; // seconds
-let challengeRemaining = 0; // seconds
-// default threshold set to 1500W per request
-let challengeThresholdW = 1200; // W - if totalW > threshold -> lose
-let challengeStarted = false; // true once user confirms the challenge modal
-// energy at the start of the current challenge (used to compute energy consumed during the challenge)
+let challengeDuration = 120;
+let challengeRemaining = 0;
+let challengeThresholdW = 1200;
+let challengeStarted = false;
 let challengeEnergyStart = 0;
-// interval id for the random-device toggler
 let _randomDevicesIntervalId = null;
 
-// start randomly toggling devices (previously only lights). By default picks any device
-// from the `devices` array and mostly turns it ON (75%), sometimes toggles OFF.
 function startRandomDevices(intervalMs = 1200) {
-  // intervalMs: base interval in ms. Reduced from 4500 to 1200 to increase difficulty.
-  // add a small random jitter so activations aren't perfectly periodic (0..800ms)
   stopRandomDevices();
   _randomDevicesIntervalId = setInterval(() => {
     if (!devices || devices.length === 0) return;
-    // pick a random device from the full devices list
     const idx = Math.floor(Math.random() * devices.length);
     const chosen = devices[idx];
-    // 75% chance to turn it ON, 25% chance to toggle
     if (Math.random() < 0.75) chosen.on = true;
     else chosen.on = !chosen.on;
     if (typeof updateDeviceList === "function") updateDeviceList();
@@ -139,22 +123,18 @@ function stopRandomDevices() {
 }
 
 function startChallenge(durationSec = 120, thresholdW = 1200) {
-  // Initialize challenge state but do not start timers or random devices until user confirms
   challengeActive = true;
   challengeStarted = false;
   challengeDuration = durationSec;
   challengeRemaining = durationSec;
   challengeThresholdW = thresholdW;
-  // record energy at the start so we can compute energy used during the challenge
   try {
     challengeEnergyStart = typeof energyWh !== "undefined" ? energyWh : 0;
   } catch (e) {
     challengeEnergyStart = 0;
   }
-  // update UI to indicate challenge mode and show click-disabled modal
   try {
     if (typeof window.setMode === "function") window.setMode("challenge");
-    // reset acknowledgement so the modal shows at the start of each challenge
     if (typeof window !== "undefined") window.clickModalAcknowledged = false;
     const timerEl = document.getElementById("challengeTimer");
     const thresholdEl = document.getElementById("challengeThreshold");
@@ -167,24 +147,19 @@ function startChallenge(durationSec = 120, thresholdW = 1200) {
         Math.floor(challengeRemaining % 60)
       ).padStart(2, "0")}`;
     if (statusEl) statusEl.textContent = "A iniciar — confirma para começar";
-    // show click-disabled modal to inform the player (they must click 'Entendi' to begin)
     const clickModal = document.getElementById("clickModal");
     if (clickModal) {
       clickModal.classList.add("visible");
       clickModal.setAttribute("aria-hidden", "false");
     }
-  } catch (e) {
-    /* ignore if DOM not ready */
-  }
+  } catch (e) {}
 }
 
-// Called when the player confirms the challenge modal (clicks 'Entendi')
+// Chamado quando o jogador confirma o modal do desafio (carrega em 'Entendi')
 function beginChallenge() {
   if (!challengeActive || challengeStarted) return;
   challengeStarted = true;
-  // start the periodic random toggles now
   startRandomDevices();
-  // update UI status
   try {
     const statusEl = document.getElementById("challengeStatus");
     if (statusEl) statusEl.textContent = "A decorrer";
@@ -196,7 +171,6 @@ function stopChallenge() {
   challengeRemaining = 0;
   stopRandomDevices();
   challengeStarted = false;
-  // hide click-disabled modal when challenge ends
   try {
     const clickModal = document.getElementById("clickModal");
     if (clickModal) {
@@ -204,7 +178,6 @@ function stopChallenge() {
       clickModal.setAttribute("aria-hidden", "true");
     }
     if (typeof window.setMode === "function") window.setMode("sandbox");
-    // reset acknowledgement when challenge ends so next challenge will show the modal again
     if (typeof window !== "undefined") window.clickModalAcknowledged = false;
   } catch (e) {}
 }
@@ -216,7 +189,6 @@ function resetChallenge() {
   stopRandomDevices();
 }
 
-// imagens comodos
 const salaImg = new Image();
 let salaLoaded = false;
 salaImg.onload = () => (salaLoaded = true);
@@ -241,7 +213,6 @@ despensaImg.onload = () => (despensaLoaded = true);
 despensaImg.onerror = () => (despensaLoaded = false);
 despensaImg.src = "img/despensa.png";
 
-// carregar imagens das lâmpadas
 const lampOnImg = new Image();
 const lampOffImg = new Image();
 let lampOnLoaded = false;
@@ -251,7 +222,6 @@ lampOffImg.onload = () => (lampOffLoaded = true);
 lampOnImg.src = "img/lamp_on.png";
 lampOffImg.src = "img/lamp_off.png";
 
-// carregar imagens da tv
 const tvOnImg = new Image();
 const tvOffImg = new Image();
 let tvOnLoaded = false;
@@ -261,7 +231,6 @@ tvOffImg.onload = () => (tvOffLoaded = true);
 tvOnImg.src = "img/tv_on.png";
 tvOffImg.src = "img/tv_off.png";
 
-// carregar imagens do frigorifico
 const fridgeOnImg = new Image();
 const fridgeOffImg = new Image();
 let fridgeOnLoaded = false;
@@ -271,7 +240,6 @@ fridgeOffImg.onload = () => (fridgeOffLoaded = true);
 fridgeOnImg.src = "img/fridge_on.png";
 fridgeOffImg.src = "img/fridge_off.png";
 
-// carregar imagens do aquecedor
 const heaterOnImg = new Image();
 const heaterOffImg = new Image();
 let heaterOnLoaded = false;
@@ -281,10 +249,8 @@ heaterOffImg.onload = () => (heaterOffLoaded = true);
 heaterOnImg.src = "img/heater_on.png";
 heaterOffImg.src = "img/heater_off.png";
 
-// helper arrays and particles
 const pulses = [];
 
-// geometry helpers
 function circleIntersectsRect(cx, cy, r, rect) {
   const closestX = Math.max(rect.x, Math.min(cx, rect.x + rect.w));
   const closestY = Math.max(rect.y, Math.min(cy, rect.y + rect.h));
@@ -310,7 +276,6 @@ function isPointInRect(px, py, rect) {
   );
 }
 
-// basic toggle near player
 function toggleNearbyDevices(radius = activationRadius) {
   const cx = player.x;
   const cy = player.y;
@@ -327,7 +292,6 @@ function toggleNearbyDevices(radius = activationRadius) {
   if (toggled && typeof updateDeviceList === "function") updateDeviceList();
 }
 
-// auto-crop detection (copied)
 function computeAutoCrop(img, options = {}) {
   const maxCrop = options.maxCrop || 0.25;
   const brightnessThreshold = options.threshold || 30;
@@ -446,7 +410,6 @@ function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
   }
 }
 
-// utility: turn off all lights (used by ML handpose gesture)
 function turnOffAllLights() {
   let changed = false;
   for (const d of devices) {

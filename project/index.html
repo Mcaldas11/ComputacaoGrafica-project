@@ -6,12 +6,12 @@
     <title>EcoPower</title>
     <link rel="stylesheet" href="style.css" />
 
-    <!-- Nota: não incluímos tfjs manualmente para evitar incompatibilidades com ml5.
-      A build do ml5 abaixo já traz a versão compatível embebida. -->
-  <!-- ml5.js (versão compatível com handpose) -->
+    <!-- Nota: não incluímos o TensorFlow.js manualmente para evitar incompatibilidades com o ml5.
+      A biblioteca ml5 abaixo já inclui a versão compatível. -->
+  <!-- ml5.js (versão compatível com Handpose) -->
   <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
 
-    <!-- Script de redirecionamento (do teu projeto) -->
+  <!-- Script de redirecionamento para abrir o menu em primeiro lugar -->
     <script src="js/redirect.js"></script>
   </head>
   <body>
@@ -27,15 +27,15 @@
     <div id="helpModal" class="help-modal" role="dialog" aria-hidden="true">
       <h3>Ajuda</h3>
       <p>
-        Use as setas para mover o boneco, clique em dispositivos para
+  Usa as setas para mover o boneco, clica em dispositivos para
         ligar/desligar ou carregue na tecla <strong>E</strong> para interagir com
-        dispositivos próximos. Ative a webcam para experimentar o Handpose e o
+  dispositivos próximos. Ativa a câmara para experimentar o Handpose e o
         classificador.
       </p>
       <button id="helpClose" class="help-close">Fechar</button>
     </div>
 
-    <!-- Click-disabled modal shown during challenge mode -->
+  <!-- Modal que informa que o clique está desativado durante o desafio -->
     <div id="clickModal" class="help-modal" role="dialog" aria-hidden="true">
       <h3>Atenção</h3>
       <p>Durante o modo <strong>Desafio</strong> o clique do rato está desativado. Não poderás ligar/desligar dispositivos manualmente.</p>
@@ -43,7 +43,7 @@
       <button id="clickModalClose" class="help-close">Entendi</button>
     </div>
 
-    <!-- Result modal shown when a challenge ends (win / lose) -->
+  <!-- Modal de resultado quando o desafio termina (ganhar/perder) -->
     <div id="resultModal" class="help-modal" role="dialog" aria-hidden="true">
       <h3 id="resultTitle">Resultado</h3>
       <p id="resultMessage">Resultado do desafio</p>
@@ -67,10 +67,10 @@
             <button id="resetBtn">Repor estados</button>
             <button id="startHandpose">Ativar Handpose</button>
             <button id="startClassifier">Ativar Classificador</button>
-            <button id="snapshotClassify">Classificar (snapshot)</button>
+            <button id="snapshotClassify">Classificar (captura)</button>
           </div>
         </div>
-        <!-- moved ml5 and challenge panels here so they appear beside the house -->
+  <!-- Painéis do ml5 e do desafio colocados aqui para ficarem ao lado da casa -->
         <div class="leftSidePanels">
           <div class="mlBox">
             <h4>ml5.js</h4>

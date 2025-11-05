@@ -7,7 +7,7 @@
 - Ativar um modo “Desafio” de 2 minutos onde temos de manter o consumo abaixo de um limite.
 - Usar a câmara:
   - Handpose: levantar a mão (na parte de cima da imagem) desliga todos os dispositivos. A imagem está espelhada (modo selfie).
-  - Classificador (MobileNet): tiro um snapshot e ele tenta reconhecer um objeto. Eu limitei a 4 objetos e mostro uma estimativa de consumo: telemóvel (~8 W), fones (~2 W), rato (~1 W) e TV (~120 W). Se não for um destes, diz “não suportado”.
+  - Classificador (MobileNet): tiro uma captura e ele tenta reconhecer um objeto. Eu limitei a 4 objetos e mostro uma estimativa de consumo: telemóvel (~8 W), fones (~2 W), rato (~1 W) e TV (~120 W). Se não for um destes, diz “não suportado”.
 
 ## Controlo rápido
 
@@ -15,7 +15,7 @@
 - Interagir: `E` (perto do aparelho)
 - Desafio: abrir `menu.html` e escolher “Desafio — 2 minutos”
 - Handpose: “Ativar Handpose” e levantar a mão → desliga tudo
-- Classificador: “Ativar Classificador” → “Classificar (snapshot)”
+- Classificador: “Ativar Classificador” → “Classificar (captura)”
 
 ## Notas sobre a câmara e privacidade
 
