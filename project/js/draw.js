@@ -51,6 +51,16 @@ function draw(timestamp) {
     if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
       const lampImg = d.on ? lampOnImg : lampOffImg;
       ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
+    } else if (d.type === "light2" && lamp2OnLoaded && lamp2OffLoaded) {
+      const lamp2Img = d.on ? lamp2OnImg : lamp2OffImg;
+      ctx.drawImage(lamp2Img, d.x, d.y, d.w, d.h);
+    } else if (
+      d.type === "microwave" &&
+      microwaveOnLoaded &&
+      microwaveOffLoaded
+    ) {
+      const microwaveImg = d.on ? microwaveOnImg : microwaveOffImg;
+      ctx.drawImage(microwaveImg, d.x, d.y, d.w, d.h);
     } else if (d.type === "tv" && tvOnLoaded && tvOffLoaded) {
       const tvImg = d.on ? tvOnImg : tvOffImg;
       ctx.drawImage(tvImg, d.x, d.y, d.w, d.h);
