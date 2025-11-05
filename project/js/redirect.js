@@ -1,11 +1,11 @@
 (function () {
   try {
     if (!window.location.hash || window.location.hash === "") {
-      // Use replace so the menu becomes the first page (back won't return to index)
+      // Usar replace para que o menu seja a primeira página (o botão voltar não regressa ao index)
       window.location.replace('menu.html');
     }
   } catch (e) {
-    // If any error occurs, log but don't block the page.
-    console.error('Redirect check failed', e);
+    // Se ocorrer algum erro, registar no console mas não bloquear a página
+    console.error('Falha ao verificar redirecionamento', e);
   }
 })();

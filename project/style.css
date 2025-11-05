@@ -13,7 +13,7 @@
 html,
 body {
   margin: 0;
-  /* prevent page-level scrolling so the canvas and UI remain fixed in the viewport */
+  /* impedir scroll na página para manter o canvas e a UI fixos na viewport */
   overflow: hidden;
   height: 100vh;
   background-image: linear-gradient(
@@ -64,7 +64,7 @@ body {
   transform: translateY(1px);
 }
 
-/* help modal */
+/* modal de ajuda */
 .help-modal {
   position: fixed;
   left: 50%;
@@ -96,7 +96,7 @@ body {
   cursor: pointer;
 }
 
-/* splash / game menu */
+/* ecrã inicial / menu do jogo */
 .splash {
   position: fixed;
   left: 0;
@@ -151,7 +151,7 @@ body {
   display: none;
 }
 
-/* animate panel for smooth exit/entrance */
+/* animar painel para entrada/saída suave */
 .splash-panel {
   transition: transform 380ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 320ms ease;
   transform-origin: center;
@@ -178,7 +178,7 @@ body {
   align-items: flex-start;
 }
 .left {
-  /* make left column a two-column grid: canvas area + side panels */
+  /* tornar a coluna esquerda numa grelha de duas colunas: canvas + painéis laterais */
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 18px;
@@ -191,15 +191,15 @@ body {
   gap: 8px;
 }
 .canvasArea .controls {
-  /* keep controls under the canvas and full-width of canvas column */
+  /* manter os controlos por baixo do canvas e a ocupar a largura da coluna do canvas */
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 .right {
   width: 320px;
-  /* keep the right column visible without forcing the whole page to scroll
-     make it sticky and allow its content to scroll internally when needed */
+  /* manter a coluna direita visível sem forçar scroll na página
+    torná-la sticky e permitir scroll interno quando necessário */
   position: sticky;
   top: 80px; /* below the header area */
   max-height: calc(100vh - 110px);
@@ -270,13 +270,13 @@ canvas {
   margin-top: 8px;
 }
 
-/* pulsing warning style when consumption is high */
+/* estilo de aviso pulsante quando o consumo é elevado */
 .consumption-status.high {
   animation: consumptionPulse 900ms ease-in-out infinite;
   transform-origin: center;
 }
 
-/* Force the text color via CSS so it stays red when high */
+/* Forçar a cor do texto via CSS para se manter vermelho quando alto */
 .consumption-status .text {
   color: #78c2a8; /* default greenish */
 }
@@ -354,7 +354,7 @@ canvas {
   }
 }
 
-/* small screens */
+/* ecrãs pequenos */
 @media (max-width: 900px) {
   .container {
     flex-direction: column;
@@ -367,7 +367,7 @@ canvas {
   }
 }
 
-/* small enhancement: reduce right-column spacing on shorter viewports */
+/* melhoria: reduzir espaçamento da coluna direita em viewports mais baixas */
 @media (max-height: 720px) {
   .right {
     top: 64px;

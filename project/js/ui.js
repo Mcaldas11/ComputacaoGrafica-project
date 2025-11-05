@@ -1,4 +1,4 @@
-// ui.js — DOM wiring, menu, input handlers and device list
+// ui.js — ligações ao DOM, menus, entradas e lista de dispositivos
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("houseCanvas");
   const resetBtn = document.getElementById("resetBtn");
@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (typeof initCanvas === "function") initCanvas();
 
-  // Mode indicator helper: 'challenge' or 'sandbox'
   function setMode(mode) {
     window.currentMode = mode;
     const el = document.getElementById("modeIndicator");
@@ -23,9 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mode === "challenge") el.textContent = "Desafio";
     else el.textContent = "Mundo livre";
   }
-  // expose to other scripts
   window.setMode = setMode;
-  // ensure challenge panel visibility follows the mode
   function updateChallengePanelVisibility(mode) {
     const box = document.querySelector('.challengeBox');
     if (!box) return;
@@ -37,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
       box.setAttribute('aria-hidden', 'true');
     }
   }
-  // wrap global startChallenge/startSim to update the HUD when invoked
   if (typeof startChallenge === "function") {
     const _sc = startChallenge;
     window.startChallenge = function (...args) {
@@ -58,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return res;
     };
   }
-  // also update challenge panel visibility whenever mode changes
   const _setMode = window.setMode;
   window.setMode = function (mode) {
     try {
@@ -66,8 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
     return _setMode(mode);
   };
-
-  // default to sandbox on load so challenge box is hidden until a challenge starts
   try {
     setMode('sandbox');
     updateChallengePanelVisibility('sandbox');
@@ -96,17 +89,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  // helper to show the click-disabled modal
   function showClickModal() {
-    // don't show again if the user already acknowledged the warning
     if (typeof window !== 'undefined' && window.clickModalAcknowledged) return;
     const clickModalEl = document.getElementById('clickModal');
     if (!clickModalEl) return;
     clickModalEl.classList.add('visible');
     clickModalEl.setAttribute('aria-hidden', 'false');
   }
-
-  // handle clicks and also mousedown/touchstart so the modal appears even if the user is "clicking"
   if (canvas) {
     canvas.addEventListener("click", (ev) => {
       if (typeof challengeActive !== 'undefined' && challengeActive) {
@@ -120,14 +109,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const d = findDeviceAt(x, y);
       if (d) {
         d.on = !d.on;
-        // Removed pulse animation on click per user request — toggling
-        // via the 'E' key already doesn't create pulses. Keep that
-        // behavior consistent: no particle is emitted on click.
         updateDeviceList();
       }
     });
-
-    // also capture mousedown and touchstart to surface the modal immediately while pressing/clicking
     canvas.addEventListener('mousedown', (ev) => {
       if (typeof challengeActive !== 'undefined' && challengeActive) {
         showClickModal();
@@ -142,14 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }, {passive: false});
   }
 
-  // keyboard for movement and interaction
+  // teclado para movimento e interação
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "e" || ev.key === "E") {
       toggleNearbyDevices();
       ev.preventDefault();
       return;
     }
-    // normaliza letras para minúsculas (WASD)
     const k = ev.key && ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
     if (k in keys) {
       keys[k] = true;
@@ -171,20 +154,17 @@ document.addEventListener("DOMContentLoaded", () => {
       updateDeviceList();
     });
 
-  // Toggleable Handpose button: starts/stops model and updates UI
   if (startHandposeBtn) {
     startHandposeBtn.addEventListener("click", async () => {
       try {
         startHandposeBtn.disabled = true;
         const active = !!window.handposeActive;
         if (!active) {
-          // start and wait until ready
           try {
             await startHandpose();
             startHandposeBtn.textContent = 'Parar Handpose';
           } catch (err) {
             console.error('UI: startHandpose failed', err);
-            // show user-visible message
             const s = document.getElementById('mlStatus');
             if (s) s.textContent = 'Erro ao ativar Handpose — verifica permissões/console';
             return;
@@ -195,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (e) {
         console.error('Falha ao ativar Handpose', e);
-        // show minimal feedback
         try { const s = document.getElementById('mlStatus'); if (s) s.textContent = 'Erro ao ativar Handpose'; } catch (e) {}
       } finally {
         startHandposeBtn.disabled = false;
@@ -242,8 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
         topmenuEl.parentNode.removeChild(topmenuEl);
       hideSplash(() => {
         if (typeof startSim === "function") startSim();
-        // default splash start behaves as sandbox (no automatic challenge).
-        // If splash wanted challenge it would include a hash; menu will control mode.
         updateDeviceList();
       });
     });
@@ -255,42 +232,31 @@ document.addEventListener("DOMContentLoaded", () => {
         helpModal.setAttribute("aria-hidden", "false");
       }
     });
-  // If the page was opened with a start hash, automatically hide the splash and start
-  // the simulation in the requested mode. Supported hashes:
-  //  - #start or #start-challenge  => start simulation + startChallenge()
-  //  - #sandbox or #start-sandbox  => start simulation only (free world)
   const h = (window.location.hash || "").toLowerCase();
   if (h.includes("#start") || h.includes("#sandbox")) {
     hideSplash(() => {
       if (typeof startSim === "function") startSim();
-      // challenge variants
       if (h.includes("challenge") || h === "#start") {
         if (typeof startChallenge === "function") startChallenge();
       }
       try {
         history.replaceState(null, document.title, window.location.pathname + window.location.search);
       } catch (e) {
-        /* ignore */
+        
       }
     });
   }
-
-  // expose helpers to other modules
   window.updateDeviceList = updateDeviceList;
   window.toggleNearbyDevices = toggleNearbyDevices;
-
-  // clickModal handlers: close button hides the modal but clicks remain disabled while challengeActive
   const clickModal = document.getElementById('clickModal');
   const clickModalClose = document.getElementById('clickModalClose');
   if (clickModalClose) {
     clickModalClose.addEventListener('click', () => {
-      // remember that the player acknowledged the modal so it won't reappear
       try {
         if (typeof window !== 'undefined') window.clickModalAcknowledged = true;
       } catch (e) {}
       clickModal.classList.remove('visible');
       clickModal.setAttribute('aria-hidden', 'true');
-      // if a challenge was initialized but not started, begin it now
       try {
         if (typeof beginChallenge === 'function' && typeof challengeStarted !== 'undefined' && !challengeStarted) {
           beginChallenge();
@@ -306,20 +272,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
-  // Result modal: show final outcome (win/lose) and energy used during the challenge
   const resultModal = document.getElementById('resultModal');
   const resultTitle = document.getElementById('resultTitle');
   const resultMessage = document.getElementById('resultMessage');
   const resultEnergy = document.getElementById('resultEnergy');
   const resultRestart = document.getElementById('resultRestart');
   const resultClose = document.getElementById('resultClose');
-
-  // Expose a helper for other modules to show the end-of-challenge modal
   window.showChallengeResult = function (won, energyUsed) {
     try {
       if (!resultModal) {
-        // fallback to alert
         alert((won ? 'Ganhou — ' : 'Perdeu — ') + 'energia usada: ' + (Math.round(energyUsed * 100) / 100) + ' Wh');
         return;
       }
@@ -336,31 +297,24 @@ document.addEventListener("DOMContentLoaded", () => {
   if (resultRestart) {
     resultRestart.addEventListener('click', () => {
       try {
-        // ensure any previous challenge is stopped
         if (typeof stopChallenge === 'function') stopChallenge();
       } catch (e) {}
       try {
-        // reset devices and accumulated energy
         devices.forEach((d) => (d.on = false));
         energyWh = 0;
         if (typeof updateDeviceList === 'function') updateDeviceList();
       } catch (e) {}
-      // hide result modal
       try {
         if (resultModal) {
           resultModal.classList.remove('visible');
           resultModal.setAttribute('aria-hidden', 'true');
         }
       } catch (e) {}
-
-      // Re-initialize and start the challenge immediately (skip the click-modal)
       try {
         if (typeof startChallenge === 'function') startChallenge(challengeDuration, challengeThresholdW);
-        // mark the clickModal as acknowledged so it won't appear
         try {
           if (typeof window !== 'undefined') window.clickModalAcknowledged = true;
         } catch (e) {}
-        // hide the clickModal UI if present
         try {
           const clickModalEl = document.getElementById('clickModal');
           if (clickModalEl) {
@@ -368,9 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
             clickModalEl.setAttribute('aria-hidden', 'true');
           }
         } catch (e) {}
-        // ensure the simulation is running
         if (typeof startSim === 'function') startSim();
-        // actually begin the challenge (starts the timer and random toggles)
         if (typeof beginChallenge === 'function') beginChallenge();
       } catch (e) {
         console.error('Failed to force-restart challenge immediately', e);
@@ -381,18 +333,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (resultClose) {
     resultClose.addEventListener('click', () => {
       try {
-        // stop any running challenge
         if (typeof stopChallenge === 'function') stopChallenge();
       } catch (e) {}
       try {
-        // pause simulation to avoid background activity
         if (typeof pauseSim === 'function') pauseSim();
       } catch (e) {}
-      // navigate back to the menu page
       try {
         window.location.href = 'menu.html';
       } catch (e) {
-        // fallback: hide modal and set sandbox mode
         try {
           if (resultModal) {
             resultModal.classList.remove('visible');

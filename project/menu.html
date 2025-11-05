@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <!-- Play mode chooser modal -->
+  <!-- Modal de escolha do modo de jogo -->
     <div id="playModal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="playTitle">
       <div class="modal-panel" role="document">
         <button class="modal-close" id="playClose" aria-label="Fechar">×</button>
@@ -56,7 +56,7 @@
       </div>
     </div>
 
-    <!-- Options modal -->
+  <!-- Modal de opções -->
     <div
       id="optionsModal"
       class="modal"
@@ -81,7 +81,7 @@
     </div>
 
     <script>
-      // 'Jogar' opens a play-mode chooser modal; personagem navigates to character selection
+  // 'Jogar' abre o modal para escolher o modo; 'Personagem' navega para a seleção de personagem
       const btnJogar = document.getElementById("btnJogar");
       const playModal = document.getElementById("playModal");
       const playClose = document.getElementById("playClose");
@@ -95,7 +95,7 @@
         });
       }
 
-      // Options should open a modal on this page
+  // 'Opções' abre um modal nesta página
       const btnOp = document.getElementById("btnOpcoes");
       const modal = document.getElementById("optionsModal");
       const modalClose = document.getElementById("optionsClose");
@@ -122,13 +122,13 @@
           hideModal();
         });
 
-      // clicking on overlay (but not the panel) closes
+  // clicar fora do painel (overlay) fecha o modal
       modal &&
         modal.addEventListener("click", function (ev) {
           if (ev.target === modal) hideModal();
         });
 
-      // Play modal show/hide
+  // Mostrar/ocultar o modal de jogo
       function showPlayModal() {
         if (!playModal) return;
         playModal.classList.add("visible");
@@ -151,13 +151,13 @@
           hidePlayModal();
         });
 
-      // clicking outside the panel closes
+  // clicar fora do painel fecha
       playModal &&
         playModal.addEventListener("click", function (ev) {
           if (ev.target === playModal) hidePlayModal();
         });
 
-      // optional: if user clicks an option, modal will close by navigation—but just in case
+  // opcional: ao clicar numa opção, a navegação fecha o modal de qualquer forma
       playChallenge &&
         playChallenge.addEventListener("click", function () {
           // leave page to index with hash; no extra action needed
