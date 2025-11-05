@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>EcoPower</title>
+    <link rel="icon" type="image/x-icon" href="/project/img/icon.png" />
     <!-- Preconnect + font as provided by user (Jersey 25) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
@@ -26,7 +27,15 @@
           Aqui podes escolher a cor da bola que vais controlar dentro da casa.
         </p>
 
-        <div class="color-row" style="margin-top:18px; display:flex; gap:16px; align-items:center;">
+        <div
+          class="color-row"
+          style="
+            margin-top: 18px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+          "
+        >
           <label class="color-label">Cor da bola:</label>
           <input type="color" id="colorPicker" value="#ffdd88" />
           <div id="previewBall" class="preview-ball"></div>

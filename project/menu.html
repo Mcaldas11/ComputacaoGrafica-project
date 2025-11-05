@@ -3,16 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>EcoPower</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="menu.css" />
+    <title>EcoPower</title>
+    <link rel="icon" type="image/x-icon" href="/project/img/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="menu.css" />
   </head>
   <body>
     <div class="menu-wrapper">
-  <div class="menu-panel menu-main" role="navigation" aria-label="Menu do jogo">
+      <div
+        class="menu-panel menu-main"
+        role="navigation"
+        aria-label="Menu do jogo"
+      >
         <h1>EcoPower</h1>
 
         <div
@@ -32,8 +43,16 @@
             style="display: block; text-align: center"
             >Jogar</a
           >
-          <a class="btn-secondary" id="btnPersonagem" href="character.html" style="display: block">Personagem</a>
-          <button class="btn-secondary" id="btnOpcoes" style="display: block">Opções</button>
+          <a
+            class="btn-secondary"
+            id="btnPersonagem"
+            href="character.html"
+            style="display: block"
+            >Personagem</a
+          >
+          <button class="btn-secondary" id="btnOpcoes" style="display: block">
+            Opções
+          </button>
         </div>
 
         <div class="menu-note">
@@ -43,20 +62,50 @@
       </div>
     </div>
 
-  <!-- Modal de escolha do modo de jogo -->
-    <div id="playModal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="playTitle">
+    <!-- Modal de escolha do modo de jogo -->
+    <div
+      id="playModal"
+      class="modal"
+      role="dialog"
+      aria-hidden="true"
+      aria-labelledby="playTitle"
+    >
       <div class="modal-panel" role="document">
-        <button class="modal-close" id="playClose" aria-label="Fechar">×</button>
+        <button class="modal-close" id="playClose" aria-label="Fechar">
+          ×
+        </button>
         <h3 id="playTitle">Escolher modo</h3>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:10px">
-          <a id="playChallenge" class="btn-start" href="index.html#start" style="display:block;text-align:center">Desafio — 2 minutos</a>
-          <a id="playSandbox" class="btn-secondary" href="index.html#sandbox" style="display:block;text-align:center">Mundo livre</a>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+          "
+        >
+          <a
+            id="playChallenge"
+            class="btn-start"
+            href="index.html#start"
+            style="display: block; text-align: center"
+            >Desafio — 2 minutos</a
+          >
+          <a
+            id="playSandbox"
+            class="btn-secondary"
+            href="index.html#sandbox"
+            style="display: block; text-align: center"
+            >Mundo livre</a
+          >
         </div>
-        <p style="margin-top:12px;color:var(--muted);font-size:13px">Escolhe "Desafio" para a partida cronometrada ou "Mundo livre" para explorar sem restrições.</p>
+        <p style="margin-top: 12px; color: var(--muted); font-size: 13px">
+          Escolhe "Desafio" para a partida cronometrada ou "Mundo livre" para
+          explorar sem restrições.
+        </p>
       </div>
     </div>
 
-  <!-- Modal de opções -->
+    <!-- Modal de opções -->
     <div
       id="optionsModal"
       class="modal"
@@ -81,7 +130,7 @@
     </div>
 
     <script>
-  // 'Jogar' abre o modal para escolher o modo; 'Personagem' navega para a seleção de personagem
+      // 'Jogar' abre o modal para escolher o modo; 'Personagem' navega para a seleção de personagem
       const btnJogar = document.getElementById("btnJogar");
       const playModal = document.getElementById("playModal");
       const playClose = document.getElementById("playClose");
@@ -95,7 +144,7 @@
         });
       }
 
-  // 'Opções' abre um modal nesta página
+      // 'Opções' abre um modal nesta página
       const btnOp = document.getElementById("btnOpcoes");
       const modal = document.getElementById("optionsModal");
       const modalClose = document.getElementById("optionsClose");
@@ -122,13 +171,13 @@
           hideModal();
         });
 
-  // clicar fora do painel (overlay) fecha o modal
+      // clicar fora do painel (overlay) fecha o modal
       modal &&
         modal.addEventListener("click", function (ev) {
           if (ev.target === modal) hideModal();
         });
 
-  // Mostrar/ocultar o modal de jogo
+      // Mostrar/ocultar o modal de jogo
       function showPlayModal() {
         if (!playModal) return;
         playModal.classList.add("visible");
@@ -151,13 +200,13 @@
           hidePlayModal();
         });
 
-  // clicar fora do painel fecha
+      // clicar fora do painel fecha
       playModal &&
         playModal.addEventListener("click", function (ev) {
           if (ev.target === playModal) hidePlayModal();
         });
 
-  // opcional: ao clicar numa opção, a navegação fecha o modal de qualquer forma
+      // opcional: ao clicar numa opção, a navegação fecha o modal de qualquer forma
       playChallenge &&
         playChallenge.addEventListener("click", function () {
           // leave page to index with hash; no extra action needed
