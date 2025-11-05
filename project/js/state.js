@@ -69,7 +69,9 @@ const devices = [
   },
 ];
 
-const player = { x: 220, y: 160, r: 14, speed: 160, stepPhase: 0 };
+// Posição inicial do jogador ajustada para ficar à frente da porta/corredor,
+// longe do frigorífico (evita ficar preso ao iniciar)
+const player = { x: 442, y: 520, r: 14, speed: 160, stepPhase: 0 };
 
 const casaImg = new Image();
 let casaLoaded = false;
