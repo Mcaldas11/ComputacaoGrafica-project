@@ -27,7 +27,7 @@ const devices = [
     id: "light_kitchen",
     label: "Luz Cozinha",
     type: "light2",
-    power: 60,
+    power: 30,
     x: 503,
     y: 80,
     w: 58,
@@ -60,7 +60,7 @@ const devices = [
     id: "tv",
     label: "TV",
     type: "tv",
-    power: 100,
+    power: 400,
     x: 241,
     y: 360,
     w: 80,
@@ -110,7 +110,7 @@ let energyWh = 0;
 let challengeActive = false;
 let challengeDuration = 120;
 let challengeRemaining = 0;
-let challengeThresholdW = 1200;
+let challengeThresholdW = 2000;
 let challengeStarted = false;
 let challengeEnergyStart = 0;
 let _randomDevicesIntervalId = null;
@@ -134,7 +134,7 @@ function stopRandomDevices() {
   }
 }
 
-function startChallenge(durationSec = 120, thresholdW = 1200) {
+function startChallenge(durationSec = 120, thresholdW = 2000) {
   challengeActive = true;
   challengeStarted = false;
   challengeDuration = durationSec;
