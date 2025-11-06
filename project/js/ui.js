@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateChallengePanelVisibility(mode) {
     const box = document.querySelector('.challengeBox');
     if (!box) return;
-    if (mode === 'challenge') {
+    if (mode === 'challenge') { 
       box.style.display = '';
       box.setAttribute('aria-hidden', 'false');
     } else {
@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  
+
   window.updateDeviceList = updateDeviceList;
   window.toggleNearbyDevices = toggleNearbyDevices;
   const clickModal = document.getElementById('clickModal');
