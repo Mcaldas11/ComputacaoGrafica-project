@@ -36,3 +36,30 @@
 - Melhorar a UI/UX quando a câmara não está disponível (mensagens mais claras).
 - Adicionar um mini‑gráfico do consumo ao longo do tempo.
 - Dar mais feedback visual quando o gesto acontece.
+
+## Novidade — Animação de confetis ao ganhar o Desafio
+
+- Adicionei uma pequena animação de confetis que é disparada quando o jogador ganha o modo **Desafio**. A animação usa a biblioteca `canvas-confetti` e foi integrada de forma opcional — só corre se a biblioteca estiver carregada.
+
+Como usar a animação de confetis
+
+- Opção rápida (recomendada): incluir o build via CDN (sem instalação). No `index.html` já está incluído o seguinte script antes de `js/ui.js`:
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+- Opção com npm (local): se preferires instalar localmente (útil offline / sem depender do CDN), instala o pacote e copia o build para a pasta `project/js/vendor`:
+
+  npm install canvas-confetti
+
+  # em PowerShell (na raiz do repo)
+  mkdir -Force .\project\js\vendor
+  Copy-Item -Path .\node_modules\canvas-confetti\dist\confetti.browser.min.js -Destination .\project\js\vendor\ -Force
+
+  Depois adiciona a tag script local no `index.html` antes de `js/ui.js`:
+
+  <script src="js/vendor/confetti.browser.min.js"></script>
+
+Observações
+
+- A chamada à função `confetti()` é envolvida em `try/catch` e só é executada quando a função existe (ou seja, se carregares o script CDNlocal). Se não carregares a biblioteca
+nada falha — só não há confetis.
