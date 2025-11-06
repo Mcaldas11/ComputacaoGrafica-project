@@ -267,6 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+  
   window.updateDeviceList = updateDeviceList;
   window.toggleNearbyDevices = toggleNearbyDevices;
   const clickModal = document.getElementById('clickModal');
