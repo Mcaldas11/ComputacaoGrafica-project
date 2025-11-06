@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (clickModal) {
     clickModal.addEventListener('click', (ev) => {
       if (ev.target === clickModal) {
-          setVisible(clickModal, false);
+        setVisible(clickModal, false);
         }
     });
   }
@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (resultTitle) resultTitle.textContent = won ? 'Ganhou!' : 'Perdeu';
     if (resultMessage) resultMessage.textContent = won ? 'Conseguiu manter o consumo aceitável.' : 'O consumo excedeu o limite durante o desafio.';
     if (resultEnergy) resultEnergy.textContent = (Math.round(energyUsed * 100) / 100).toFixed(2);
-  setVisible(resultModal, true);
+    setVisible(resultModal, true);
     // confetti if available
     if (won && typeof confetti === 'function') {
       try {
