@@ -83,10 +83,19 @@ const devices = [
 // Posição inicial do jogador ajustada para ficar à frente da porta/corredor,
 const player = { x: 442, y: 520, r: 14, speed: 170, stepPhase: 0 };
 
-const casaImg = new Image();
-let casaLoaded = false;
-casaImg.onload = () => (casaLoaded = true);
-casaImg.src = "img/casa.png";
+// small helper to reduce repetition when creating Image + loaded flag
+function _loadImgVar(key, src) {
+  const img = new Image();
+  // create global vars with the same names used elsewhere (e.g. casaImg, casaLoaded)
+  window[`${key}Img`] = img;
+  window[`${key}Loaded`] = false;
+  img.onload = () => (window[`${key}Loaded`] = true);
+  img.onerror = () => (window[`${key}Loaded`] = false);
+  img.src = src;
+  return img;
+}
+
+const casaImg = _loadImgVar("casa", "img/casa.png");
 
 const allowedAreas = [
   { x: 40, y: 40, w: 360, h: 240 },
@@ -201,83 +210,29 @@ function resetChallenge() {
   stopRandomDevices();
 }
 
-const salaImg = new Image();
-let salaLoaded = false;
-salaImg.onload = () => (salaLoaded = true);
-salaImg.onerror = () => (salaLoaded = false);
-salaImg.src = "img/sala.png";
+// load all image assets via the small helper — keeps variable names compatible with draw/ui
+const salaImg = _loadImgVar("sala", "img/sala.png");
+const quartoImg = _loadImgVar("quarto", "img/quarto.png");
+const cozinhaImg = _loadImgVar("cozinha", "img/cozinha.jpg");
+const despensaImg = _loadImgVar("despensa", "img/despensa.png");
 
-const quartoImg = new Image();
-let quartoLoaded = false;
-quartoImg.onload = () => (quartoLoaded = true);
-quartoImg.onerror = () => (quartoLoaded = false);
-quartoImg.src = "img/quarto.png";
+const lampOnImg = _loadImgVar("lampOn", "img/lamp_on.png");
+const lampOffImg = _loadImgVar("lampOff", "img/lamp_off.png");
 
-const cozinhaImg = new Image();
-let cozinhaLoaded = false;
-cozinhaImg.onload = () => (cozinhaLoaded = true);
-cozinhaImg.onerror = () => (cozinhaLoaded = false);
-cozinhaImg.src = "img/cozinha.jpg";
+const lamp2OnImg = _loadImgVar("lamp2On", "img/lamp2_on.png");
+const lamp2OffImg = _loadImgVar("lamp2Off", "img/lamp2_off.png");
 
-const despensaImg = new Image();
-let despensaLoaded = false;
-despensaImg.onload = () => (despensaLoaded = true);
-despensaImg.onerror = () => (despensaLoaded = false);
-despensaImg.src = "img/despensa.png";
+const tvOnImg = _loadImgVar("tvOn", "img/tv_on.png");
+const tvOffImg = _loadImgVar("tvOff", "img/tv_off.png");
 
-const lampOnImg = new Image();
-const lampOffImg = new Image();
-let lampOnLoaded = false;
-let lampOffLoaded = false;
-lampOnImg.onload = () => (lampOnLoaded = true);
-lampOffImg.onload = () => (lampOffLoaded = true);
-lampOnImg.src = "img/lamp_on.png";
-lampOffImg.src = "img/lamp_off.png";
+const fridgeOnImg = _loadImgVar("fridgeOn", "img/fridge_on.png");
+const fridgeOffImg = _loadImgVar("fridgeOff", "img/fridge_off.png");
 
-const lamp2OnImg = new Image();
-const lamp2OffImg = new Image();
-let lamp2OnLoaded = false;
-let lamp2OffLoaded = false;
-lamp2OnImg.onload = () => (lamp2OnLoaded = true);
-lamp2OffImg.onload = () => (lamp2OffLoaded = true);
-lamp2OnImg.src = "img/lamp2_on.png";
-lamp2OffImg.src = "img/lamp2_off.png";
+const microwaveOnImg = _loadImgVar("microwaveOn", "img/micro-ondas_on.png");
+const microwaveOffImg = _loadImgVar("microwaveOff", "img/micro-ondas_off.png");
 
-const tvOnImg = new Image();
-const tvOffImg = new Image();
-let tvOnLoaded = false;
-let tvOffLoaded = false;
-tvOnImg.onload = () => (tvOnLoaded = true);
-tvOffImg.onload = () => (tvOffLoaded = true);
-tvOnImg.src = "img/tv_on.png";
-tvOffImg.src = "img/tv_off.png";
-
-const fridgeOnImg = new Image();
-const fridgeOffImg = new Image();
-let fridgeOnLoaded = false;
-let fridgeOffLoaded = false;
-fridgeOnImg.onload = () => (fridgeOnLoaded = true);
-fridgeOffImg.onload = () => (fridgeOffLoaded = true);
-fridgeOnImg.src = "img/fridge_on.png";
-fridgeOffImg.src = "img/fridge_off.png";
-
-const microwaveOnImg = new Image();
-const microwaveOffImg = new Image();
-let microwaveOnLoaded = false;
-let microwaveOffLoaded = false;
-microwaveOnImg.onload = () => (microwaveOnLoaded = true);
-microwaveOffImg.onload = () => (microwaveOffLoaded = true);
-microwaveOnImg.src = "img/micro-ondas_on.png";
-microwaveOffImg.src = "img/micro-ondas_off.png";
-
-const heaterOnImg = new Image();
-const heaterOffImg = new Image();
-let heaterOnLoaded = false;
-let heaterOffLoaded = false;
-heaterOnImg.onload = () => (heaterOnLoaded = true);
-heaterOffImg.onload = () => (heaterOffLoaded = true);
-heaterOnImg.src = "img/heater_on.png";
-heaterOffImg.src = "img/heater_off.png";
+const heaterOnImg = _loadImgVar("heaterOn", "img/heater_on.png");
+const heaterOffImg = _loadImgVar("heaterOff", "img/heater_off.png");
 
 const pulses = [];
 
@@ -407,18 +362,9 @@ function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
     const sWidth = Math.max(1, img.width - cropX * 2);
     const sHeight = Math.max(1, img.height - cropY * 2);
     try {
-      const ctx = document.querySelector("#houseCanvas").getContext("2d");
-      ctx.drawImage(
-        img,
-        cropX,
-        cropY,
-        sWidth,
-        sHeight,
-        dx,
-        dy,
-        dWidth,
-        dHeight
-      );
+      // prefer the global ctx (from draw.js) if available, otherwise query the canvas
+      const ctx = (typeof window !== 'undefined' && window.ctx) ? window.ctx : document.querySelector("#houseCanvas").getContext("2d");
+      ctx.drawImage(img, cropX, cropY, sWidth, sHeight, dx, dy, dWidth, dHeight);
     } catch (e) {
       const ctx = document.querySelector("#houseCanvas").getContext("2d");
       ctx.drawImage(img, dx, dy, dWidth, dHeight);
@@ -432,7 +378,7 @@ function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
   const sW = Math.max(1, iw - Math.round(iw * (crop.left + crop.right)));
   const sH = Math.max(1, ih - Math.round(ih * (crop.top + crop.bottom)));
   try {
-    const ctx = document.querySelector("#houseCanvas").getContext("2d");
+    const ctx = (typeof window !== 'undefined' && window.ctx) ? window.ctx : document.querySelector("#houseCanvas").getContext("2d");
     ctx.drawImage(img, sX, sY, sW, sH, dx, dy, dWidth, dHeight);
   } catch (e) {
     const ctx = document.querySelector("#houseCanvas").getContext("2d");
