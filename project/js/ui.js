@@ -310,6 +310,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (resultEnergy) resultEnergy.textContent = (Math.round(energyUsed * 100) / 100).toFixed(2);
       resultModal.classList.add('visible');
       resultModal.setAttribute('aria-hidden', 'false');
+        // small celebratory confetti burst when the player wins (if confetti lib is loaded)
+        if (won && typeof confetti === 'function') {
+          try {
+            // Big initial burst
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            // Follow-up bursts for a couple of seconds
+            const duration = 1600;
+            const end = Date.now() + duration;
+            const interval = setInterval(() => {
+              if (Date.now() > end) return clearInterval(interval);
+              confetti({ particleCount: 40, startVelocity: 30, spread: 120, origin: { x: Math.random(), y: Math.random() * 0.6 } });
+            }, 250);
+          } catch (e) {
+            console.warn('Confetti failed', e);
+          }
+        }
     } catch (e) {
       console.error('showChallengeResult error', e);
     }
