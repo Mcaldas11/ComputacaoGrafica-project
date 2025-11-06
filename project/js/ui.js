@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (clickModal) {
     clickModal.addEventListener('click', (ev) => {
       if (ev.target === clickModal) {
-          setVisible(clickModal, false);
+        setVisible(clickModal, false);
         }
     });
   }
