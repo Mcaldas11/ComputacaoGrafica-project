@@ -319,10 +319,12 @@ document.addEventListener("DOMContentLoaded", () => {
       energyWh = 0;
       updateDeviceList();
       setVisible(resultModal, false);
+      // start sim first (will set sandbox), then start challenge which will set mode to 'challenge'
+      if (typeof startSim === 'function') startSim();
       if (typeof startChallenge === 'function') startChallenge(challengeDuration, challengeThresholdW);
+      // immediately acknowledge click modal and begin the challenge
       window.clickModalAcknowledged = true;
       setVisible(clickModal, false);
-      if (typeof startSim === 'function') startSim();
       if (typeof beginChallenge === 'function') beginChallenge();
     });
   }
