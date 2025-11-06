@@ -2,6 +2,8 @@
 let canvas, ctx;
 let running = false;
 let _animId = null;
+let meterFillEl, powerWEl, energyWhEl, consEl, consIconEl, consTextEl;
+let timerEl, thresholdEl, statusEl;
 
 function initCanvas() {
   canvas = document.getElementById("houseCanvas");
@@ -9,6 +11,18 @@ function initCanvas() {
   if (!canvas) return;
   canvas.width = canvas.width || 900;
   canvas.height = canvas.height || 600;
+  // cache some DOM elements used every frame to avoid repeated lookups
+  try {
+    meterFillEl = document.getElementById("meterFill");
+    powerWEl = document.getElementById("powerW");
+    energyWhEl = document.getElementById("energyWh");
+    consEl = document.getElementById("consumptionStatus");
+    consIconEl = consEl ? consEl.querySelector('.icon') : null;
+    consTextEl = consEl ? consEl.querySelector('.text') : null;
+    timerEl = document.getElementById("challengeTimer");
+    thresholdEl = document.getElementById("challengeThreshold");
+    statusEl = document.getElementById("challengeStatus");
+  } catch (e) {}
 }
 
 function computePowerW() {
@@ -218,45 +232,33 @@ function draw(timestamp) {
 
   const totalW = computePowerW();
   energyWh += totalW * (dt / 3600);
-  const meterFillEl = document.getElementById("meterFill");
-  const powerWEl = document.getElementById("powerW");
-  const energyWhEl = document.getElementById("energyWh");
   if (meterFillEl) {
     const pct = Math.min(1, totalW / 2000);
     meterFillEl.style.width = `${pct * 100}%`;
-    meterFillEl.style.boxShadow =
-      pct > 0.7 ? "0 0 18px rgba(255,107,107,0.3)" : "";
+    meterFillEl.style.boxShadow = pct > 0.7 ? "0 0 18px rgba(255,107,107,0.3)" : "";
   }
   if (powerWEl) powerWEl.textContent = Math.round(totalW);
   if (energyWhEl) energyWhEl.textContent = energyWh.toFixed(2);
   try {
-    const consEl = document.getElementById("consumptionStatus");
     if (consEl) {
-      const iconEl = consEl.querySelector(".icon");
-      const textEl = consEl.querySelector(".text");
       if (totalW > 800) {
-        if (iconEl) iconEl.style.display = "";
-        if (textEl) textEl.textContent = "Consumo demasiado elevado";
+        if (consIconEl) consIconEl.style.display = "";
+        if (consTextEl) consTextEl.textContent = "Consumo demasiado elevado";
         consEl.classList.add("high");
       } else {
-        if (iconEl) iconEl.style.display = "none";
-        if (textEl) textEl.textContent = "Consumo controlado";
+        if (consIconEl) consIconEl.style.display = "none";
+        if (consTextEl) consTextEl.textContent = "Consumo controlado";
         consEl.classList.remove("high");
       }
     }
   } catch (e) {}
 
   if (typeof challengeActive !== "undefined" && challengeActive) {
-    const timerEl = document.getElementById("challengeTimer");
-    const thresholdEl = document.getElementById("challengeThreshold");
-    const statusEl = document.getElementById("challengeStatus");
     if (thresholdEl) thresholdEl.textContent = Math.round(challengeThresholdW);
     if (timerEl) {
       const mins = Math.floor(challengeRemaining / 60);
       const secs = Math.floor(challengeRemaining % 60);
-      timerEl.textContent = `${String(mins).padStart(2, "0")}:${String(
-        secs
-      ).padStart(2, "0")}`;
+      timerEl.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     }
     if (typeof challengeStarted === "undefined" || !challengeStarted) {
       if (statusEl) statusEl.textContent = "A iniciar — confirma para começar";
@@ -351,10 +353,7 @@ function draw(timestamp) {
   if (running) _animId = requestAnimationFrame(draw);
 }
 
-function loop() {
-  if (!running) return;
-  draw();
-}
+
 
 function startSim() {
   if (running) return;
