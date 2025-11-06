@@ -1,65 +1,82 @@
-# EcoPower 
-## O que dá para fazer
+<!-- Language: [Português](#portugues) | [English](#english) -->
 
-- Ligar/desligar aparelhos clicando neles ou usando a tecla `E` quando o boneco está perto.
-- Ver o consumo total (W) e o acumulado (Wh), com um aviso quando é demasiado alto.
-- Mover o boneco com setas OU WASD, com colisões básicas para não atravessar tudo.
-- Ativar um modo “Desafio” de 2 minutos onde temos de manter o consumo abaixo de um limite.
-- Usar a câmara:
-  - Handpose: levantar a mão (na parte de cima da imagem) desliga todos os dispositivos. A imagem está espelhada (modo selfie).
-  - Classificador (MobileNet): tiro uma captura e ele tenta reconhecer um objeto. Eu limitei a 4 objetos e mostro uma estimativa de consumo: telemóvel (~8 W), fones (~2 W), rato (~1 W) e TV (~120 W). Se não for um destes, diz “não suportado”.
+<a id="portugues"></a>
 
-## Controlo rápido
+# EcoPower — Desafio de Energia Digital (PT)
 
-- Mover: setas ou WASD
-- Interagir: `E` (perto do aparelho)
-- Desafio: abrir `menu.html` e escolher “Desafio — 2 minutos”
-- Handpose: “Ativar Handpose” e levantar a mão → desliga tudo
-- Classificador: “Ativar Classificador” → “Classificar (captura)”
+Bem‑vindo ao EcoPower! É um mini‑jogo educativo sobre consumo energético: controlas um personagem numa casa, ligas/desligas aparelhos e tentas manter o consumo sob controlo. Existe um modo “Desafio” de 2 minutos e, quando ganhas, a interface celebra com confetis.
 
-## Notas sobre a câmara e privacidade
+## Como Jogar
+1. Faz download do projeto ou clona o repositório.
+2. Abre o ficheiro `project/index.html` no teu navegador (Chrome, Firefox ou Edge).
+3. No menu inicial escolhe um modo:
+   - Desafio — 2 minutos: manter o consumo abaixo do limite até o tempo acabar.
+   - Mundo livre: experimentar à vontade.
+4. Controlos:
+   - Mover: setas ou WASD.
+   - Interagir: clicar nos aparelhos ou carregar em `E` quando estiver perto.
+5. No Desafio:
+   - Alguns aparelhos ligam aleatoriamente para aumentar a pressão.
+   - Se o consumo ultrapassar o limite, perdes; se o tempo esgotar e estiveres abaixo do limite, ganhas (com confetis).
 
-- Tudo é processado no próprio browser, não envio imagens para lado nenhum.
-- Podes parar os modelos quando quiseres; ao esconder a aba, a câmara também é parada.
+## Objetivo
+Gerir o consumo total de energia de forma eficiente. No modo Desafio, o objetivo é manter o consumo abaixo de um limite (ex.: 1500 W) durante 2 minutos, enquanto dispositivos se ligam aleatoriamente.
+
+## Funcionalidades
+- Casa desenhada em Canvas com vários dispositivos ligáveis.
+- Personagem com animações simples e colisões.
+- Medidor em tempo real (W) e energia acumulada (Wh), com aviso de consumo elevado.
+- Modo Desafio com temporizador, limite de potência, resultado em modal e botão “Reiniciar”.
+- Integração opcional com ml5.js:
+  - Handpose: gesto (levantar mão) para desligar dispositivos.
+  - Classifier: estimativa de 4 objetos (telemóvel, fones, rato, TV) com consumo aproximado.
+- Confetis ao ganhar (canvas‑confetti via CDN) — seguro: só corre se a função existir.
+
+## Tecnologias Utilizadas
+- HTML, CSS e JavaScript (Canvas API)
+- ml5.js (Handpose e MobileNet)
+- canvas‑confetti (browser build via CDN)
+
+## Créditos
+- Projeto desenvolvido por Miguel Caldas e Mariana Ferreira.
 
 
-## O que aprendi/fiz
+# EcoPower — Digital Energy Challenge (EN)
 
-- Desenhar e atualizar um Canvas com animações leves (respirar/andar, halos, pulsos).
-- Lidar com colisões simples e áreas válidas de movimento.
-- Integrar ml5.js: Handpose (gestos) e MobileNet (classificação), incluindo espelhar a imagem no preview e no que é classificado.
-- Trabalhar com estados (dispositivos, energia, desafio) e ligar tudo ao DOM.
+Welcome to EcoPower! It’s a small educational game about energy consumption: you control a character in a house, toggle appliances on/off, and try to keep the total usage under control. There’s a 2‑minute Challenge mode and, when you win, the UI celebrates with confetti.
 
-## Coisas que eu ainda queria melhorar
+## How to Play
+1. Download or clone the repository.
+2. Open `project/index.html` in your browser (Chrome, Firefox, or Edge).
+3. In the main menu choose a mode:
+   - Challenge — 2 minutes: keep the total power below the limit until time runs out.
+   - Sandbox: experiment freely.
+4. Controls:
+   - Move: arrow keys or WASD.
+   - Interact: click on appliances or press `E` when near one.
+5. In Challenge mode:
+   - Some appliances power on randomly to increase pressure.
+   - If you exceed the limit you lose; if time ends below the limit you win (with confetti).
 
-- Tornar o Canvas mais responsivo a diferentes ecrãs/DPIs.
-- Melhorar a UI/UX quando a câmara não está disponível (mensagens mais claras).
-- Adicionar um mini‑gráfico do consumo ao longo do tempo.
-- Dar mais feedback visual quando o gesto acontece.
+## Objective
+Manage total energy consumption efficiently. In Challenge mode, keep usage under a limit (e.g., 1500 W) for 2 minutes while devices toggle randomly.
 
-## Novidade — Animação de confetis ao ganhar o Desafio
+## Features
+- Canvas‑based house with multiple interactive appliances.
+- Character with simple animations and collisions.
+- Live power meter (W) and accumulated energy (Wh), with high‑usage warning.
+- Challenge mode with timer, power threshold, result modal, and “Restart” button.
+- Optional ml5.js integration:
+  - Handpose: gesture (raise hand) to switch devices off.
+  - Classifier: classifies 4 objects (phone, headphones, mouse, TV) with rough consumption.
+- Confetti on win (canvas‑confetti via CDN) — guarded, runs only if available.
 
-- Adicionei uma pequena animação de confetis que é disparada quando o jogador ganha o modo **Desafio**. A animação usa a biblioteca `canvas-confetti` e foi integrada de forma opcional — só corre se a biblioteca estiver carregada.
+## Technologies Used
+- HTML, CSS, and JavaScript (Canvas API)
+- ml5.js (Handpose and MobileNet)
+- canvas‑confetti (browser build via CDN)
 
-Como usar a animação de confetis
+## Credits
+- Project by Miguel Caldas and Mariana Ferreira.
 
-- Opção rápida (recomendada): incluir o build via CDN (sem instalação). No `index.html` já está incluído o seguinte script antes de `js/ui.js`:
-
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-- Opção com npm (local): se preferires instalar localmente (útil offline / sem depender do CDN), instala o pacote e copia o build para a pasta `project/js/vendor`:
-
-  npm install canvas-confetti
-
-  # em PowerShell (na raiz do repo)
-  mkdir -Force .\project\js\vendor
-  Copy-Item -Path .\node_modules\canvas-confetti\dist\confetti.browser.min.js -Destination .\project\js\vendor\ -Force
-
-  Depois adiciona a tag script local no `index.html` antes de `js/ui.js`:
-
-  <script src="js/vendor/confetti.browser.min.js"></script>
-
-Observações
-
-- A chamada à função `confetti()` é envolvida em `try/catch` e só é executada quando a função existe (ou seja, se carregares o script CDNlocal). Se não carregares a biblioteca
-nada falha — só não há confetis.
+— [Voltar a Português](#portugues)
