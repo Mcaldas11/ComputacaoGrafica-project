@@ -39,7 +39,7 @@ Gerir o consumo total de energia de forma eficiente. No modo Desafio, o objetivo
 
 - HTML, CSS e JavaScript (Canvas API)
 - ml5.js (Handpose e MobileNet)
-- canvas‑confetti (browser build via CDN)
+- canvas‑confetti (browser build via CDN) npm i canvas-confetti
 
 ## Créditos
 
@@ -82,7 +82,7 @@ Manage total energy consumption efficiently. In Challenge mode, keep usage under
 
 - HTML, CSS, and JavaScript (Canvas API)
 - ml5.js (Handpose and MobileNet)
-- canvas‑confetti (browser build via CDN)
+- canvas‑confetti (browser build via CDN) npm i canvas-confetti
 
 ## Credits
 
