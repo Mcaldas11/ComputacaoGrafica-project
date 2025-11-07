@@ -80,13 +80,12 @@ const devices = [
   },
 ];
 
-// Posição inicial do jogador ajustada para ficar à frente da porta/corredor,
+// Posição inicial do jogador (à frente da porta/corredor)
 const player = { x: 442, y: 520, r: 14, speed: 170, stepPhase: 0 };
 
-// small helper to reduce repetition when creating Image + loaded flag
+// Helper pequeno para criar imagens e respetivas flags de carregamento
 function _loadImgVar(key, src) {
   const img = new Image();
-  // create global vars with the same names used elsewhere (e.g. casaImg, casaLoaded)
   window[`${key}Img`] = img;
   window[`${key}Loaded`] = false;
   img.onload = () => (window[`${key}Loaded`] = true);
@@ -124,6 +123,7 @@ let challengeStarted = false;
 let challengeEnergyStart = 0;
 let _randomDevicesIntervalId = null;
 
+// Liga/desliga aleatoriamente dispositivos a intervalos (usado no Desafio)
 function startRandomDevices(intervalMs = 1200) {
   stopRandomDevices();
   _randomDevicesIntervalId = setInterval(() => {
@@ -136,6 +136,7 @@ function startRandomDevices(intervalMs = 1200) {
   }, intervalMs + Math.floor(Math.random() * 800));
 }
 
+// Para o ciclo aleatório de dispositivos
 function stopRandomDevices() {
   if (_randomDevicesIntervalId) {
     clearInterval(_randomDevicesIntervalId);
@@ -143,6 +144,7 @@ function stopRandomDevices() {
   }
 }
 
+// Inicia o modo Desafio (temporizador e limite de potência)
 function startChallenge(durationSec = 120, thresholdW = 2000) {
   challengeActive = true;
   challengeStarted = false;
@@ -176,7 +178,7 @@ function startChallenge(durationSec = 120, thresholdW = 2000) {
   } catch (e) {}
 }
 
-// Chamado quando o jogador confirma o modal do desafio (carrega em 'Entendi')
+// Chamado quando o jogador confirma o modal do desafio
 function beginChallenge() {
   if (!challengeActive || challengeStarted) return;
   challengeStarted = true;
@@ -187,6 +189,7 @@ function beginChallenge() {
   } catch (e) {}
 }
 
+// Termina o Desafio e repõe estado base
 function stopChallenge() {
   challengeActive = false;
   challengeRemaining = 0;
@@ -203,6 +206,7 @@ function stopChallenge() {
   } catch (e) {}
 }
 
+// Limpa indicadores do Desafio sem iniciar/terminar animações
 function resetChallenge() {
   challengeActive = false;
   challengeStarted = false;
@@ -210,7 +214,7 @@ function resetChallenge() {
   stopRandomDevices();
 }
 
-// load all image assets via the small helper — keeps variable names compatible with draw/ui
+// Carrega todos os recursos de imagem
 const salaImg = _loadImgVar("sala", "img/sala.png");
 const quartoImg = _loadImgVar("quarto", "img/quarto.png");
 const cozinhaImg = _loadImgVar("cozinha", "img/cozinha.jpg");
@@ -236,6 +240,7 @@ const heaterOffImg = _loadImgVar("heaterOff", "img/heater_off.png");
 
 const pulses = [];
 
+// Colisão: círculo (jogador) vs retângulo (dispositivo)
 function circleIntersectsRect(cx, cy, r, rect) {
   const closestX = Math.max(rect.x, Math.min(cx, rect.x + rect.w));
   const closestY = Math.max(rect.y, Math.min(cy, rect.y + rect.h));
@@ -243,6 +248,7 @@ function circleIntersectsRect(cx, cy, r, rect) {
   const dy = cy - closestY;
   return dx * dx + dy * dy <= r * r;
 }
+// Verifica colisão do jogador
 function isCollidingAt(cx, cy) {
   for (const d of devices) {
     if (
@@ -252,6 +258,7 @@ function isCollidingAt(cx, cy) {
   }
   return false;
 }
+// Ponto dentro de retângulo
 function isPointInRect(px, py, rect) {
   return (
     px >= rect.x &&
@@ -261,6 +268,7 @@ function isPointInRect(px, py, rect) {
   );
 }
 
+// Alterna dispositivos próximos do jogador
 function toggleNearbyDevices(radius = activationRadius) {
   const cx = player.x;
   const cy = player.y;
@@ -277,6 +285,7 @@ function toggleNearbyDevices(radius = activationRadius) {
   if (toggled && typeof updateDeviceList === "function") updateDeviceList();
 }
 
+// Cálculo automático de recorte de margens escuras numa imagem
 function computeAutoCrop(img, options = {}) {
   const maxCrop = options.maxCrop || 0.25;
   const brightnessThreshold = options.threshold || 30;
@@ -349,6 +358,7 @@ function computeAutoCrop(img, options = {}) {
   }
 }
 
+// Desenha imagem com recorte automático
 function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
   if (!img || !img.width || !img.height) return;
   if (!img.__autoCrop) {
@@ -362,9 +372,21 @@ function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
     const sWidth = Math.max(1, img.width - cropX * 2);
     const sHeight = Math.max(1, img.height - cropY * 2);
     try {
-      // prefer the global ctx (from draw.js) if available, otherwise query the canvas
-      const ctx = (typeof window !== 'undefined' && window.ctx) ? window.ctx : document.querySelector("#houseCanvas").getContext("2d");
-      ctx.drawImage(img, cropX, cropY, sWidth, sHeight, dx, dy, dWidth, dHeight);
+      const ctx =
+        typeof window !== "undefined" && window.ctx
+          ? window.ctx
+          : document.querySelector("#houseCanvas").getContext("2d");
+      ctx.drawImage(
+        img,
+        cropX,
+        cropY,
+        sWidth,
+        sHeight,
+        dx,
+        dy,
+        dWidth,
+        dHeight
+      );
     } catch (e) {
       const ctx = document.querySelector("#houseCanvas").getContext("2d");
       ctx.drawImage(img, dx, dy, dWidth, dHeight);
@@ -378,7 +400,10 @@ function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
   const sW = Math.max(1, iw - Math.round(iw * (crop.left + crop.right)));
   const sH = Math.max(1, ih - Math.round(ih * (crop.top + crop.bottom)));
   try {
-    const ctx = (typeof window !== 'undefined' && window.ctx) ? window.ctx : document.querySelector("#houseCanvas").getContext("2d");
+    const ctx =
+      typeof window !== "undefined" && window.ctx
+        ? window.ctx
+        : document.querySelector("#houseCanvas").getContext("2d");
     ctx.drawImage(img, sX, sY, sW, sH, dx, dy, dWidth, dHeight);
   } catch (e) {
     const ctx = document.querySelector("#houseCanvas").getContext("2d");
@@ -386,6 +411,7 @@ function drawImageCropped(img, dx, dy, dWidth, dHeight, defaultCrop = 0.06) {
   }
 }
 
+// Desliga todas as luzes e indica se houve alterações
 function turnOffAllLights() {
   let changed = false;
   for (const d of devices) {
