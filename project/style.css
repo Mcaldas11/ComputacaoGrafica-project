@@ -21,7 +21,7 @@ body {
       rgba(7, 17, 38, 0.65) 0%,
       rgba(11, 33, 48, 0.65) 60%
     ),
-    url("img/background.png");
+  url("assets/img/background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
