@@ -5,6 +5,20 @@ let _animId = null;
 let meterFillEl, powerWEl, energyWhEl, consEl, consIconEl, consTextEl;
 let timerEl, thresholdEl, statusEl;
 
+// Estado para animação de morte do jogador
+let deathAnim = { active: false, t: 0, duration: 1.1, onDone: null };
+function startDeathAnimation(cb) {
+  deathAnim.active = true;
+  deathAnim.t = 0;
+  deathAnim.onDone = typeof cb === 'function' ? cb : null;
+}
+function resetDeathAnimation() {
+  deathAnim.active = false;
+  deathAnim.t = 0;
+  deathAnim.onDone = null;
+}
+window.resetDeathAnimation = resetDeathAnimation;
+
 function initCanvas() {
   canvas = document.getElementById("houseCanvas");
   ctx = canvas?.getContext("2d");
@@ -179,24 +193,29 @@ function draw(timestamp) {
   ctx.save();
   const movingNow =
     keys.ArrowUp ||
-    keys.ArrowDown ||
-    keys.ArrowLeft ||
-    keys.ArrowRight ||
-    keys.w ||
-    keys.a ||
-    keys.s ||
-    keys.d;
-  const selColor = localStorage.getItem("selectedColor") || "#ffdd88";
-  const idlePhase = now / 250;
-  const bob =
-    movingNow && player.stepPhase
-      ? Math.sin(player.stepPhase) * 2.4
-      : Math.sin(idlePhase) * 1.6;
-  const drawRadius = movingNow
-    ? player.r
-    : player.r * (1 + Math.sin(idlePhase * 0.9) * 0.035);
-
-  // sombra
+      keys.ArrowDown ||
+      keys.ArrowLeft ||
+      keys.ArrowRight ||
+      keys.w ||
+      keys.a ||
+      keys.s ||
+      keys.d
+  );
+  let bob = 0;
+  let drawRadius = player.r;
+  // Se estiver em morte, cancelar animações normais e encolher
+  if (deathAnim.active) {
+    const progress = Math.min(1, deathAnim.t / deathAnim.duration);
+    drawRadius = player.r * (1 - progress * 0.85);
+    bob = 0;
+  } else if (movingNow && player.stepPhase) {
+    bob = Math.sin(player.stepPhase) * 2.4;
+  } else {
+    const idlePhase = now / 250;
+    bob = Math.sin(idlePhase) * 1.6;
+    const breathScale = 1 + Math.sin(idlePhase * 0.9) * 0.035;
+    drawRadius = player.r * breathScale;
+  }
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   ctx.beginPath();
   ctx.ellipse(
@@ -209,23 +228,41 @@ function draw(timestamp) {
     Math.PI * 2
   );
   ctx.fill();
-
-  // corpo
-  ctx.fillStyle = selColor;
+  ctx.beginPath();
+  const selColor = localStorage.getItem("selectedColor") || "#ffdd88";
+  if (deathAnim.active) {
+    const alpha = Math.max(0, 1 - deathAnim.t / deathAnim.duration);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = selColor;
+  } else {
+    ctx.fillStyle = selColor;
+  }
   ctx.strokeStyle = "#2b2b2b";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(player.x, player.y + bob, drawRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-
-  // olhos
-  const eyeOffset = player.stepPhase ? Math.sin(player.stepPhase * 2) * 0.6 : 0;
-  ctx.fillStyle = "#2b2b2b";
-  ctx.beginPath();
-  ctx.arc(player.x - 5, player.y - 2 + bob + eyeOffset, 2, 0, Math.PI * 2);
-  ctx.arc(player.x + 5, player.y - 2 + bob - eyeOffset, 2, 0, Math.PI * 2);
-  ctx.fill();
+  if (deathAnim.active) ctx.restore();
+  if (!deathAnim.active) {
+    const eyeOffset = player.stepPhase ? Math.sin(player.stepPhase * 2) * 0.6 : 0;
+    ctx.fillStyle = "#2b2b2b";
+    ctx.beginPath();
+    ctx.arc(player.x - 5, player.y - 2 + bob + eyeOffset, 2, 0, Math.PI * 2);
+    ctx.arc(player.x + 5, player.y - 2 + bob - eyeOffset, 2, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    // olho substituído por X
+    ctx.strokeStyle = "#2b2b2b";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(player.x - 6, player.y - 6);
+    ctx.lineTo(player.x + 6, player.y + 6);
+    ctx.moveTo(player.x + 6, player.y - 6);
+    ctx.lineTo(player.x - 6, player.y + 6);
+    ctx.stroke();
+  }
 
   // anel próximo
   const nearAny = devices.some(
@@ -291,28 +328,61 @@ function draw(timestamp) {
       statusEl && (statusEl.textContent = "A iniciar — confirma para começar");
     } else {
       challengeRemaining = Math.max(0, challengeRemaining - dt);
-      statusEl && (statusEl.textContent = "A decorrer");
-      if (totalW > challengeThresholdW)
-        return endChallenge(false, "Perdeu — o consumo excedeu o limite.");
-      if (challengeRemaining <= 0)
-        return endChallenge(
-          true,
-          "Ganhou — conseguiu manter o consumo aceitável!"
-        );
+      if (statusEl) statusEl.textContent = "A decorrer";
+      if (totalW > challengeThresholdW && !deathAnim.active) {
+        if (statusEl) statusEl.textContent = "Perdeu — consumo demasiado alto";
+        // terminar o desafio, mas manter o loop para animar a morte
+        stopChallenge();
+        const used = (typeof energyWh !== "undefined" && typeof challengeEnergyStart !== "undefined")
+          ? energyWh - challengeEnergyStart : 0;
+        startDeathAnimation(() => {
+          try {
+            if (typeof window.showChallengeResult === "function") window.showChallengeResult(false, used);
+            else alert("Perdeu — o consumo excedeu o limite.");
+          } catch (e) {}
+          pauseSim();
+        });
+      }
+      if (challengeRemaining <= 0 && !deathAnim.active) {
+        if (statusEl) statusEl.textContent = "Ganhou — tempo esgotado";
+        stopChallenge();
+        pauseSim();
+        try {
+          const used =
+            typeof energyWh !== "undefined" &&
+            typeof challengeEnergyStart !== "undefined"
+              ? energyWh - challengeEnergyStart
+              : 0;
+          if (typeof window.showChallengeResult === "function") {
+            setTimeout(() => window.showChallengeResult(true, used), 50);
+          } else {
+            setTimeout(
+              () => alert("Ganhou — conseguiu manter o consumo aceitável!"),
+              50
+            );
+          }
+        } catch (e) {
+          setTimeout(
+            () => alert("Ganhou — conseguiu manter o consumo aceitável!"),
+            50
+          );
+        }
+        return;
+      }
     }
   }
 
-  // Movimento do jogador
-  let vx = 0,
-    vy = 0;
-  if (keys.ArrowUp || keys.w) vy -= 1;
-  if (keys.ArrowDown || keys.s) vy += 1;
-  if (keys.ArrowLeft || keys.a) vx -= 1;
-  if (keys.ArrowRight || keys.d) vx += 1;
-  if (vx || vy) {
-    const len = Math.hypot(vx, vy);
-    vx = (vx / len) * player.speed;
-    vy = (vy / len) * player.speed;
+  let vx = 0, vy = 0;
+  if (!deathAnim.active) {
+    if (keys.ArrowUp || keys.w) vy -= 1;
+    if (keys.ArrowDown || keys.s) vy += 1;
+    if (keys.ArrowLeft || keys.a) vx -= 1;
+    if (keys.ArrowRight || keys.d) vx += 1;
+    if (vx !== 0 || vy !== 0) {
+      const len = Math.sqrt(vx * vx + vy * vy);
+      vx = (vx / len) * player.speed;
+      vy = (vy / len) * player.speed;
+    }
   }
 
   const nextX = Math.max(
@@ -330,7 +400,21 @@ function draw(timestamp) {
     if (!isCollidingAt(nextX, player.y)) player.x = nextX;
     else if (!isCollidingAt(player.x, nextY)) player.y = nextY;
   }
-  player.stepPhase = vx || vy ? player.stepPhase + dt * 12 : 0;
+  const moving = vx !== 0 || vy !== 0;
+  if (!deathAnim.active) {
+    if (moving) player.stepPhase += dt * 12;
+    else player.stepPhase = 0;
+  }
+
+  // atualizar animação de morte
+  if (deathAnim.active) {
+    deathAnim.t += dt;
+    if (deathAnim.t >= deathAnim.duration) {
+      deathAnim.active = false;
+      const cb = deathAnim.onDone; deathAnim.onDone = null;
+      if (cb) cb();
+    }
+  }
 
   if (running) _animId = requestAnimationFrame(draw);
 }
@@ -338,6 +422,8 @@ function draw(timestamp) {
 function startSim() {
   if (running) return;
   if (!ctx) initCanvas();
+  // garantir que uma nova simulação limpa qualquer estado de morte anterior
+  resetDeathAnimation();
   running = true;
   lastTime = performance.now();
   _animId = requestAnimationFrame(draw);
