@@ -95,7 +95,7 @@ function _loadImgVar(key, src) {
   return img;
 }
 
-const casaImg = _loadImgVar("casa", "img/casa.png");
+const casaImg = _loadImgVar("casa", "assets/img/casa.png");
 
 const allowedAreas = [
   { x: 40, y: 40, w: 360, h: 240 },
@@ -211,28 +211,28 @@ function resetChallenge() {
 }
 
 // load all image assets via the small helper — keeps variable names compatible with draw/ui
-const salaImg = _loadImgVar("sala", "img/sala.png");
-const quartoImg = _loadImgVar("quarto", "img/quarto.png");
-const cozinhaImg = _loadImgVar("cozinha", "img/cozinha.jpg");
-const despensaImg = _loadImgVar("despensa", "img/despensa.png");
+const salaImg = _loadImgVar("sala", "assets/img/sala.png");
+const quartoImg = _loadImgVar("quarto", "assets/img/quarto.png");
+const cozinhaImg = _loadImgVar("cozinha", "assets/img/cozinha.jpg");
+const despensaImg = _loadImgVar("despensa", "assets/img/despensa.png");
 
-const lampOnImg = _loadImgVar("lampOn", "img/lamp_on.png");
-const lampOffImg = _loadImgVar("lampOff", "img/lamp_off.png");
+const lampOnImg = _loadImgVar("lampOn", "assets/img/lamp_on.png");
+const lampOffImg = _loadImgVar("lampOff", "assets/img/lamp_off.png");
 
-const lamp2OnImg = _loadImgVar("lamp2On", "img/lamp2_on.png");
-const lamp2OffImg = _loadImgVar("lamp2Off", "img/lamp2_off.png");
+const lamp2OnImg = _loadImgVar("lamp2On", "assets/img/lamp2_on.png");
+const lamp2OffImg = _loadImgVar("lamp2Off", "assets/img/lamp2_off.png");
 
-const tvOnImg = _loadImgVar("tvOn", "img/tv_on.png");
-const tvOffImg = _loadImgVar("tvOff", "img/tv_off.png");
+const tvOnImg = _loadImgVar("tvOn", "assets/img/tv_on.png");
+const tvOffImg = _loadImgVar("tvOff", "assets/img/tv_off.png");
 
-const fridgeOnImg = _loadImgVar("fridgeOn", "img/fridge_on.png");
-const fridgeOffImg = _loadImgVar("fridgeOff", "img/fridge_off.png");
+const fridgeOnImg = _loadImgVar("fridgeOn", "assets/img/fridge_on.png");
+const fridgeOffImg = _loadImgVar("fridgeOff", "assets/img/fridge_off.png");
 
-const microwaveOnImg = _loadImgVar("microwaveOn", "img/micro-ondas_on.png");
-const microwaveOffImg = _loadImgVar("microwaveOff", "img/micro-ondas_off.png");
+const microwaveOnImg = _loadImgVar("microwaveOn", "assets/img/micro-ondas_on.png");
+const microwaveOffImg = _loadImgVar("microwaveOff", "assets/img/micro-ondas_off.png");
 
-const heaterOnImg = _loadImgVar("heaterOn", "img/heater_on.png");
-const heaterOffImg = _loadImgVar("heaterOff", "img/heater_off.png");
+const heaterOnImg = _loadImgVar("heaterOn", "assets/img/heater_on.png");
+const heaterOffImg = _loadImgVar("heaterOff", "assets/img/heater_off.png");
 
 const pulses = [];
 
