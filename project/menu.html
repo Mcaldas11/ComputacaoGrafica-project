@@ -18,9 +18,15 @@
     <link rel="stylesheet" href="menu.css" />
   </head>
   <body>
-    <audio id="musicaFundoMenu" autoplay loop>
+    <audio id="musicaFundoMenu" autoplay loop preload="auto" muted playsinline>
       <source src="assets/sound/musicaFundoMenu.mp3" type="audio/mpeg" />
     </audio>
+    <!-- Botão para ativar/desativar som -->
+    <button
+      id="toggleSound"
+      style="position: fixed; right: 16px; bottom: 16px; z-index: 9999; padding: 10px 14px; background: rgba(0,0,0,0.6); color: #fff; border: 0; border-radius: 8px; cursor: pointer; font-weight: 700;"
+      aria-label="Ativar/Desativar som"
+    >🔇 Som</button>
 
     <div class="menu-wrapper">
       <div
@@ -58,13 +64,6 @@
             Ajuda
           </button>
         </div>
-
-        <div class="menu-note">
-          Use as setas para mover o boneco. Prima <strong>E</strong> para
-          interagir com dispositivos próximos.
-        </div>
-      </div>
-    </div>
 
     <!-- Modal de escolha do modo de jogo -->
     <div
@@ -132,10 +131,47 @@
       </div>
     </div>
 
-    <script>
-      const musicaFundoMenu = document.getElementById("musicaFundoMenu");
-      musicaFundoMenu.volume = 0.5;
+    <!-- <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const a = document.getElementById("musicaFundoMenu");
+        if (!a) return;
+        a.volume = 0.5;
+        a.muted = false;
+        // tentar tocar imediatamente
+        a.play().catch(() => {
+          // se o browser bloquear, tocará no primeiro gesto do utilizador
+          const unlock = () => {
+            a.play().catch(() => {});
+            window.removeEventListener("pointerdown", unlock);
+            window.removeEventListener("keydown", unlock);
+          };
+          window.addEventListener("pointerdown", unlock, { once: true });
+          window.addEventListener("keydown", unlock, { once: true });
+        });
+      });
     </script>
+
+    <script>
+      // Toggle simples de som no canto (mute/unmute)
+      document.addEventListener("DOMContentLoaded", () => {
+        const a = document.getElementById("musicaFundoMenu");
+        const btn = document.getElementById("toggleSound");
+        if (!a || !btn) return;
+        const update = () => {
+          btn.textContent = a.muted ? "🔇 Som" : "🔊 Som";
+          btn.setAttribute("aria-pressed", String(!a.muted));
+        };
+        update();
+        btn.addEventListener("click", (ev) => {
+          ev.preventDefault();
+          a.muted = !a.muted;
+          if (!a.muted) {
+            a.play().catch(() => {});
+          }
+          update();
+        });
+      });
+    </script> -->
 
     <script>
       // 'Jogar' abre o modal para escolher o modo; 'Personagem' navega para a seleção de personagem
@@ -224,5 +260,6 @@
           // leave page to index with hash; no extra action needed
         });
     </script>
+    <script src="js/sound.js"></script>
   </body>
 </html>
