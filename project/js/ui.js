@@ -1,4 +1,4 @@
-// ui.js — DOM wiring, menu, input handlers and device list
+// ui.js — ligações ao DOM, menus, entradas e lista de dispositivos
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("houseCanvas");
   const resetBtn = document.getElementById("resetBtn");
@@ -13,7 +13,88 @@ document.addEventListener("DOMContentLoaded", () => {
   const splashOptions = document.getElementById("splashOptions");
   const topmenuEl = document.querySelector(".topmenu");
 
+  // cache de modais/resultado para evitar pesquisas repetidas no DOM
+  const clickModal = document.getElementById("clickModal");
+  const clickModalClose = document.getElementById("clickModalClose");
+  const resultModal = document.getElementById("resultModal");
+  const resultTitle = document.getElementById("resultTitle");
+  const resultMessage = document.getElementById("resultMessage");
+  const resultEnergy = document.getElementById("resultEnergy");
+  const resultRestart = document.getElementById("resultRestart");
+  const resultClose = document.getElementById("resultClose");
+
+  // pequeno helper para alternar visibilidade de modais e estado ARIA
+  function setVisible(el, visible) {
+    if (!el) return;
+    if (visible) {
+      el.classList.add("visible");
+      el.setAttribute("aria-hidden", "false");
+    } else {
+      el.classList.remove("visible");
+      el.setAttribute("aria-hidden", "true");
+    }
+  }
+
   if (typeof initCanvas === "function") initCanvas();
+
+  function setMode(mode) {
+    window.currentMode = mode;
+    const el = document.getElementById("modeIndicator");
+    if (el) el.textContent = mode === "challenge" ? "Desafio" : "Mundo livre";
+  }
+  window.setMode = setMode;
+  // helper único para atualizar a UI dependente do modo (caixa do desafio e UI de ML)
+  function updateUIForMode(mode) {
+    const challengeBox = document.querySelector(".challengeBox");
+    if (challengeBox) {
+      const show = mode === "challenge";
+      challengeBox.style.display = show ? "" : "none";
+      challengeBox.setAttribute("aria-hidden", show ? "false" : "true");
+    }
+    const mlBox = document.querySelector(".mlBox");
+    const showMl = mode !== "challenge";
+    if (mlBox) {
+      mlBox.style.display = showMl ? "" : "none";
+      mlBox.setAttribute("aria-hidden", showMl ? "false" : "true");
+    }
+    // botões
+    if (startHandposeBtn) startHandposeBtn.style.display = showMl ? "" : "none";
+    if (startClassifierBtn)
+      startClassifierBtn.style.display = showMl ? "" : "none";
+    if (snapshotBtn) snapshotBtn.style.display = showMl ? "" : "none";
+    if (!showMl && typeof window.stopAllMl === "function") {
+      try {
+        window.stopAllMl();
+      } catch (e) {}
+    }
+  }
+  if (typeof startChallenge === "function") {
+    const _sc = startChallenge;
+    window.startChallenge = function (...args) {
+      const res = _sc.apply(this, args);
+      setMode("challenge");
+      updateUIForMode("challenge");
+      return res;
+    };
+  }
+  if (typeof startSim === "function") {
+    const _ss = startSim;
+    window.startSim = function (...args) {
+      const res = _ss.apply(this, args);
+      setMode("sandbox");
+      updateUIForMode("sandbox");
+      return res;
+    };
+  }
+  // garantir que chamadas externas a setMode também atualizam a UI
+  const _setMode = window.setMode;
+  window.setMode = function (mode) {
+    updateUIForMode(mode);
+    return _setMode(mode);
+  };
+
+  setMode("sandbox");
+  updateUIForMode("sandbox");
 
   function updateDeviceList() {
     if (!deviceListEl) return;
@@ -38,36 +119,61 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  canvas &&
+  function showClickModal() {
+    if (window.clickModalAcknowledged) return;
+    setVisible(clickModal, true);
+  }
+  if (canvas) {
     canvas.addEventListener("click", (ev) => {
+      if (typeof challengeActive !== "undefined" && challengeActive) {
+        showClickModal();
+        ev.preventDefault();
+        return;
+      }
       const rect = canvas.getBoundingClientRect();
       const x = ev.clientX - rect.left;
       const y = ev.clientY - rect.top;
       const d = findDeviceAt(x, y);
       if (d) {
         d.on = !d.on;
-        // Removed pulse animation on click per user request — toggling
-        // via the 'E' key already doesn't create pulses. Keep that
-        // behavior consistent: no particle is emitted on click.
         updateDeviceList();
       }
     });
+    canvas.addEventListener("mousedown", (ev) => {
+      if (challengeActive) {
+        showClickModal();
+        ev.preventDefault();
+      }
+    });
+    canvas.addEventListener(
+      "touchstart",
+      (ev) => {
+        if (challengeActive) {
+          showClickModal();
+          ev.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+  }
 
-  // keyboard for movement and interaction
+  // teclado para movimento e interação
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "e" || ev.key === "E") {
       toggleNearbyDevices();
       ev.preventDefault();
       return;
     }
-    if (ev.key in keys) {
-      keys[ev.key] = true;
+    const k = ev.key && ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
+    if (k in keys) {
+      keys[k] = true;
       ev.preventDefault();
     }
   });
   document.addEventListener("keyup", (ev) => {
-    if (ev.key in keys) {
-      keys[ev.key] = false;
+    const k = ev.key && ev.key.length === 1 ? ev.key.toLowerCase() : ev.key;
+    if (k in keys) {
+      keys[k] = false;
       ev.preventDefault();
     }
   });
@@ -79,11 +185,38 @@ document.addEventListener("DOMContentLoaded", () => {
       updateDeviceList();
     });
 
-  startHandposeBtn &&
-    startHandposeBtn.addEventListener("click", () => {
-      startWebcam();
-      startHandpose();
+  if (startHandposeBtn) {
+    startHandposeBtn.addEventListener("click", async () => {
+      try {
+        startHandposeBtn.disabled = true;
+        const active = !!window.handposeActive;
+        if (!active) {
+          try {
+            await startHandpose();
+            startHandposeBtn.textContent = "Parar Handpose";
+          } catch (err) {
+            console.error("UI: startHandpose failed", err);
+            const s = document.getElementById("mlStatus");
+            if (s)
+              s.textContent =
+                "Erro ao ativar Handpose — verifica permissões/console";
+            return;
+          }
+        } else {
+          if (typeof stopHandpose === "function") stopHandpose();
+          startHandposeBtn.textContent = "Ativar Handpose";
+        }
+      } catch (e) {
+        console.error("Falha ao ativar Handpose", e);
+        try {
+          const s = document.getElementById("mlStatus");
+          if (s) s.textContent = "Erro ao ativar Handpose";
+        } catch (e) {}
+      } finally {
+        startHandposeBtn.disabled = false;
+      }
     });
+  }
   startClassifierBtn &&
     startClassifierBtn.addEventListener("click", () => {
       startWebcam();
@@ -135,8 +268,109 @@ document.addEventListener("DOMContentLoaded", () => {
         helpModal.setAttribute("aria-hidden", "false");
       }
     });
+  const h = (window.location.hash || "").toLowerCase();
+  if (h.includes("#start") || h.includes("#sandbox")) {
+    hideSplash(() => {
+      if (typeof startSim === "function") startSim();
+      if (h.includes("challenge") || h === "#start") {
+        if (typeof startChallenge === "function") startChallenge();
+      }
+      try {
+        history.replaceState(
+          null,
+          document.title,
+          window.location.pathname + window.location.search
+        );
+      } catch (e) {}
+    });
+  }
 
-  // expose helpers to other modules
   window.updateDeviceList = updateDeviceList;
   window.toggleNearbyDevices = toggleNearbyDevices;
+  if (clickModalClose) {
+    clickModalClose.addEventListener("click", () => {
+      window.clickModalAcknowledged = true;
+      setVisible(clickModal, false);
+      if (typeof beginChallenge === "function" && !challengeStarted)
+        beginChallenge();
+    });
+  }
+  if (clickModal) {
+    clickModal.addEventListener("click", (ev) => {
+      if (ev.target === clickModal) {
+        setVisible(clickModal, false);
+      }
+    });
+  }
+  window.showChallengeResult = function (won, energyUsed) {
+    if (!resultModal) {
+      alert(
+        (won ? "Ganhou — " : "Perdeu — ") +
+          "energia usada: " +
+          Math.round(energyUsed * 100) / 100 +
+          " Wh"
+      );
+      return;
+    }
+    if (resultTitle) resultTitle.textContent = won ? "Ganhou!" : "Perdeu";
+    if (resultMessage)
+      resultMessage.textContent = won
+        ? "Conseguiu manter o consumo aceitável."
+        : "O consumo excedeu o limite durante o desafio.";
+    if (resultEnergy)
+      resultEnergy.textContent = (Math.round(energyUsed * 100) / 100).toFixed(
+        2
+      );
+    setVisible(resultModal, true);
+    // confetes se disponível
+    if (won && typeof confetti === "function") {
+      try {
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+        const duration = 1600;
+        const end = Date.now() + duration;
+        const interval = setInterval(() => {
+          if (Date.now() > end) return clearInterval(interval);
+          confetti({
+            particleCount: 40,
+            startVelocity: 30,
+            spread: 120,
+            origin: { x: Math.random(), y: Math.random() * 0.6 },
+          });
+        }, 250);
+      } catch (e) {
+        console.warn("Confetti failed", e);
+      }
+    }
+  };
+
+  if (resultRestart) {
+    resultRestart.addEventListener("click", () => {
+      if (typeof stopChallenge === "function") stopChallenge();
+      devices.forEach((d) => (d.on = false));
+      energyWh = 0;
+      updateDeviceList();
+      setVisible(resultModal, false);
+      // iniciar simulação primeiro (define 'sandbox'), depois iniciar desafio (define 'challenge')
+      if (typeof startSim === "function") startSim();
+      if (typeof startChallenge === "function")
+        startChallenge(challengeDuration, challengeThresholdW);
+      // reconhecer imediatamente o modal e iniciar o desafio
+      window.clickModalAcknowledged = true;
+      setVisible(clickModal, false);
+      if (typeof beginChallenge === "function") beginChallenge();
+    });
+  }
+
+  if (resultClose) {
+    resultClose.addEventListener("click", () => {
+      if (typeof stopChallenge === "function") stopChallenge();
+      if (typeof pauseSim === "function") pauseSim();
+      try {
+        window.location.href = "menu.html";
+      } catch (e) {
+        setVisible(resultModal, false);
+        if (typeof setMode === "function") setMode("sandbox");
+      }
+    });
+  }
 });

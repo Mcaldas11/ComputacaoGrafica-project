@@ -1,51 +1,91 @@
-# Consumo de Energia — Demo
+<!-- Language: [Português](#portugues) | [English](#english) -->
 
-Este projecto é uma pequena demo interactiva para promover o uso consciente de energia em casa. O utilizador pode ligar/desligar dispositivos numa representação simples de uma casa, ver o consumo em tempo real e experimentar integrações básicas de ML (ml5.js) como reconhecimento de gestos (Handpose) e classificação de imagem (MobileNet).
+<a id="portugues"></a>
+
+# EcoPower — Desafio de Energia Digital (PT)
+
+Bem‑vindo ao EcoPower! É um mini‑jogo educativo sobre consumo energético: controlas um personagem numa casa, ligas/desligas aparelhos e tentas manter o consumo sob controlo. Existe um modo “Desafio” de 2 minutos e, quando ganhas, a interface celebra com confetis.
+
+## Como Jogar
+
+1. Faz download do projeto ou clona o repositório.
+2. Abre o ficheiro `project/index.html` no teu navegador (Chrome, Firefox ou Edge).
+3. No menu inicial escolhe um modo:
+   - Desafio — 2 minutos: manter o consumo abaixo do limite até o tempo acabar.
+   - Mundo livre: experimentar à vontade.
+4. Controlos:
+   - Mover: setas ou WASD.
+   - Interagir: clicar nos aparelhos ou carregar em `E` quando estiver perto.
+5. No Desafio:
+   - Alguns aparelhos ligam aleatoriamente para aumentar a pressão.
+   - Se o consumo ultrapassar o limite, perdes; se o tempo esgotar e estiveres abaixo do limite, ganhas (com confetis).
+
+## Objetivo
+
+Gerir o consumo total de energia de forma eficiente. No modo Desafio, o objetivo é manter o consumo abaixo de um limite (2000 W) durante 2 minutos, enquanto os dispositivos ligam-se aleatoriamente.
 
 ## Funcionalidades
 
-- Canvas interactivo com uma casa estilizada e vários dispositivos (luzes, frigorífico, TV, aquecedor).
-- Cliques no Canvas para ligar/desligar cada dispositivo.
-- Medidor de consumo em tempo real (W) e acumulado (Wh).
-- Efeitos visuais simples (“energia a fluir”) quando um dispositivo está ligado.
-- Animação CSS na introdução: "Poupa energia, poupa o planeta".
-- Integração ml5.js:
-  - Handpose: levantar a mão (gesto simples) -> desliga as luzes (cooldown de ~2s).
-  - ImageClassifier (MobileNet): classifica uma imagem da webcam e sugere consumo médio do aparelho identificado.
+- Casa desenhada em Canvas com vários dispositivos ligáveis.
+- Personagem com animações simples e colisões.
+- Medidor em tempo real (W) e energia acumulada (Wh), com aviso de consumo elevado.
+- Modo Desafio com temporizador, limite de potência, resultado em modal e botão “Reiniciar”.
+- Integração com ml5.js (mundo livre):
+  - Handpose: gesto (levantar mão) para desligar dispositivos.
+  - Classifier: estimativa de 4 objetos (telemóvel, fones, rato, TV) com consumo aproximado.
+- Confetis ao ganhar (canvas‑confetti via CDN) — seguro: só corre se a função existir.
 
-## Ficheiros principais
+## Tecnologias Utilizadas
 
-- `index.html` — interface, canvas e vídeo para a webcam.
-- `style.css` — estilo e animação.
-- `js/state.js` — estado partilhado (devices, player, imagens, helpers).
-- `js/draw.js` — loop de rendering e controlo da simulação (start/pause) e medidor.
-- `js/ml.js` — webcam, Handpose e Classifier (ml5.js) helpers.
-- `js/ui.js` — ligação ao DOM, botões, splash e entrada do utilizador.
+- HTML, CSS e JavaScript (Canvas API)
+- ml5.js (Handpose e MobileNet)
+- canvas‑confetti (browser build via CDN) npm i canvas-confetti
 
-## Como usar (rápido)
+## Créditos
 
-1. Abrir o ficheiro `project/index.html` num browser moderno (Chrome, Edge, Firefox).
-2. Permitir o acesso à webcam quando solicitado (necessário para Handpose / Classifier).
-3. Interagir:
-   - Clicar nos rectângulos do Canvas para ligar/desligar dispositivos.
-   - Pressionar "Ativar Handpose" para carregar o modelo Handpose. Levantar a mão na frente da câmara deve desligar as luzes (se detectado).
-   - Pressionar "Ativar Classificador" para carregar o MobileNet. Depois pressione "Classificar (snapshot)" para classificar o frame actual e receber uma sugestão de consumo.
+- Projeto desenvolvido por Miguel Caldas e Mariana Ferreira.
 
-Observação: por segurança/privacidade, a webcam é usada apenas localmente no browser — não há upload de imagens para servidores.
+# EcoPower — Digital Energy Challenge (EN)
 
-## Controles adicionais (novo)
+Welcome to EcoPower! It’s a small educational game about energy consumption: you control a character in a house, toggle appliances on/off, and try to keep the total usage under control. There’s a 2‑minute Challenge mode and, when you win, the UI celebrates with confetti.
 
-- Movimentação do boneco: use as setas do teclado (ArrowUp, ArrowDown, ArrowLeft, ArrowRight) para mover o boneco pelos espaços da casa representados no canvas.
-- Alternar luzes com a tecla `E`: pressione `E` quando o boneco estiver perto de uma luz para alternar o seu estado (liga/desliga). A distância de activação é de cerca de ~80px do centro do boneco.
+## How to Play
 
-- Alternar dispositivos com a tecla `E`: pressione `E` quando o boneco estiver perto de um dispositivo (luz, frigorífico, TV, aquecedor, etc.) para alternar o seu estado (liga/desliga). A distância de activação é de cerca de ~80px do centro do boneco.
+1. Download or clone the repository.
+2. Open `project/index.html` in your browser (Chrome, Firefox, or Edge).
+3. In the main menu choose a mode:
+   - Challenge — 2 minutes: keep the total power below the limit until time runs out.
+   - Sandbox: experiment freely.
+4. Controls:
+   - Move: arrow keys or WASD.
+   - Interact: click on appliances or press `E` when near one.
+5. In Challenge mode:
+   - Some appliances power on randomly to increase pressure.
+   - If you exceed the limit you lose; if time ends below the limit you win (with confetti).
 
-Nota: os espaços válidos para mover o boneco correspondem às áreas desenhadas (Sala, Quarto e Cozinha/Despensa). Se o boneco estiver fora do alcance da luz, a tecla `E` não terá efeito.
+## Objective
 
-## Melhorias implementadas
+Manage total energy consumption efficiently. In Challenge mode, keep usage under a limit (2000 W) for 2 minutes while devices toggle randomly.
 
-- Indicador visual: quando o boneco está perto de uma luz (cerca de 80px) aparece um halo na própria luz e um anel ao redor do boneco — isto dá feedback visual de que a tecla `E` (ou um clique) irá atuar nessa luz.
-- Colisão com dispositivos: o boneco agora evita sobrepor os dispositivos desenhados (frigorífico, TV, etc.). Se tentar mover para cima de um dispositivo, o movimento é bloqueado ou desliza ao longo do eixo disponível.
-- Aparência/Animação: o boneco tem agora um efeito de passo simples (bob) quando está em movimento e uma sombra para parecer mais integrado ao cenário.
+## Features
 
-Nota: a luz da cozinha (`Luz Cozinha`) foi adicionada como dispositivo para que possa ser ligada/desligada com a tecla `E` quando o boneco estiver perto.
+- Canvas‑based house with multiple interactive appliances.
+- Character with simple animations and collisions.
+- Live power meter (W) and accumulated energy (Wh), with high‑usage warning.
+- Challenge mode with timer, power threshold, result modal, and “Restart” button.
+- Optional ml5.js integration (open world):
+  - Handpose: gesture (raise hand) to switch devices off.
+  - Classifier: classifies 4 objects (phone, headphones, mouse, TV) with rough consumption.
+- Confetti on win (canvas‑confetti via CDN) — guarded, runs only if available.
+
+## Technologies Used
+
+- HTML, CSS, and JavaScript (Canvas API)
+- ml5.js (Handpose and MobileNet)
+- canvas‑confetti (browser build via CDN) npm i canvas-confetti
+
+## Credits
+
+- Project by Miguel Caldas and Mariana Ferreira.
+
+— [Voltar a Português](#portugues)

@@ -4,23 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>EcoPower</title>
+    <link rel="icon" type="image/x-icon" href="/project/assets/img/icon.png" />
     <link rel="stylesheet" href="style.css" />
-    <!-- p5 + ml5 (for handpose + image classifier). p5 is used by ml5 in many builds. -->
-    <script src="https://unpkg.com/ml5@1/dist/ml5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
+    <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+    <!-- abre o menu primeiro -->
+    <script src="js/redirect.js"></script>
   </head>
   <body>
-    <!-- Splash / game-like main menu (centered) -->
-    <div id="splash" class="splash">
-      <div class="splash-panel">
-        <h2 class="splash-title">EcoPower</h2>
-        <p class="splash-sub">Poupa energia, poupa o planeta</p>
-        <div class="splash-buttons">
-          <button id="splashStart" class="splash-btn">Iniciar</button>
-          <button id="splashOptions" class="splash-btn">Opções</button>
-        </div>
-      </div>
-    </div>
+    <audio id="musicafundo" autoplay loop>
+      <source src="assets/sound/musicaFundo.mp3" type="audio/mpeg" />
+    </audio>
+
     <header class="hero">
       <h1 class="intro">Poupa energia, poupa o planeta</h1>
       <p class="subtitle">
@@ -32,32 +26,93 @@
     <div id="helpModal" class="help-modal" role="dialog" aria-hidden="true">
       <h3>Ajuda</h3>
       <p>
-        Use as setas para mover o boneco, clique em dispositivos para
-        ligar/desligar ou carregue em <strong>E</strong> para interagir com
-        dispositivos próximos. Use os botões do menu para iniciar/pausar/repor a
-        simulação. Ative a webcam para experimentar o Handpose e o
-        classificador.
+        Usa as setas para mover o boneco, clica em dispositivos para
+        ligar/desligar ou carregue na tecla <strong>E</strong> para interagir
+        com dispositivos próximos. Ativa a câmara para experimentar o Handpose e
+        o classificador.
       </p>
       <button id="helpClose" class="help-close">Fechar</button>
     </div>
 
+    <!-- Modal que informa que o clique está desativado durante o desafio -->
+    <div id="clickModal" class="help-modal" role="dialog" aria-hidden="true">
+      <h3>Atenção</h3>
+      <p>
+        Durante o modo <strong>Desafio</strong> o clique do rato está
+        desativado. Não poderás ligar/desligar dispositivos manualmente.
+      </p>
+      <p style="margin-top: 10px; color: var(--muted)">
+        Podes continuar a mover o boneco e interagir com o ambiente usando o
+        teclado.
+      </p>
+      <button id="clickModalClose" class="help-close">Entendi</button>
+    </div>
+
+    <!-- Modal de resultado quando o desafio termina (ganhar/perder) -->
+    <div id="resultModal" class="help-modal" role="dialog" aria-hidden="true">
+      <h3 id="resultTitle">Resultado</h3>
+      <p id="resultMessage">Resultado do desafio</p>
+      <p>Energia usada: <strong id="resultEnergy">0</strong> Wh</p>
+      <div style="margin-top: 10px">
+        <button id="resultRestart" class="splash-btn">Reiniciar</button>
+        <button id="resultClose" class="help-close">Retornar ao menu</button>
+      </div>
+    </div>
+
     <main class="container">
       <section class="left">
-        <canvas
-          id="houseCanvas"
-          width="900"
-          height="600"
-          aria-label="Canvas da casa com dispositivos"
-        ></canvas>
-        <div class="controls">
-          <button id="resetBtn">Repor estados</button>
-          <button id="startHandpose">Ativar Handpose</button>
-          <button id="startClassifier">Ativar Classificador</button>
-          <button id="snapshotClassify">Classificar (snapshot)</button>
+        <div class="canvasArea">
+          <canvas
+            id="houseCanvas"
+            width="900"
+            height="600"
+            aria-label="Canvas da casa com dispositivos"
+          ></canvas>
+          <div class="controls">
+            <button id="resetBtn">Repor estados</button>
+            <button id="startHandpose">Ativar Handpose</button>
+            <button id="startClassifier">Ativar Classificador</button>
+            <button id="snapshotClassify">Classificar (captura)</button>
+          </div>
+        </div>
+        <!-- Painéis do ml5 e do desafio colocados aqui para ficarem ao lado da casa -->
+        <div class="leftSidePanels">
+          <div class="mlBox">
+            <h4>ml5.js</h4>
+            <video
+              id="webcam"
+              autoplay
+              muted
+              playsinline
+              width="240"
+              height="180"
+            ></video>
+            <div id="mlStatus">Estado: inativo</div>
+            <div id="classifierResult"></div>
+            <p style="margin-top: 6px; color: #7a8b96; font-size: 12px">
+              Objetos suportados para estimativa: <strong>telemóvel</strong>,
+              <strong>fones</strong>, <strong>rato</strong> e
+              <strong>TV</strong>.
+            </p>
+          </div>
+
+          <div class="challengeBox">
+            <h4>Desafio — 2 minutos</h4>
+            <div>
+              Tempo restante: <strong id="challengeTimer">02:00</strong>
+            </div>
+            <div>
+              Limite de consumo: <strong id="challengeThreshold">500</strong> W
+            </div>
+            <div>Status: <strong id="challengeStatus">A decorrer</strong></div>
+          </div>
         </div>
       </section>
 
       <aside class="right">
+        <div class="modeIndicator" style="margin-bottom: 10px">
+          Modo: <strong id="modeIndicator">Mundo livre</strong>
+        </div>
         <div class="meter">
           <h3>Consumo total</h3>
           <div id="meterBar" class="meterBar"><div id="meterFill"></div></div>
@@ -65,25 +120,25 @@
             <div><strong id="powerW">0</strong> W</div>
             <div><small id="energyWh">0</small> Wh acumulado</div>
           </div>
+          <div
+            id="consumptionStatus"
+            class="consumption-status"
+            aria-live="polite"
+            style="margin-top: 8px; font-weight: 700"
+          >
+            <span
+              class="icon"
+              aria-hidden="true"
+              style="margin-right: 8px; display: none"
+              >⚠️</span
+            >
+            <span class="text">Consumo controlado</span>
+          </div>
         </div>
 
         <div class="devicesList">
           <h4>Dispositivos</h4>
           <ul id="deviceList"></ul>
-        </div>
-
-        <div class="mlBox">
-          <h4>ml5.js</h4>
-          <video
-            id="webcam"
-            autoplay
-            muted
-            playsinline
-            width="240"
-            height="180"
-          ></video>
-          <div id="mlStatus">Estado: inativo</div>
-          <div id="classifierResult"></div>
         </div>
       </aside>
     </main>
@@ -91,6 +146,13 @@
     <script src="js/state.js"></script>
     <script src="js/draw.js"></script>
     <script src="js/ml5.js"></script>
+    <!-- canvas-confetti: use CDN build so confetti() is available -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="js/ui.js"></script>
+    <script>
+      const musicafundo = document.getElementById("musicafundo");
+
+      musicafundo.volume = 0.5;
+    </script>
   </body>
 </html>

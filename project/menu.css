@@ -1,0 +1,266 @@
+/* menu.css — styles specific to the standalone menu page */
+@import url("style.css");
+
+/* Background for the menu page */
+body {
+  background-image: url("assets/img/background_menu.png");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  /* subtle dark overlay via background color to ensure panel contrast */
+  background-color: #041018;
+}
+
+.menu-wrapper {
+  min-height: 100vh;
+  display: flex;
+  /* align menu to the top-left like the reference image */
+  /* center everything like before */
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+}
+.menu-panel {
+  /* Centered panel but transparent (no visible background) */
+  max-width: 520px;
+  width: 100%;
+  background: transparent;
+  padding: 28px;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: center;
+}
+.menu-panel h1 {
+  margin: 0 0 24px;
+  /* use Jersey 25 (loaded from HTML). Fallback to a strong display serif */
+  font-family: 'Jersey 25', 'Press Start 2P', Georgia, serif;
+  /* increase title size for better visibility */
+  font-size: clamp(56px, 10vw, 160px);
+  line-height: 0.95;
+  /* ensure the title is centered within the panel */
+  text-align: center;
+  display: block;
+  color: #ffffff;
+  /* stronger outline for pixel style */
+  -webkit-text-stroke: 1.8px rgba(0,0,0,0.85);
+  /* stronger outline + multiple shadows for improved contrast on varied backgrounds */
+  -webkit-text-stroke: 2.6px rgba(0,0,0,0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 6px 10px rgba(0,0,0,0.7);
+  letter-spacing: 2px;
+}
+
+/* Reduce the menu page title slightly and keep it centered (overrides global h1) */
+.menu-panel.menu-main h1 {
+  font-size: clamp(48px, 8.5vw, 120px);
+  line-height: 1.0;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.menu-panel p {
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.menu-panel .subtitle {
+  color: rgba(180,240,230,0.9);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+/* layout for small action rows (character page) */
+.actions-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  justify-content: space-between;
+}
+
+/* Ensure action buttons on character.html match the menu buttons exactly */
+.menu-panel .actions-row .btn-start,
+.menu-panel .actions-row .btn-secondary {
+  font-family: 'Jersey 25', 'Press Start 2P', monospace;
+  font-size: 28px;
+  padding: 14px 0;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #f6f6f6;
+  -webkit-text-stroke: 1.4px rgba(0,0,0,0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 4px 8px rgba(0,0,0,0.7);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-panel .actions-row .btn-start { background: linear-gradient(180deg, #4cc48a 0%, #2b9a67 100%); border: 1px solid rgba(0,0,0,0.15); }
+.menu-panel .actions-row .btn-secondary { background: linear-gradient(180deg, #294a5c 0%, #18303a 100%); border: 1px solid rgba(0,0,0,0.22); }
+
+/* make subtitle and note more legible */
+.menu-panel .subtitle,
+.menu-note {
+  color: #cffcf3;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.9), 0 2px 6px rgba(0,0,0,0.6);
+}
+.menu-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.menu-actions a,
+.menu-actions button {
+  padding: 12px 18px;
+  border-radius: 6px;
+  border: 0;
+  cursor: pointer;
+  transition: color 140ms ease, transform 140ms ease;
+  will-change: color, transform;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.btn-start {
+  /* primary start button: centered, no background */
+  /* primary start button: pill with green gradient background */
+  background: linear-gradient(180deg, #4cc48a 0%, #2b9a67 100%);
+  border: 1px solid rgba(0,0,0,0.15);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 12px 18px;
+  font-size: 20px;
+  font-family: 'Jersey 25', 'Press Start 2P', monospace;
+  text-transform: uppercase;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.menu-panel .btn-start:hover,
+.menu-panel .btn-start:focus {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+.btn-secondary {
+  /* secondary pill (dark blue) */
+  background: linear-gradient(180deg, #294a5c 0%, #18303a 100%);
+  border: 1px solid rgba(0,0,0,0.22);
+  color: #ffffff;
+  padding: 12px 0;
+  font-size: 16px;
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.menu-panel .btn-secondary:hover,
+.menu-panel .btn-secondary:focus {
+  transform: translateX(6px);
+  filter: brightness(1.04);
+}
+
+/* accessible focus outline */
+a.btn-start:focus-visible,
+.btn-start:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 3px solid rgba(107, 227, 255, 0.14);
+  outline-offset: 4px;
+}
+/* Ensure anchor buttons never show an underline in any state (simple rule) */
+a.btn-start,
+.btn-start,
+.btn-secondary,
+.menu-vertical a.btn-start,
+.menu-vertical a.btn-secondary {
+  text-decoration: none !important;
+}
+.menu-note {
+  /* ensure same pixel font as the other menu items */
+  font-family: 'Jersey 25', monospace;
+  text-transform: uppercase;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 420px;
+}
+
+/* vertical layout variant used on the menu page */
+.menu-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px; /* centered layout: smaller gap under title */
+  align-items: center;
+}
+.menu-vertical .btn-start,
+.menu-vertical .btn-secondary {
+  display: block;
+  text-align: center;
+  padding: 14px 0;
+  font-size: 28px;
+  border-radius: 10px; /* pill corners match visual */
+  font-family: 'Jersey 25', 'Press Start 2P', monospace;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  color: #f6f6f6;
+  text-transform: uppercase;
+  /* stronger stroke/shadow for legibility */
+  -webkit-text-stroke: 1.4px rgba(0,0,0,0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.95), 0 4px 8px rgba(0,0,0,0.7);
+}
+
+@media (max-width: 520px) {
+  .menu-panel {
+    padding: 18px;
+  }
+  .menu-panel h1 {
+    font-size: 22px;
+  }
+}
+
+/* Modal / popup for Options */
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 12, 0.6);
+  z-index: 120;
+}
+.modal.visible {
+  display: flex;
+}
+.modal-panel {
+  background: linear-gradient(
+    180deg,
+    rgba(3, 10, 18, 0.98),
+    rgba(6, 12, 20, 0.98)
+  );
+  padding: 18px 20px;
+  border-radius: 10px;
+  max-width: 560px;
+  width: 94%;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+  color: var(--muted);
+  position: relative;
+}
+.modal-panel h3 {
+  margin-top: 0;
+  color: var(--accent);
+}
+.modal-close {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  background: transparent;
+  border: 0;
+  color: #cbd6dc;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.modal-close:hover {
+  color: #ff4d4d; /* red on hover */
+  background: rgba(255, 77, 77, 0.06);
+}

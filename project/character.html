@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EcoPower</title>
+  <link rel="icon" type="image/x-icon" href="/project/assets/img/icon.png" />
+    <!-- Preconnect + font as provided by user (Jersey 25) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="menu.css" />
+    <link rel="stylesheet" href="character.css" />
+  </head>
+  <body>
+    <main class="menu-wrapper">
+      <div class="menu-panel">
+        <h1>Personalizar Bola</h1>
+        <p class="subtitle">
+          Aqui podes escolher a cor da bola que vais controlar dentro da casa.
+        </p>
+
+        <div
+          class="color-row"
+          style="
+            margin-top: 18px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+          "
+        >
+          <label class="color-label">Cor da bola:</label>
+          <input type="color" id="colorPicker" value="#ffdd88" />
+          <div id="previewBall" class="preview-ball"></div>
+        </div>
+
+        <div class="actions-row">
+          <a class="btn-secondary" href="menu.html">Voltar</a>
+          <button class="btn-start" id="confirmChar">Confirmar</button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const colorPicker = document.getElementById("colorPicker");
+      const preview = document.getElementById("previewBall");
+      const prevColor = localStorage.getItem("selectedColor");
+      if (prevColor) colorPicker.value = prevColor;
+      // initialize preview
+      function updatePreview(c) {
+        preview.style.background = c;
+        preview.style.boxShadow = `inset -6px -8px 18px rgba(0,0,0,0.25), 0 6px 18px rgba(0,0,0,0.45)`;
+      }
+      updatePreview(colorPicker.value);
+
+      colorPicker.addEventListener("input", (e) =>
+        updatePreview(e.target.value)
+      );
+
+      document.getElementById("confirmChar").addEventListener("click", () => {
+        const chosenColor = (colorPicker && colorPicker.value) || "#ffdd88";
+        localStorage.setItem("selectedColor", chosenColor);
+        window.location.href = "menu.html";
+      });
+    </script>
+  </body>
+</html>

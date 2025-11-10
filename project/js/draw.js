@@ -1,18 +1,106 @@
-// draw.js — rendering loop, simulation control and meter updates (moved from app.js)
+// draw.js — ciclo de desenho, controlo da simulação e atualização do medidor
 let canvas, ctx;
 let running = false;
 let _animId = null;
+let meterFillEl, powerWEl, energyWhEl, consEl, consIconEl, consTextEl;
+let timerEl, thresholdEl, statusEl;
 
 function initCanvas() {
   canvas = document.getElementById("houseCanvas");
-  ctx = canvas && canvas.getContext("2d");
+  ctx = canvas?.getContext("2d");
   if (!canvas) return;
-  canvas.width = canvas.width || 900;
-  canvas.height = canvas.height || 600;
+  canvas.width ||= 900;
+  canvas.height ||= 600;
+
+  meterFillEl = document.getElementById("meterFill");
+  powerWEl = document.getElementById("powerW");
+  energyWhEl = document.getElementById("energyWh");
+  consEl = document.getElementById("consumptionStatus");
+  consIconEl = consEl?.querySelector(".icon");
+  consTextEl = consEl?.querySelector(".text");
+  timerEl = document.getElementById("challengeTimer");
+  thresholdEl = document.getElementById("challengeThreshold");
+  statusEl = document.getElementById("challengeStatus");
 }
 
 function computePowerW() {
   return devices.reduce((sum, d) => sum + (d.on ? d.power : 0), 0);
+}
+
+// --- Mapa de imagens (fora do loop)
+const imgMap = {
+  light: {
+    on: lampOnImg,
+    off: lampOffImg,
+    loaded: () => lampOnLoaded && lampOffLoaded,
+  },
+  light2: {
+    on: lamp2OnImg,
+    off: lamp2OffImg,
+    loaded: () => lamp2OnLoaded && lamp2OffLoaded,
+  },
+  microwave: {
+    on: microwaveOnImg,
+    off: microwaveOffImg,
+    loaded: () => microwaveOnLoaded && microwaveOffLoaded,
+  },
+  tv: { on: tvOnImg, off: tvOffImg, loaded: () => tvOnLoaded && tvOffLoaded },
+  fridge: {
+    on: fridgeOnImg,
+    off: fridgeOffImg,
+    loaded: () => fridgeOnLoaded && fridgeOffLoaded,
+  },
+  heater: {
+    on: heaterOnImg,
+    off: heaterOffImg,
+    loaded: () => heaterOnLoaded && heaterOffLoaded,
+  },
+};
+
+// --- Cores de brilho por tipo
+const glowColors = {
+  heater: [
+    "rgba(255,140,50,0.95)",
+    "rgba(255,100,40,0.45)",
+    "rgba(255,90,30,0)",
+  ],
+  tv: ["rgba(80,160,255,0.92)", "rgba(60,130,255,0.42)", "rgba(60,130,255,0)"],
+  fridge: [
+    "rgba(255,255,255,0.95)",
+    "rgba(240,240,255,0.35)",
+    "rgba(240,240,255,0)",
+  ],
+  microwave: [
+    "rgba(255,235,150,0.92)",
+    "rgba(255,230,140,0.40)",
+    "rgba(255,230,140,0)",
+  ],
+  light2: [
+    "rgba(255,235,150,0.92)",
+    "rgba(255,230,140,0.40)",
+    "rgba(255,230,140,0)",
+  ],
+  light: [
+    "rgba(255,220,80,0.95)",
+    "rgba(255,200,70,0.45)",
+    "rgba(255,200,70,0)",
+  ],
+};
+
+// --- Função auxiliar para terminar desafio
+function endChallenge(win, msg) {
+  stopChallenge();
+  pauseSim();
+  try {
+    const used = energyWh - (challengeEnergyStart || 0);
+    if (typeof window.showChallengeResult === "function") {
+      setTimeout(() => window.showChallengeResult(win, used), 50);
+    } else {
+      setTimeout(() => alert(msg), 50);
+    }
+  } catch {
+    setTimeout(() => alert(msg), 50);
+  }
 }
 
 function draw(timestamp) {
@@ -21,9 +109,9 @@ function draw(timestamp) {
   const dt = Math.min(0.2, (now - lastTime) / 1000);
   lastTime = now;
 
-  // clear
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+<<<<<<< HEAD
   //carregar casa
   if (casaLoaded) {
     drawImageCropped(casaImg, 40, 40, 815, 520);
@@ -36,51 +124,40 @@ function draw(timestamp) {
   }
 
   // devices
+=======
+  // Fundo da casa
+  if (casaLoaded) {
+    drawImageCropped(casaImg, 40, 40, 815, 520);
+    ctx.fillStyle = "rgba(6,12,18,0.28)";
+  } else {
+    ctx.fillStyle = "#082033";
+  }
+  ctx.fillRect(40, 40, 815, 520);
+
+  // --- Dispositivos
+>>>>>>> 72311b14e5e2c55f7858f559751696c82cdd95a1
   for (const d of devices) {
     ctx.save();
+
+    // brilho
     if (d.on) {
-      const grd = ctx.createRadialGradient(
-        d.x + d.w / 2,
-        d.y + d.h / 2,
-        4,
-        d.x + d.w / 2,
-        d.y + d.h / 2,
-        40
-      );
-      grd.addColorStop(0, "rgba(255,220,80,0.95)");
-      grd.addColorStop(0.4, "rgba(255,200,70,0.45)");
-      grd.addColorStop(1, "rgba(255,200,70,0)");
+      const [c1, c2, c3] = glowColors[d.type] || glowColors.light;
+      const cx = d.x + d.w / 2,
+        cy = d.y + d.h / 2;
+      const grd = ctx.createRadialGradient(cx, cy, 4, cx, cy, 42);
+      grd.addColorStop(0, c1);
+      grd.addColorStop(0.4, c2);
+      grd.addColorStop(1, c3);
       ctx.fillStyle = grd;
       ctx.fillRect(d.x - 18, d.y - 18, d.w + 36, d.h + 36);
     }
-    if (d.type === "light" && lampOnLoaded && lampOffLoaded) {
-      // carrega imagem das lampadas
-      const lampImg = d.on ? lampOnImg : lampOffImg;
-      ctx.drawImage(lampImg, d.x, d.y, d.w, d.h);
-    } else if (d.type === "tv" && tvOnLoaded && tvOffLoaded) {
-      // carrega imagem da TV
-      const tvImg = d.on ? tvOnImg : tvOffImg;
-      ctx.drawImage(tvImg, d.x, d.y, d.w, d.h);
-    } else if (d.type === "fridge" && fridgeOnLoaded && fridgeOffLoaded) {
-      // carrega imagem do frigorífico
-      const fridgeImg = d.on ? fridgeOnImg : fridgeOffImg;
-      ctx.drawImage(fridgeImg, d.x, d.y, d.w, d.h);
-    } else if (d.type === "heater" && heaterOnLoaded && heaterOffLoaded) {
-      // carrega imagem do aquecedor
-      const heaterImg = d.on ? heaterOnImg : heaterOffImg;
-      ctx.drawImage(heaterImg, d.x, d.y, d.w, d.h);
-    } else {
-      // Fallback para outros dispositivos ou se as imagens não carregaram
-      ctx.fillStyle = d.on ? "#ffeaa7" : "#c7d8e0";
-      ctx.fillRect(d.x, d.y, d.w, d.h);
-      ctx.strokeStyle = "#0b2430";
-      ctx.strokeRect(d.x, d.y, d.w, d.h);
-    }
-    ctx.fillStyle = "#07202a";
-    ctx.font = "12px Arial";
-    ctx.fillText(d.label, d.x, d.y + d.h + 16);
-    ctx.restore();
 
+    // imagem
+    const map = imgMap[d.type];
+    if (map?.loaded())
+      ctx.drawImage(d.on ? map.on : map.off, d.x, d.y, d.w, d.h);
+
+    // anel ativo
     if (d.on) {
       const t = now / 300 + 1.2;
       ctx.strokeStyle = "rgba(120,194,168,0.55)";
@@ -95,53 +172,69 @@ function draw(timestamp) {
       ctx.stroke();
     }
 
-    // halo when player near
-    const cx = d.x + d.w / 2;
-    const cy = d.y + d.h / 2;
-    const dx = player.x - cx;
-    const dy = player.y - cy;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    // área de ativação
+    const cx = d.x + d.w / 2,
+      cy = d.y + d.h / 2;
+    const dist = Math.hypot(player.x - cx, player.y - cy);
     if (dist <= activationRadius) {
       const alpha = 0.35 * (1 - dist / activationRadius) + 0.12;
-      ctx.save();
       const grd = ctx.createRadialGradient(cx, cy, 4, cx, cy, activationRadius);
-      if (d.type === "light") {
-        grd.addColorStop(0, `rgba(255,220,80,${alpha})`);
-        grd.addColorStop(1, `rgba(255,220,80,0)`);
-      } else {
-        grd.addColorStop(0, `rgba(120,194,168,${alpha})`);
-        grd.addColorStop(1, `rgba(120,194,168,0)`);
-      }
+      const base = d.type === "light" ? "255,220,80" : "120,194,168";
+      grd.addColorStop(0, `rgba(${base},${alpha})`);
+      grd.addColorStop(1, `rgba(${base},0)`);
       ctx.fillStyle = grd;
       ctx.beginPath();
       ctx.arc(cx, cy, activationRadius, 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
     }
+    ctx.restore();
   }
 
-  // player
+  // --- Jogador
   ctx.save();
-  const bob = player.stepPhase ? Math.sin(player.stepPhase) * 2.4 : 0;
+  const movingNow =
+    keys.ArrowUp ||
+    keys.ArrowDown ||
+    keys.ArrowLeft ||
+    keys.ArrowRight ||
+    keys.w ||
+    keys.a ||
+    keys.s ||
+    keys.d;
+  const selColor = localStorage.getItem("selectedColor") || "#ffdd88";
+  const idlePhase = now / 250;
+  const bob =
+    movingNow && player.stepPhase
+      ? Math.sin(player.stepPhase) * 2.4
+      : Math.sin(idlePhase) * 1.6;
+  const drawRadius = movingNow
+    ? player.r
+    : player.r * (1 + Math.sin(idlePhase * 0.9) * 0.035);
+
+  // sombra
   ctx.fillStyle = "rgba(0,0,0,0.18)";
   ctx.beginPath();
   ctx.ellipse(
     player.x,
-    player.y + player.r + 6,
-    player.r + 6,
+    player.y + drawRadius + 6,
+    drawRadius + 6,
     6,
     0,
     0,
     Math.PI * 2
   );
   ctx.fill();
-  ctx.beginPath();
-  ctx.fillStyle = "#ffdd88";
+
+  // corpo
+  ctx.fillStyle = selColor;
   ctx.strokeStyle = "#2b2b2b";
   ctx.lineWidth = 2;
-  ctx.arc(player.x, player.y + bob, player.r, 0, Math.PI * 2);
+  ctx.beginPath();
+  ctx.arc(player.x, player.y + bob, drawRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
+
+  // olhos
   const eyeOffset = player.stepPhase ? Math.sin(player.stepPhase * 2) * 0.6 : 0;
   ctx.fillStyle = "#2b2b2b";
   ctx.beginPath();
@@ -149,16 +242,12 @@ function draw(timestamp) {
   ctx.arc(player.x + 5, player.y - 2 + bob - eyeOffset, 2, 0, Math.PI * 2);
   ctx.fill();
 
-  let nearAny = false;
-  for (const d of devices) {
-    const dx = player.x - (d.x + d.w / 2);
-    const dy = player.y - (d.y + d.h / 2);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist <= activationRadius) {
-      nearAny = true;
-      break;
-    }
-  }
+  // anel próximo
+  const nearAny = devices.some(
+    (d) =>
+      Math.hypot(player.x - (d.x + d.w / 2), player.y - (d.y + d.h / 2)) <=
+      activationRadius
+  );
   if (nearAny) {
     ctx.beginPath();
     ctx.lineWidth = 2.2;
@@ -168,80 +257,97 @@ function draw(timestamp) {
   }
   ctx.restore();
 
-  // pulses
+  // --- Pulsos
   for (let i = pulses.length - 1; i >= 0; i--) {
     const p = pulses[i];
     p.t = (p.t || 0) + dt;
-    if (p.t > 1) {
-      pulses.splice(i, 1);
-      continue;
+    if (p.t > 1) pulses.splice(i, 1);
+    else {
+      ctx.strokeStyle = `rgba(255,150,0,${1 - p.t})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.t * 60, 0, Math.PI * 2);
+      ctx.stroke();
     }
-    ctx.strokeStyle = `rgba(255,150,0,${1 - p.t})`;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.t * 60, 0, Math.PI * 2);
-    ctx.stroke();
   }
 
-  // update energy
+  // --- Energia e consumo
   const totalW = computePowerW();
   energyWh += totalW * (dt / 3600);
-  const meterFillEl = document.getElementById("meterFill");
-  const powerWEl = document.getElementById("powerW");
-  const energyWhEl = document.getElementById("energyWh");
   if (meterFillEl) {
     const pct = Math.min(1, totalW / 2000);
     meterFillEl.style.width = `${pct * 100}%`;
     meterFillEl.style.boxShadow =
       pct > 0.7 ? "0 0 18px rgba(255,107,107,0.3)" : "";
   }
-  if (powerWEl) powerWEl.textContent = Math.round(totalW);
-  if (energyWhEl) energyWhEl.textContent = energyWh.toFixed(2);
+  powerWEl && (powerWEl.textContent = Math.round(totalW));
+  energyWhEl && (energyWhEl.textContent = energyWh.toFixed(2));
+  if (consEl) {
+    const high = totalW > 800;
+    consIconEl && (consIconEl.style.display = high ? "" : "none");
+    consTextEl &&
+      (consTextEl.textContent = high
+        ? "Consumo demasiado elevado"
+        : "Consumo controlado");
+    consEl.classList.toggle("high", high);
+  }
 
-  // update player step phase
-  // movement based on keys object (updated by ui.js)
+  // --- Lógica do desafio
+  if (typeof challengeActive !== "undefined" && challengeActive) {
+    thresholdEl && (thresholdEl.textContent = Math.round(challengeThresholdW));
+    if (timerEl) {
+      const mins = Math.floor(challengeRemaining / 60);
+      const secs = Math.floor(challengeRemaining % 60);
+      timerEl.textContent = `${String(mins).padStart(2, "0")}:${String(
+        secs
+      ).padStart(2, "0")}`;
+    }
+    if (!challengeStarted) {
+      statusEl && (statusEl.textContent = "A iniciar — confirma para começar");
+    } else {
+      challengeRemaining = Math.max(0, challengeRemaining - dt);
+      statusEl && (statusEl.textContent = "A decorrer");
+      if (totalW > challengeThresholdW)
+        return endChallenge(false, "Perdeu — o consumo excedeu o limite.");
+      if (challengeRemaining <= 0)
+        return endChallenge(
+          true,
+          "Ganhou — conseguiu manter o consumo aceitável!"
+        );
+    }
+  }
+
+  // --- Movimento do jogador
   let vx = 0,
     vy = 0;
-  if (keys.ArrowUp) vy -= 1;
-  if (keys.ArrowDown) vy += 1;
-  if (keys.ArrowLeft) vx -= 1;
-  if (keys.ArrowRight) vx += 1;
-  if (vx !== 0 || vy !== 0) {
-    const len = Math.sqrt(vx * vx + vy * vy);
+  if (keys.ArrowUp || keys.w) vy -= 1;
+  if (keys.ArrowDown || keys.s) vy += 1;
+  if (keys.ArrowLeft || keys.a) vx -= 1;
+  if (keys.ArrowRight || keys.d) vx += 1;
+  if (vx || vy) {
+    const len = Math.hypot(vx, vy);
     vx = (vx / len) * player.speed;
     vy = (vy / len) * player.speed;
   }
-  const dtMove = dt;
-  const nextX = player.x + vx * dtMove;
-  const nextY = player.y + vy * dtMove;
-  const clampedNextX = Math.max(
+
+  const nextX = Math.max(
     player.r + 2,
-    Math.min(canvas.width - player.r - 2, nextX)
+    Math.min(canvas.width - player.r - 2, player.x + vx * dt)
   );
-  const clampedNextY = Math.max(
+  const nextY = Math.max(
     player.r + 2,
-    Math.min(canvas.height - player.r - 2, nextY)
+    Math.min(canvas.height - player.r - 2, player.y + vy * dt)
   );
-  const willCollideFull = isCollidingAt(clampedNextX, clampedNextY);
-  if (!willCollideFull) {
-    player.x = clampedNextX;
-    player.y = clampedNextY;
+  if (!isCollidingAt(nextX, nextY)) {
+    player.x = nextX;
+    player.y = nextY;
   } else {
-    const willCollideX = isCollidingAt(clampedNextX, player.y);
-    const willCollideY = isCollidingAt(player.x, clampedNextY);
-    if (!willCollideX) player.x = clampedNextX;
-    if (!willCollideY) player.y = clampedNextY;
+    if (!isCollidingAt(nextX, player.y)) player.x = nextX;
+    else if (!isCollidingAt(player.x, nextY)) player.y = nextY;
   }
-  const moving = vx !== 0 || vy !== 0;
-  if (moving) player.stepPhase += dt * 12;
-  else player.stepPhase = 0;
+  player.stepPhase = vx || vy ? player.stepPhase + dt * 12 : 0;
 
   if (running) _animId = requestAnimationFrame(draw);
-}
-
-function loop() {
-  if (!running) return;
-  draw();
 }
 
 function startSim() {
@@ -251,6 +357,7 @@ function startSim() {
   lastTime = performance.now();
   _animId = requestAnimationFrame(draw);
 }
+
 function pauseSim() {
   running = false;
   if (_animId) cancelAnimationFrame(_animId);
