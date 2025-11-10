@@ -1,4 +1,4 @@
-// sound.js — inicialização e toggle de música do menu
+// inicialização e toggle de música do menu
 (function(){
   function initAutoplay(){
     const a = document.getElementById("musicaFundoMenu");
@@ -15,7 +15,7 @@
       window.addEventListener("keydown", unlock, { once:true });
     });
   }
-  
+
   function initToggle(){
     const a = document.getElementById("musicaFundoMenu");
     const btn = document.getElementById("toggleSound");
