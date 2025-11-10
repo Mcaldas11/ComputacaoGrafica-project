@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>EcoPower</title>
-  <link rel="icon" type="image/x-icon" href="/project/assets/img/icon.png" />
+    <link rel="icon" type="image/x-icon" href="/project/assets/img/icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
     <link
@@ -18,6 +18,10 @@
     <link rel="stylesheet" href="menu.css" />
   </head>
   <body>
+    <audio id="musicaFundoMenu" autoplay>
+      <source src="assets/sound/musicaFundoMenu.mp3" type="audio/mpeg" />
+    </audio>
+
     <div class="menu-wrapper">
       <div
         class="menu-panel menu-main"
@@ -127,6 +131,11 @@
         </p>
       </div>
     </div>
+
+    <script>
+      const musicaFundoMenu = document.getElementById("musicaFundoMenu");
+      musicaFundoMenu.volume = 0.5;
+    </script>
 
     <script>
       // 'Jogar' abre o modal para escolher o modo; 'Personagem' navega para a seleção de personagem
