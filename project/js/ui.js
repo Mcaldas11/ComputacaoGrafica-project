@@ -62,6 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (startClassifierBtn)
       startClassifierBtn.style.display = showMl ? "" : "none";
     if (snapshotBtn) snapshotBtn.style.display = showMl ? "" : "none";
+    // esconder "Repor estados" no modo Desafio
+    if (resetBtn) resetBtn.style.display = mode === "challenge" ? "none" : "";
     if (!showMl && typeof window.stopAllMl === "function") {
       try {
         window.stopAllMl();
