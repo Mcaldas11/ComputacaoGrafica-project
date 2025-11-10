@@ -62,6 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (startClassifierBtn)
       startClassifierBtn.style.display = showMl ? "" : "none";
     if (snapshotBtn) snapshotBtn.style.display = showMl ? "" : "none";
+    // esconder "Repor estados" no modo Desafio
+    if (resetBtn) resetBtn.style.display = mode === "challenge" ? "none" : "";
     if (!showMl && typeof window.stopAllMl === "function") {
       try {
         window.stopAllMl();
@@ -312,6 +314,19 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       return;
     }
+
+    // tocar som de vitória/derrota
+    try {
+      const audiovitoria = document.getElementById("audiovitoria");
+      const audioderrota = document.getElementById("audioderrota");
+      const el = won ? audiovitoria : audioderrota;
+      if (el) {
+        el.currentTime = 0;
+        el.volume = 0.7;
+        const p = el.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }
+    } catch (e) {}
     if (resultTitle) resultTitle.textContent = won ? "Ganhou!" : "Perdeu";
     if (resultMessage)
       resultMessage.textContent = won
