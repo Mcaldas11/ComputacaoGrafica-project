@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>EcoPower</title>
-  <link rel="icon" type="image/x-icon" href="/project/assets/img/icon.png" />
+    <link rel="icon" type="image/x-icon" href="/project/assets/img/icon.png" />
     <link rel="stylesheet" href="style.css" />
     <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
 
@@ -12,6 +12,10 @@
     <script src="js/redirect.js"></script>
   </head>
   <body>
+    <audio id="musicafundo" autoplay>
+      <source src="assets/sound/musicaFundo.mp3" type="audio/mpeg" />
+    </audio>
+
     <header class="hero">
       <h1 class="intro">Poupa energia, poupa o planeta</h1>
       <p class="subtitle">
@@ -146,5 +150,10 @@
     <!-- canvas-confetti: use CDN build so confetti() is available -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="js/ui.js"></script>
+    <script>
+      const musicafundo = document.getElementById("musicafundo");
+
+      musicafundo.volume = 0.5;
+    </script>
   </body>
 </html>
