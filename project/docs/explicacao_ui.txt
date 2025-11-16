@@ -1,0 +1,55 @@
+EcoPower — Explicação de js/ui.js (PT‑PT)
+
+Resumo
+Liga a jogabilidade ao DOM: cliques no canvas, teclado (WASD/setas e tecla E), botões de ML e modais (Ajuda, Clique Desativado, Resultado). Alterna a UI entre os modos "Mundo livre" e "Desafio".
+
+Elementos e cache
+- Canvas e botões: houseCanvas, resetBtn (Repor estados), startHandpose, startClassifier, snapshotClassify.
+- Listagem: deviceList (lista de dispositivos e estados).
+- Modais: helpModal (+helpClose), clickModal (+clickModalClose), resultModal (+resultTitle, resultMessage, resultEnergy, resultRestart, resultClose).
+- Indicador de modo: modeIndicator.
+
+Funções principais
+- setVisible(el, visible)
+  Pequeno helper para mostrar/ocultar um elemento (classe .visible e aria-hidden) — usado em modais.
+
+- setMode(mode)
+  Define window.currentMode e atualiza o texto "Desafio" / "Mundo livre" no indicador de modo.
+
+- updateUIForMode(mode)
+  Altera a interface conforme o modo:
+  • Mostra/oculta a challengeBox (painel do Desafio).
+  • Mostra a mlBox apenas fora do Desafio e, ao entrar no Desafio, tenta parar ML (stopAllMl).
+  • Esconde o botão "Repor estados" no modo Desafio (para não manipular a prova).
+  • Esconde botões de ML no Desafio.
+
+- updateDeviceList()
+  Regenera a lista textual dos dispositivos com label, potência (W) e estado (ON/OFF com cor).
+
+- findDeviceAt(x, y)
+  Procura o dispositivo na posição do clique (colisão simples em retângulo x,y,w,h).
+
+Eventos principais
+- Canvas click
+  No Desafio: mostra modal a avisar que clique está desativado. Fora do Desafio: alterna d.on e chama updateDeviceList().
+
+- Teclado
+  WASD/setas atualizam o mapa keys (em state.js); tecla E chama toggleNearbyDevices() (alterna próximos do jogador).
+
+- Reset
+  "Repor estados": desliga todos os dispositivos, zera energyWh e atualiza a lista (escondido no modo Desafio por UI).
+
+- ML
+  startHandpose: tenta ativar Handpose e muda label para "Parar Handpose"; no erro, mostra mensagem em mlStatus.
+  startClassifier: ativa webcam e classificador; snapshotClassify: tira “foto” e classifica.
+
+- Splash/arranque por hash
+  Se URL tem #start/#sandbox, inicia a simulação e, se for challenge/start, inicia o Desafio (com modal de confirmação retirado via clickModalAcknowledged quando necessário).
+
+- Resultado do Desafio
+  showChallengeResult(won, energyUsed): mostra modal; confetes na vitória; Reiniciar recomeça a simulação e o Desafio; Fechar volta ao menu.
+
+Notas
+- As variáveis globais (devices, energyWh, keys, etc.) são definidas em state.js.
+- O UI protege a privacidade no Desafio ao ocultar e parar ML.
+- O botão "Repor estados" não aparece no Desafio; se quiser impedir via API, pode-se também ignorar a ação quando challengeActive for true.

@@ -1,0 +1,15 @@
+EcoPower — Explicação de js/redirect.js (PT‑PT)
+
+Resumo
+Garante que a primeira página aberta é o menu (menu.html). Se o utilizador aceder a index.html sem hash, faz window.location.replace('menu.html').
+
+Detalhes
+- IIFE (função imediatamente invocada) tenta verificar a hash da URL.
+- Se hash inexistente (""), chama location.replace para navegar para menu.html sem criar histórico (o botão voltar não retorna ao index).
+- Envolvido em try/catch para não bloquear a página em caso de erro.
+
+Quando usar
+- Incluir no <head> do index.html para que a lógica corra antes de renderizar o resto.
+
+Nota
+- Se desejar desativar temporariamente (ex.: depuração), comente a inclusão do script em index.html.

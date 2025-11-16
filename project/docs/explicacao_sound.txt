@@ -1,0 +1,27 @@
+EcoPower — Explicação de js/sound.js (PT‑PT)
+
+Resumo
+Controla a música do menu e fornece um botão de canto para alternar som (mute/unmute). Implementa um desbloqueio simples de autoplay: tenta tocar, e se falhar, volta a tentar no primeiro gesto (clique/tecla).
+
+Estrutura
+- IIFE (função auto-executável) que regista listeners no DOMContentLoaded.
+
+Funções
+- initAutoplay()
+  Obtém o <audio id="musicaFundoMenu">, define volume e tenta a.play(). Se a promessa rejeitar (autoplay bloqueado), regista listeners de "pointerdown" e "keydown" para chamar play() na primeira interação.
+
+- initToggle()
+  Trabalha com o botão #toggleSound (fixo no canto). Atualiza o texto do botão ("🔊 Som" / "🔇 Som") e o atributo aria-pressed em função de a.muted. No clique, alterna a.muted; ao desmutar, chama play().
+
+- DOMContentLoaded
+  Chama initAutoplay() e initToggle().
+
+Integração
+- menu.html deve conter:
+  • <audio id="musicaFundoMenu" autoplay loop preload="auto" muted playsinline> com a fonte mp3.
+  • <button id="toggleSound"> para o toggle.
+  • <script src="js/sound.js"></script> no final do body.
+
+Notas
+- Em alguns browsers o autoplay com som é bloqueado por política: por isso o áudio inicia mute e é desmutado após gesto. Se preferir tentar tocar logo sem muted, remova o atributo muted no HTML e mantenha o fallback de gesto.
+- Pode guardar a preferência (muted) em localStorage para lembrar entre sessões.
