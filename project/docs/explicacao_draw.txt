@@ -1,0 +1,51 @@
+EcoPower — Explicação de js/draw.js (PT‑PT)
+
+Resumo
+Controla o ciclo de renderização (requestAnimationFrame) do canvas principal: desenha o cenário, dispositivos, jogador, efeitos (pulsos), HUD de consumo e a lógica visual do modo Desafio. Inclui a animação de morte (quando o limite é excedido).
+
+Variáveis e elementos
+- canvas, ctx: canvas e contexto 2D (#houseCanvas).
+- running, _animId: estado do loop e id de animação.
+- meterFillEl, powerWEl, energyWhEl, consEl, consIconEl, consTextEl: elementos do HUD de consumo.
+- timerEl, thresholdEl, statusEl: elementos do painel de Desafio.
+- imgMap: mapeia types (light, light2, microwave, tv, fridge, heater) para imagens on/off e verifica se estão carregadas.
+- glowColors: cores RGBA para efeitos de brilho por tipo de dispositivo ligado.
+- deathAnim: { active, t, duration } — estado da animação de morte do jogador.
+
+Funções
+- initCanvas()
+  Obtém referências ao canvas/ctx e aos elementos de HUD/UI. Define dimensões default do canvas se necessário.
+
+- computePowerW()
+  Soma a potência (W) dos devices com on === true.
+
+- endChallenge(win, msg)
+  Rutina de finalização do Desafio: pára o desafio (stopChallenge), pausa a simulação (pauseSim) e manda a UI mostrar o resultado (showChallengeResult) com a energia usada.
+
+- startDeathAnimation()
+  Ativa a animação de morte (active = true, t = 0). É chamada quando o totalW ultrapassa o challengeThresholdW no modo Desafio.
+
+- drawDeathPlayer(dt)
+  Desenha o jogador a encolher (raio reduz até ~15%) e a desvanece (alpha desce). Desenha olhos em “X”.
+
+- draw(timestamp)
+  Loop principal:
+  1) Limpa o canvas e desenha fundo da casa (drawImageCropped) + retângulo de base.
+  2) Dispositivos: brilho (radial gradient) se ligados, imagem on/off, anel ativo pulsante, área de ativação (gradiente até activationRadius).
+  3) Jogador: se deathAnim.active -> desenha animação de morte e, quando termina, chama endChallenge(false). Caso contrário, desenha sombra, corpo (com bob/idle), olhos e anel de proximidade.
+  4) Pulsos: círculos concêntricos com fade baseados em p.t (0..1); removidos quando p.t > 1.
+  5) Energia/HUD: calcula totalW, acumula energyWh (Wh), atualiza barra e textos; estado visual “alto” quando totalW > 800.
+  6) Desafio: atualiza threshold/timer/status. Se a decorrer: diminui challengeRemaining; se totalW > threshold e não há deathAnim -> startDeathAnimation(); vitória (tempo <= 0) só dispara se não estiver em animação de morte.
+  7) Movimento do jogador: ignora durante a animação de morte; caso contrário, calcula velocidade com WASD/setas, aplica dt e impede atravessar dispositivos via isCollidingAt.
+
+- startSim(), pauseSim()
+  Inicia/pára o loop de desenho.
+
+Integração
+- Usa dados/funções de state.js (devices, player, pulses, drawImageCropped, isCollidingAt, etc.).
+- Chama showChallengeResult (exposto por ui.js) ao terminar.
+
+Ajustes/Extensão
+- Novos tipos visuais: adicionar entradas em imgMap e glowColors para novos devices.
+- Parâmetros da animação de morte: alterar deathAnim.duration ou o cálculo de raio/alpha em drawDeathPlayer.
+- Performance: reduzir efeitos, limitar pulses, ou desenhar imagens em offscreen canvas para cache.

@@ -1,0 +1,60 @@
+EcoPower — Explicação de js/ml5.js (PT‑PT)
+
+Resumo
+Integra ml5.js com a aplicação: ativa/desativa a webcam, executa Handpose (deteta mãos) e o classificador MobileNet (objetos). Apresenta estado/resultado na UI e emite ações no jogo (ex.: gesto desliga dispositivos).
+
+Variáveis principais
+- webcamStarted: indica se a webcam está ativa.
+- video: elemento <video id="webcam">.
+- handposeModel: instância ml5.handpose.
+- classifier: instância ml5.imageClassifier (MobileNet).
+- lastGesture: timestamp do último gesto aceite (cooldown de 2s em gestureCooldown).
+- mirrorCanvas/mirrorCtx: canvas temporário para espelhar o frame do vídeo (para o classificador ver a mesma orientação do utilizador).
+- gestureCooldown: 2000 ms por defeito.
+
+Funções
+- setMlStatus(msg)
+  Atualiza o texto em #mlStatus.
+
+- startWebcam()
+  Pede getUserMedia({ video: true }), reproduz o vídeo, espelha horizontalmente (transform: scaleX(-1)) e marca webcamStarted = true. Atualiza o estado em mlStatus; no erro, mostra "Erro ao aceder à câmara".
+
+- startHandpose()
+  Garante webcam ativa (startWebcam) e carrega ml5.handpose(video, { flipHorizontal: true }, callback). No ready, define window.handposeActive = true e liga o ouvinte de "predict" para gotHands.
+
+- stopHandpose()
+  Remove o listener de "predict", limpa a instância e chama stopCamera(). Atualiza mlStatus.
+
+- gotHands(preds)
+  Recebe previsões do Handpose. Se existirem landmarks, calcula a média das coordenadas Y e compara com um limiar (ratio = window.handGestureThresholdRatio || 0.45). Se a mão estiver "alta" e passaram 2s desde o último gesto, desliga todos os dispositivos ON, atualiza a UI (updateDeviceList), mostra mensagem em mlStatus e emite um pulso no centro do canvas.
+
+- startClassifier()
+  Carrega MobileNet com ml5.imageClassifier("MobileNet", callback) após startWebcam().
+
+- snapshotClassify()
+  Captura um frame do vídeo espelhado para mirrorCanvas e chama classifier.classify. Filtra a lista de resultados para categorias suportadas (telemóvel, fones, rato, TV) com um mínimo de confiança (CLASSIFIER_MIN_CONFIDENCE || 0.12). Mostra categoria e consumo médio estimado (getAverageConsumptionForCategory).
+
+- normalizeDeviceCategory(label)
+  Normaliza uma label do classificador para { telemovel | fones | rato | tv } (ou null se não suportado).
+
+- getAverageConsumptionForCategory(cat)
+  Retorna um consumo médio aproximado por categoria (W).
+
+- guessConsumptionFromLabel(l)
+  Atalho: normaliza e devolve o consumo correspondente (ou null).
+
+- stopCamera()
+  Pára todas as tracks do MediaStream e limpa video.srcObject. Marca webcamStarted = false.
+
+- stopAllMl()
+  Para Handpose, limpa classificador (para não reusar) e pára a câmara. Atualiza mlStatus.
+
+Eventos
+- document.visibilitychange: quando o separador fica oculto, pára a câmara e atualiza o estado.
+
+Exports (attach no window)
+- startWebcam, startHandpose, stopHandpose, startClassifier, snapshotClassify, stopAllMl.
+
+Notas e extensões
+- Privacidade no Desafio: ui.js já chama stopAllMl quando entra em modo challenge.
+- Para adicionar novas categorias, ajuste normalizeDeviceCategory e a UI (se desejar exibir mais informação).

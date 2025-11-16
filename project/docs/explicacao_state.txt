@@ -1,0 +1,64 @@
+EcoPower — Explicação de js/state.js (PT‑PT)
+
+Resumo
+Contém o estado global do jogo (dispositivos, jogador, energia) e funções utilitárias: colisões, alternar dispositivos, gestão do modo Desafio, carregamento de imagens e recorte automático de margens escuras nas imagens.
+
+Dados e constantes
+- devices: array de objetos { id, label, type, power, x, y, w, h, on }.
+- player: { x, y, r, speed, stepPhase } — posição/raio/velocidade e fase de passo para animação.
+- _loadImgVar(key, src): helper que cria Image(), define window[`${key}Img`] e window[`${key}Loaded`] e inicia o carregamento.
+- casaImg, salaImg, quartoImg, cozinhaImg, despensaImg, ...: imagens do cenário e dos dispositivos (pares on/off por tipo).
+- allowedAreas: zonas retangulares de referência (não usadas diretamente no movimento atual).
+- keys: mapa de teclas ativas (setas e WASD).
+- activationRadius: raio de interação com dispositivos (para annel de proximidade e tecla E).
+- Energia e Desafio: lastTime, energyWh, challengeActive, challengeDuration, challengeRemaining, challengeThresholdW, challengeStarted, challengeEnergyStart.
+- Random devices: _randomDevicesIntervalId — id do intervalo que liga/desliga dispositivos no Desafio.
+- pulses: array de efeitos visuais (pulsos concêntricos) consumidos pelo render.
+
+Funções principais
+- startRandomDevices(intervalMs = 1200)
+  Liga/desliga um dispositivo aleatório de X em X ms (com jitter). Cria pressão no modo Desafio. Atualiza a lista de dispositivos na UI.
+
+- stopRandomDevices()
+  Cancela o intervalo de aleatoriedade.
+
+- startChallenge(durationSec = 120, thresholdW = 2000)
+  Entra no modo Desafio: prepara duration/threshold, reinicia marcadores, atualiza textos do painel, mostra o modal de aviso de clique desativado e coloca o modo em "challenge".
+
+- beginChallenge()
+  Inicia oficialmente o Desafio: define challengeStarted = true, arranca o ciclo aleatório dos dispositivos e atualiza o status na UI.
+
+- stopChallenge()
+  Pára o Desafio: limpa intervalos, esconde o modal de clique, repõe o modo "sandbox" e flags relacionadas.
+
+- resetChallenge()
+  Limpa apenas as flags (sem modais nem animações). Útil para recomeçar.
+
+- circleIntersectsRect(cx, cy, r, rect)
+  Testa colisão de um círculo (jogador) com um retângulo (dispositivo). Usado para impedir atravessar dispositivos.
+
+- isCollidingAt(cx, cy)
+  Usa circleIntersectsRect contra todos os devices para verificar se a posição proposta colidiria.
+
+- isPointInRect(px, py, rect)
+  Auxiliar para testes de clique numa caixa (x, y, w, h).
+
+- toggleNearbyDevices(radius = activationRadius)
+  Alterna o estado on/off dos dispositivos cuja distância ao centro do jogador é <= radius. Atualiza a lista na UI.
+
+- computeAutoCrop(img, { maxCrop = 0.25, threshold = 30 })
+  Analisa a imagem para detetar margens escuras em todos os lados. Retorna frações {left, top, right, bottom} ou null em erro.
+
+- drawImageCropped(img, dx, dy, dW, dH, defaultCrop = 0.06)
+  Desenha a imagem recortando margens com base em computeAutoCrop (ou um fallback simples se falhar). Usa o ctx global ou o do #houseCanvas.
+
+- turnOffAllLights()
+  Desliga todos os devices com type === "light" e retorna true se pelo menos um mudou.
+
+Integração
+- Consumido por draw.js para renderização e HUD (energia, desafio, pulsos).
+- Consumido por ui.js para interação (tecla E, cliques, modais e arranques/pausas de modos).
+
+Extensão rápida
+- Adicionar dispositivo: inserir objeto em devices e garantir imagens on/off + mapeamento em draw.js (imgMap) e opcionalmente glowColors.
+- Ajustar limites do Desafio: mudar argumentos de startChallenge() ou defaults aqui.
