@@ -123,7 +123,7 @@ let challengeStarted = false;
 let challengeEnergyStart = 0;
 let _randomDevicesIntervalId = null;
 
-// Liga/desliga aleatoriamente dispositivos a intervalos (usado no Desafio)
+// Liga/desliga aleatoriamente dispositivos a intervalos (usado no Desafio) - loop objetos random
 function startRandomDevices(intervalMs = 1200) {
   stopRandomDevices();
   _randomDevicesIntervalId = setInterval(() => {

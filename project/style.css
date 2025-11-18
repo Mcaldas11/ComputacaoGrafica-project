@@ -21,7 +21,7 @@ body {
       rgba(7, 17, 38, 0.65) 0%,
       rgba(11, 33, 48, 0.65) 60%
     ),
-  url("assets/img/background.png");
+    url("assets/img/background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -151,7 +151,7 @@ body {
   display: none;
 }
 
-/* animar painel para entrada/saída suave */
+/* animação painel para entrada/saída suave */
 .splash-panel {
   transition: transform 380ms cubic-bezier(0.2, 0.9, 0.2, 1), opacity 320ms ease;
   transform-origin: center;
@@ -289,6 +289,7 @@ canvas {
 }
 
 @keyframes consumptionPulse {
+  /* animação de aviso de consumo elevado */
   0% {
     transform: scale(1);
     filter: drop-shadow(0 0 0 rgba(255, 77, 77, 0));
@@ -340,6 +341,7 @@ canvas {
 }
 
 @keyframes introPulse {
+  /* animação texto menu */
   0% {
     transform: translateY(0);
     opacity: 0.9;

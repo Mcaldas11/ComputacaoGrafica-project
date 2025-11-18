@@ -118,7 +118,7 @@ function drawDeathPlayer(dt) {
   const alpha = 1 - progress;
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = (localStorage.getItem("selectedColor") || "#ffdd88");
+  ctx.fillStyle = localStorage.getItem("selectedColor") || "#ffdd88";
   ctx.strokeStyle = "#2b2b2b";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -269,7 +269,9 @@ function draw(timestamp) {
     ctx.stroke();
 
     // olhos
-    const eyeOffset = player.stepPhase ? Math.sin(player.stepPhase * 2) * 0.6 : 0;
+    const eyeOffset = player.stepPhase
+      ? Math.sin(player.stepPhase * 2) * 0.6
+      : 0;
     ctx.fillStyle = "#2b2b2b";
     ctx.beginPath();
     ctx.arc(player.x - 5, player.y - 2 + bob + eyeOffset, 2, 0, Math.PI * 2);
@@ -398,7 +400,7 @@ function startSim() {
   if (!ctx) initCanvas();
   running = true;
   lastTime = performance.now();
-  _animId = requestAnimationFrame(draw);
+  _animId = requestAnimationFrame(draw); // loop de desenho de fundo
 }
 
 function pauseSim() {

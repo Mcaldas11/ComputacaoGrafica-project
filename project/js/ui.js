@@ -305,6 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   window.showChallengeResult = function (won, energyUsed) {
+    // loop confetes
     if (!resultModal) {
       alert(
         (won ? "Ganhou — " : "Perdeu — ") +
